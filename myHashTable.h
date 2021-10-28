@@ -22,25 +22,30 @@ class myHashTable {
         vector<float> tParameters;
 
         //a hash table of sets
-        set<vector<float>*>* myHash;
+        set< pair< vector<float>*,unsigned int > >* myHash;
+
+        //count of buckets
+        unsigned int myHashSize;
 
     public:
 
-        myHashTable(unsigned int k, unsigned int N, unsigned int w);
+        myHashTable(unsigned int k, unsigned int N, unsigned int w, unsigned int dimensions);
         ~myHashTable();
 
-        void storeInHash(unsigned int index, vector<float>* point);
+        void storeInHash(unsigned int index, vector<float>* point, unsigned int pointID);
 
         pair<vector<float>,float> getVTParameters(unsigned int index);
 
-        priority_queue<vector<float>*> approximateKNN(unsigned int neighbours,
-            unsigned int index, vector<float>* point);
+        priority_queue<pair<unsigned int, vector<float>*> > approximateKNN(unsigned int neighbours,
+            unsigned int index, vector<float>* point, unsigned int pointID);
 
-        priority_queue<vector<float>*> exactKNN(unsigned int neighbours, 
+        priority_queue<pair<unsigned int, vector<float>*> > exactKNN(unsigned int neighbours, 
             vector<float>* point);
             
         set<vector<float>*> rangeSearch(unsigned int radius, unsigned int index, 
-            vector<float>* point);
+            vector<float>* point, unsigned int pointID);
+
+        void deleteAllAllocatedPoints();
 };
 
 #endif
