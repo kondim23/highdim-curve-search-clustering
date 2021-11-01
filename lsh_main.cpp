@@ -2,7 +2,9 @@
 #include <string.h>
 #include <fstream>
 #include <sstream>
+#include <ctime>
 #include "lsh.h"
+#include "point.h"
 
 #define WINDOWSIZE 6
 
@@ -11,13 +13,19 @@ using namespace std;
 int main(int argc, char* argv[]){
 
     unsigned int k=4, L=1, N=5, R=10000, inputPointCount=0, inputPointDimensions=-1;
-    string inputFileName, queryFileName, outputFileName, point, token; 
+    string inputFileName, queryFileName, outputFileName, point, token, pointID;
     ofstream outputFileStream;
     ifstream inputFileStream, queryFileStream;
     stringstream pointStream;
-    vector<float> *pointVector;
-    priority_queue<pair<double,vector<float>*> > resultPQueueApproximateKNN, resultPQueueExactKNN;
+    vector<float> pointVector;
+    priority_queue<pair<double,Point*> > resultPQueueApproximateKNN, resultPQueueExactKNN;
+    set<Point*> resultInRange;
+    time_t start, stop;
+    double approximateTime, exactTime;
 
+
+
+    //check and get arguments
     if (argc%2==0 or argc>17){
 
         cout << "Error in command line arguments" << endl;
@@ -35,6 +43,8 @@ int main(int argc, char* argv[]){
 		else if(!strcmp(argv[i],"-R")) R = atoi(argv[i+1]);
     }
 
+
+
     //opening files
     outputFileStream.open(outputFileName);
     inputFileStream.open(inputFileName);
@@ -45,6 +55,8 @@ int main(int argc, char* argv[]){
         cout << "Error if file arguments." << endl;
         return 1;
     }
+
+
 
     //calculating count of input points 
     while (inputFileStream){
@@ -63,8 +75,10 @@ int main(int argc, char* argv[]){
     inputFileStream.seekg(SEEK_SET);
 
 
-    //lsh initialization
+
+    //lsh system initialization
     LSH lsh(k,L,inputPointCount,WINDOWSIZE,inputPointDimensions);
+
 
 
     //insert points in lsh system
@@ -73,10 +87,84 @@ int main(int argc, char* argv[]){
         getline(inputFileStream,point);
         pointStream.str(point);
 
-        //a inside-lsh allocation on an adt is a better idea
-        pointVector = new vector<float>;
-        while (getline(pointStream,token,' ')) pointVector->push_back(stof(token));
+        //pointID holds the id of point
+        getline(pointStream,pointID,' ');
 
-        lsh.insertInHashes(pointVector);
+        //collect all vector components
+        while (getline(pointStream,token,' ')) pointVector.push_back(stof(token));
+
+        Point currentPoint(pointID,pointVector);
+
+        //insert vector to lsh system
+        lsh.insertInHashes(currentPoint);
+
+        pointVector.clear();
     }
+
+
+    while (queryFileStream){
+
+        getline(queryFileStream,point);
+        pointStream.str(point);
+
+        //get Query ID
+        getline(pointStream,pointID,' ');
+
+        cout << "Query: " << pointID << endl;
+
+        //update pointVector with query components
+        while (getline(pointStream,token,' ')) pointVector.push_back(stof(token));
+
+        Point currentPoint(pointID,pointVector);
+
+        //call approximate knn and count execution time 
+        start = time(NULL);
+        resultPQueueApproximateKNN = lsh.approximateKNN(N,currentPoint);
+        stop = time(NULL);
+
+        approximateTime = difftime(start,stop);
+
+        //call exact knn and count execution time 
+        start = time(NULL);
+        resultPQueueExactKNN = lsh.exactKNN(N,currentPoint);
+        stop = time(NULL);
+
+        exactTime = difftime(start,stop);
+
+        //print knn results
+        knnRecursivePrint(resultPQueueApproximateKNN,resultPQueueExactKNN);
+
+        //print execution times
+        cout << "tLSH: " << approximateTime << endl;
+        cout << "tTrue: " << exactTime << endl;
+
+        //perform range search and print results
+        resultInRange = lsh.rangeSearch(R,currentPoint);
+
+        cout << "R-near neighbours:" << endl;
+
+        for (Point* pointPtr : resultInRange)
+            cout << pointPtr->getID() << endl;
+    }
+}
+
+//recursive print of elements in priority queues of KNN
+unsigned int knnRecursivePrint(priority_queue<pair<double,Point*> > &approximateQueue,
+                    priority_queue<pair<double,Point*> > &exactQueue){
+
+    if (approximateQueue.empty() or exactQueue.empty()) return 1;
+
+    pair<double,Point*> approximateNeighbour = approximateQueue.top();
+    pair<double,Point*> exactNeighbour = exactQueue.top();
+
+    approximateQueue.pop();
+    exactQueue.pop();
+
+    unsigned int index = knnRecursivePrint(approximateQueue,exactQueue);
+
+    cout << "Nearest neighbour-" << index << ": " << approximateNeighbour.second->getID() << endl;
+    cout << "distanceLSH: " << approximateNeighbour.first;
+    cout << "distanceTrue: " << exactNeighbour.first;
+
+    return index+1;
 }

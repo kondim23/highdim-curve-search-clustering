@@ -5,6 +5,7 @@
 #include <set>
 #include <queue>
 #include <utility>
+#include "point.h"
 
 using std::vector;
 using std::set;
@@ -22,7 +23,7 @@ class myHashTable {
         vector<float> tParameters;
 
         //a hash table of sets
-        set< pair< vector<float>*,int > >* myHash;
+        set< pair< Point*,int > >* myHash;
 
         //count of buckets
         unsigned int myHashSize;
@@ -32,18 +33,16 @@ class myHashTable {
         myHashTable(unsigned int k, unsigned int N, unsigned int w, unsigned int dimensions);
         ~myHashTable();
 
-        void storeInHash(unsigned int index, vector<float>* point, int pointID);
+        void storeInHash(unsigned int index, Point* point, int pointID);
 
         pair<vector<float>,float> getVTParameters(unsigned int index);
 
-        priority_queue<pair<double, vector<float>*> > approximateKNN(unsigned int neighbours,
-            unsigned int index, vector<float>* point, int pointID);
+        priority_queue<pair<double, Point*> > approximateKNN(unsigned int neighbours,
+            unsigned int index, Point& point, int pointID);
 
-        priority_queue<pair<double, vector<float>*> > exactKNN(unsigned int neighbours, 
-            vector<float>* point);
+        priority_queue<pair<double, Point*> > exactKNN(unsigned int neighbours, Point& point);
             
-        set<vector<float>*> rangeSearch(double radius, unsigned int index, 
-            vector<float>* point, int pointID);
+        set<Point*> rangeSearch(double radius, unsigned int index, Point& point, int pointID);
 
         void deleteAllAllocatedPoints();
 };

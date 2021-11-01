@@ -11,7 +11,7 @@ typedef enum{ZERO,HAMMING,EUCLIDEAN} normType;
 myHashTable::myHashTable(unsigned int k, unsigned int N, unsigned int w, unsigned int dimensions){
 
     //initialize a hash of N buckets
-    this->myHash = new set<pair<vector<float>*,int> > [N];
+    this->myHash = new set<pair<Point*,int> > [N];
     this->myHashSize = N;
 
     default_random_engine generator(time(NULL));
@@ -36,22 +36,22 @@ myHashTable::~myHashTable(){
     delete(this->myHash);
 }
 
-void myHashTable::storeInHash(unsigned int index, vector<float>* point, int pointID){
+void myHashTable::storeInHash(unsigned int index, Point* point, int pointID){
 
     //store a pair <pointPtr,ID(point)> in Hash[index]
-    this->myHash[index].insert(pair<vector<float>*,int>(point,pointID));
+    this->myHash[index].insert(make_pair(point,pointID));
     return;
 }
 
 pair<vector<float>,float> myHashTable::getVTParameters(unsigned int index){
 
     //return a pair <v,t> for calculation of h[index] function where index in [0,k]
-    return pair<vector<float>,float> (this->vParameters.at(index),this->tParameters.at(index));
+    return make_pair(this->vParameters.at(index),this->tParameters.at(index));
 }
 
 void myHashTable::deleteAllAllocatedPoints(){
 
-    set<pair<vector<float>*,int> >::iterator itr;
+    set<pair<Point*,int> >::iterator itr;
 
     //in every bucket
     for(int i=0 ; i<this->myHashSize ; i++)
@@ -63,30 +63,30 @@ void myHashTable::deleteAllAllocatedPoints(){
     return;
 }
 
-priority_queue<pair<double, vector<float>*> > myHashTable::approximateKNN(unsigned int neighboursCount, 
-    unsigned int index, vector<float>* point, int pointID){
+priority_queue<pair<double, Point*> > myHashTable::approximateKNN(unsigned int neighboursCount, 
+    unsigned int index, Point& point, int pointID){
 
-    set<pair<vector<float>*,int> >::iterator itr;
+    set<pair<Point*,int> >::iterator itr;
 
     //the queue to be returned 
-    priority_queue<pair<double, vector<float>*> > neighboursQueue;
+    priority_queue<pair<double, Point*> > neighboursQueue;
     double currentDistance;
 
     //for every point in bucket myHash[index]
     for(itr = this->myHash[index].begin(); itr != this->myHash[index].end(); itr++) {
 
-        if ((*itr).second==pointID){
+        if (itr->second==pointID){
 
-            currentDistance = calculate_distance(EUCLIDEAN,(*itr).first,point);
+            currentDistance = calculate_distance(EUCLIDEAN,itr->first->getvector(),point.getvector());
 
             //queue not full
             if (neighboursQueue.size()<neighboursCount)
-                neighboursQueue.push(make_pair(currentDistance,(*itr).first));
+                neighboursQueue.push(make_pair(currentDistance,itr->first));
 
             //found new k-th nearest neighbour
             else if (currentDistance<neighboursQueue.top().first){
 
-                neighboursQueue.push(make_pair(currentDistance,(*itr).first));
+                neighboursQueue.push(make_pair(currentDistance,itr->first));
                 neighboursQueue.pop();
             }
         }
@@ -97,32 +97,28 @@ priority_queue<pair<double, vector<float>*> > myHashTable::approximateKNN(unsign
     return neighboursQueue;
 }
 
-set<vector<float>*> myHashTable::rangeSearch(double radius, unsigned int index, vector<float>* point, int pointID){
+set<Point*> myHashTable::rangeSearch(double radius, unsigned int index, Point& point, int pointID){
     
-    set<pair<vector<float>*,int> >::iterator itr;
-    set<vector<float>*> setToReturn;
+    set<pair<Point*,int> >::iterator itr;
+    set<Point*> setToReturn;
     double currentDistance;
 
     //for every point in bucket myHash[index]
     for(itr = this->myHash[index].begin(); itr != this->myHash[index].end(); itr++) {
 
-        if ((*itr).second==pointID){
-
-            currentDistance = calculate_distance(EUCLIDEAN,(*itr).first,point);
-            
             //insert in set if point in radius
-            if (calculate_distance(EUCLIDEAN,(*itr).first,point)<=radius) 
-                setToReturn.insert((*itr).first);
-        }
+        if (itr->second==pointID and 
+            calculate_distance(EUCLIDEAN,itr->first->getvector(),point.getvector())<=radius) 
+                setToReturn.insert(itr->first);
     }
 
     return setToReturn;
 }
 
-priority_queue<pair<double, vector<float>*> > myHashTable::exactKNN(unsigned int neighboursCount, vector<float>* point){
+priority_queue<pair<double, Point*> > myHashTable::exactKNN(unsigned int neighboursCount, Point& point){
 
-    set<pair<vector<float>*,int> >::iterator itr;
-    priority_queue<pair<double, vector<float>*> > neighboursQueue;
+    set<pair<Point*,int> >::iterator itr;
+    priority_queue<pair<double, Point*> > neighboursQueue;
     double currentDistance;
 
     //for every bucket
@@ -131,16 +127,16 @@ priority_queue<pair<double, vector<float>*> > myHashTable::exactKNN(unsigned int
         //for every point in bucket myHash[index]
         for (itr = this->myHash[i].begin(); itr != this->myHash[i].end(); itr++){
 
-            currentDistance = calculate_distance(EUCLIDEAN,(*itr).first,point);
+            currentDistance = calculate_distance(EUCLIDEAN,itr->first->getvector(),point.getvector());
 
             //queue not full
             if (neighboursQueue.size()<neighboursCount)
-                neighboursQueue.push(make_pair(currentDistance,(*itr).first));
+                neighboursQueue.push(make_pair(currentDistance,itr->first));
 
             //found new k-th nearest neighbour
             else if (currentDistance<neighboursQueue.top().first){
 
-                neighboursQueue.push(make_pair(currentDistance,(*itr).first));
+                neighboursQueue.push(make_pair(currentDistance,itr->first));
                 neighboursQueue.pop();
             }
         }

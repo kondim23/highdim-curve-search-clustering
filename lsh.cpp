@@ -30,7 +30,7 @@ LSH::LSH (unsigned int k, unsigned int L, unsigned int N, unsigned int givenW, u
 
 LSH::~LSH(){}
 
-pair<unsigned int, int> LSH::hashFunction(unsigned int hashID, vector<float>* point){
+pair<unsigned int, int> LSH::hashFunction(unsigned int hashID, Point& point){
 
     long long int result=0;
 
@@ -43,7 +43,7 @@ pair<unsigned int, int> LSH::hashFunction(unsigned int hashID, vector<float>* po
         currentVTParameters = this->myHashes.at(hashID).getVTParameters(i);
 
         //calculating sum of r_i*h_i ;  That is  r_i*((v*p)+t)/w 
-        result+= this->rParameters.at(i) * ((vector_multiply(point,&(currentVTParameters.first))+currentVTParameters.second)/w);
+        result+= this->rParameters.at(i) * ((vector_multiply(point.getvector(),currentVTParameters.first)+currentVTParameters.second)/w);
     }
 
     //(r_i*h_i)%2^32
@@ -54,25 +54,27 @@ pair<unsigned int, int> LSH::hashFunction(unsigned int hashID, vector<float>* po
 }
 
 
-void LSH::insertInHashes(vector<float>* point){
+void LSH::insertInHashes(Point& point){
 
     pair<unsigned int, int> hashFunctionResults;
+
+    Point* pointPtr = new Point(point);
 
     for (int i=0 ; i<this->myHashes.size() ; i++){
 
         //get index(point), ID(point) and store point.
         hashFunctionResults = this->hashFunction(i,point);
-        this->myHashes.at(i).storeInHash(hashFunctionResults.first,point,hashFunctionResults.second);
+        this->myHashes.at(i).storeInHash(hashFunctionResults.first,pointPtr,hashFunctionResults.second);
     }
 
     return;
 }
 
 
-priority_queue<pair<double, vector<float>*> > LSH::approximateKNN(unsigned int neighboursCount, vector<float>* point){
+priority_queue<pair<double, Point*> > LSH::approximateKNN(unsigned int neighboursCount, Point& point){
 
     pair<unsigned int, int> hashFunctionResults;
-    priority_queue<pair<double, vector<float>*> > neighboursQueue, tempQueue;
+    priority_queue<pair<double, Point*> > neighboursQueue, tempQueue;
 
 
     for (int i=0 ; i<this->myHashes.size() ; i++){
@@ -99,9 +101,9 @@ priority_queue<pair<double, vector<float>*> > LSH::approximateKNN(unsigned int n
 }
 
 
-set<vector<float>*> LSH::rangeSearch(unsigned int radius, vector<float>* point){
+set<Point*> LSH::rangeSearch(unsigned int radius, Point& point){
 
-    set<vector<float>*> pointsInRange, tempSet;
+    set<Point*> pointsInRange, tempSet;
     pair<unsigned int, int> hashFunctionResults;
 
     for (int i=0 ; i<this->myHashes.size() ; i++){
@@ -113,7 +115,7 @@ set<vector<float>*> LSH::rangeSearch(unsigned int radius, vector<float>* point){
         tempSet = this->myHashes.at(i).rangeSearch(radius,hashFunctionResults.first,point,hashFunctionResults.second);
 
         //insert elements in result set excluding duplicates
-        for(vector<float>* item : tempSet)
+        for(Point* item : tempSet)
             if(pointsInRange.find(item) != pointsInRange.end())
                 pointsInRange.insert(item);
     }
@@ -122,7 +124,7 @@ set<vector<float>*> LSH::rangeSearch(unsigned int radius, vector<float>* point){
 }
 
 
-priority_queue<pair<double, vector<float>*> > LSH::exactKNN(unsigned int neighbours, vector<float>* point){
+priority_queue<pair<double, Point*> > LSH::exactKNN(unsigned int neighbours, Point& point){
 
     return this->myHashes.at(0).exactKNN(neighbours,point);
 }
