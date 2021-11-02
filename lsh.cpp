@@ -3,6 +3,7 @@
 #include "lsh.h"
 #include "myHashTable.h"
 #include "utils.h"
+#include "PQUnique.h"
 
 #define BUCKET_MEAN_CAPACITY 8
 
@@ -71,11 +72,9 @@ void LSH::insertInHashes(Point& point){
 }
 
 
-priority_queue<pair<double, Point*> > LSH::approximateKNN(unsigned int neighboursCount, Point& point){
+void LSH::approximateKNN(PQUnique<pair<double, Point*> > &neighboursQueue, Point& point){
 
     pair<unsigned int, int> hashFunctionResults;
-    priority_queue<pair<double, Point*> > neighboursQueue, tempQueue;
-
 
     for (int i=0 ; i<this->myHashes.size() ; i++){
 
@@ -83,21 +82,10 @@ priority_queue<pair<double, Point*> > LSH::approximateKNN(unsigned int neighbour
         hashFunctionResults = this->hashFunction(i,point);
 
         //get knn for hash with hashID==i
-        tempQueue = this->myHashes.at(i).approximateKNN(neighboursCount,hashFunctionResults.first,point,hashFunctionResults.second);
-
-        //insert all items in result priority queue
-        while(!tempQueue.empty()){
-
-            neighboursQueue.push(tempQueue.top());
-            tempQueue.pop();
-        }        
+        this->myHashes.at(i).approximateKNN(neighboursQueue,hashFunctionResults.first,point,hashFunctionResults.second);        
     }
 
-    //keep only the knn
-    while(neighboursQueue.size()>neighboursCount) 
-        neighboursQueue.pop();
-
-    return neighboursQueue;
+    return;
 }
 
 

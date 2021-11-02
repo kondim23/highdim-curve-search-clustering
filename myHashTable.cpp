@@ -3,6 +3,7 @@
 #include <random>
 #include "myHashTable.h"
 #include "utils.h"
+#include "PQUnique.h"
 
 using namespace std;
 
@@ -63,7 +64,7 @@ void myHashTable::deleteAllAllocatedPoints(){
     return;
 }
 
-priority_queue<pair<double, Point*> > myHashTable::approximateKNN(unsigned int neighboursCount, 
+void myHashTable::approximateKNN(PQUnique<pair<double, Point*> > &pqUnique,
     unsigned int index, Point& point, int pointID){
 
     set<pair<Point*,int> >::iterator itr;
@@ -79,22 +80,12 @@ priority_queue<pair<double, Point*> > myHashTable::approximateKNN(unsigned int n
 
             currentDistance = calculate_distance(EUCLIDEAN,itr->first->getvector(),point.getvector());
 
-            //queue not full
-            if (neighboursQueue.size()<neighboursCount)
-                neighboursQueue.push(make_pair(currentDistance,itr->first));
-
-            //found new k-th nearest neighbour
-            else if (currentDistance<neighboursQueue.top().first){
-
-                neighboursQueue.push(make_pair(currentDistance,itr->first));
-                neighboursQueue.pop();
-            }
+            //insert in size-limited PQUnique list
+            pqUnique.insert(make_pair(currentDistance,itr->first));
         }
     }
 
-    //TODO: #1 Must return k neighbours.
-
-    return neighboursQueue;
+    return;
 }
 
 set<Point*> myHashTable::rangeSearch(double radius, unsigned int index, Point& point, int pointID){

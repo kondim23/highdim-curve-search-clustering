@@ -5,6 +5,7 @@
 #include <ctime>
 #include "lsh.h"
 #include "point.h"
+#include "PQUnique.h"
 
 #define WINDOWSIZE 6
 
@@ -18,7 +19,8 @@ int main(int argc, char* argv[]){
     ifstream inputFileStream, queryFileStream;
     stringstream pointStream;
     vector<float> pointVector;
-    priority_queue<pair<double,Point*> > resultPQueueApproximateKNN, resultPQueueExactKNN;
+    priority_queue<pair<double,Point*> > resultPQueueExactKNN;
+    PQUnique<pair<double,Point*> >resultPQueueApproximateKNN;
     set<Point*> resultInRange;
     time_t start, stop;
     double approximateTime, exactTime;
@@ -117,9 +119,10 @@ int main(int argc, char* argv[]){
 
         Point currentPoint(pointID,pointVector);
 
-        //call approximate knn and count execution time 
+        //call approximate knn and count execution time
+        //resultPQueueApproximateKNN has max length N
         start = time(NULL);
-        resultPQueueApproximateKNN = lsh.approximateKNN(N,currentPoint);
+        lsh.approximateKNN(resultPQueueApproximateKNN,currentPoint);
         stop = time(NULL);
 
         approximateTime = difftime(start,stop);
@@ -130,6 +133,10 @@ int main(int argc, char* argv[]){
         stop = time(NULL);
 
         exactTime = difftime(start,stop);
+
+        //both priority queues must have same length
+        while (resultPQueueApproximateKNN.size() < resultPQueueExactKNN.size())
+            resultPQueueExactKNN.pop();
 
         //print knn results
         knnRecursivePrint(resultPQueueApproximateKNN,resultPQueueExactKNN);
@@ -149,15 +156,14 @@ int main(int argc, char* argv[]){
 }
 
 //recursive print of elements in priority queues of KNN
-unsigned int knnRecursivePrint(priority_queue<pair<double,Point*> > &approximateQueue,
+unsigned int knnRecursivePrint(PQUnique<pair<double,Point*> > &approximateQueue,
                     priority_queue<pair<double,Point*> > &exactQueue){
 
     if (approximateQueue.empty() or exactQueue.empty()) return 1;
 
-    pair<double,Point*> approximateNeighbour = approximateQueue.top();
-    pair<double,Point*> exactNeighbour = exactQueue.top();
+    pair<double,Point*> approximateNeighbour = approximateQueue.pop();
 
-    approximateQueue.pop();
+    pair<double,Point*> exactNeighbour = exactQueue.top();
     exactQueue.pop();
 
     unsigned int index = knnRecursivePrint(approximateQueue,exactQueue);

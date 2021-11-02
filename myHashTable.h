@@ -37,7 +37,7 @@ class myHashTable {
 
         pair<vector<float>,float> getVTParameters(unsigned int index);
 
-        priority_queue<pair<double, Point*> > approximateKNN(unsigned int neighbours,
+        void approximateKNN(PQUnique<pair<double, Point*> > &pqUnique,
             unsigned int index, Point& point, int pointID);
 
         priority_queue<pair<double, Point*> > exactKNN(unsigned int neighbours, Point& point);

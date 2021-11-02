@@ -29,11 +29,9 @@ class LSH {
 
         void insertInHashes(Point& point);
 
-        priority_queue<pair<double, Point*> > approximateKNN(unsigned int neighbours, 
-            Point& point);
+        void approximateKNN(PQUnique<pair<double, Point*> > &neighboursQueue, Point& point);
 
-        priority_queue<pair<double, Point*> > exactKNN(unsigned int neighbours, 
-            Point& point);
+        priority_queue<pair<double, Point*> > exactKNN(unsigned int neighbours, Point& point);
 
         set<Point*> rangeSearch(unsigned int radius, Point& point);
 };
