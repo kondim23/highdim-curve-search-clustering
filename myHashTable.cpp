@@ -4,6 +4,7 @@
 #include "myHashTable.h"
 #include "utils.h"
 #include "PQUnique.h"
+#include "PQUnique.t.hpp"
 
 using namespace std;
 

@@ -1,15 +1,21 @@
 #include <iostream>
 #include <string.h>
+#include <stdio.h>
 #include <fstream>
 #include <sstream>
 #include <ctime>
+#include <cstring>
 #include "lsh.h"
 #include "point.h"
 #include "PQUnique.h"
+#include "PQUnique.t.hpp"
 
 #define WINDOWSIZE 6
 
 using namespace std;
+
+unsigned int knnRecursivePrint(PQUnique<pair<double,Point*> > &approximateQueue,
+                                priority_queue<pair<double,Point*> > &exactQueue);
 
 int main(int argc, char* argv[]){
 
@@ -20,7 +26,6 @@ int main(int argc, char* argv[]){
     stringstream pointStream;
     vector<float> pointVector;
     priority_queue<pair<double,Point*> > resultPQueueExactKNN;
-    PQUnique<pair<double,Point*> >resultPQueueApproximateKNN;
     set<Point*> resultInRange;
     time_t start, stop;
     double approximateTime, exactTime;
@@ -45,7 +50,7 @@ int main(int argc, char* argv[]){
 		else if(!strcmp(argv[i],"-R")) R = atoi(argv[i+1]);
     }
 
-
+    PQUnique<pair<double,Point*> >resultPQueueApproximateKNN(N);
 
     //opening files
     outputFileStream.open(outputFileName);
@@ -54,7 +59,7 @@ int main(int argc, char* argv[]){
 
     if (not (outputFileStream and inputFileStream and queryFileStream)) {
 
-        cout << "Error if file arguments." << endl;
+        cout << "Error in file arguments." << endl;
         return 1;
     }
 

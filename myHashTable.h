@@ -6,6 +6,7 @@
 #include <queue>
 #include <utility>
 #include "point.h"
+#include "PQUnique.h"
 
 using std::vector;
 using std::set;

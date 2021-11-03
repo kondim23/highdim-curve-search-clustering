@@ -4,7 +4,7 @@
 using namespace std;
 
 template <typename T>
-PQUnique<T>::PQUnique(unsigned int size=INT32_MAX){
+PQUnique<T>::PQUnique(unsigned int size){
 
     this->sizeQueue=size;
 }
