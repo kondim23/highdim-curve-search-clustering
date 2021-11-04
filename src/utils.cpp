@@ -1,6 +1,6 @@
 #include <iostream>
 #include <cmath>
-#include "utils.h"
+#include "../include/utils.h"
 
 using namespace std;
 
@@ -22,7 +22,7 @@ double calculate_distance(float normSize, vector<float>& vector1,vector<float>& 
 //needs add of cos(φ)
 double vector_multiply(vector<float>& vector1,vector<float>& vector2){
 
-    float result=0;
+    double result=0;
 
     for (int i=0 ; i<vector1.size() ; i++) 
         result+=vector1.at(i)*vector2.at(i);

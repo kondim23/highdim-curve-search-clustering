@@ -24,7 +24,7 @@ class myHashTable {
         vector<float> tParameters;
 
         //a hash table of sets
-        set< pair< Point*,int > >* myHash;
+        vector<set< pair< Point*,int > > > myHash;
 
         //count of buckets
         unsigned int myHashSize;

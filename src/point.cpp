@@ -1,5 +1,5 @@
 #include <iostream>
-#include "point.h"
+#include "../include/point.h"
 
 Point::Point(string id, vector<float> &pointVector){
 

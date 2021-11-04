@@ -24,7 +24,7 @@ class LSH {
 
     public:
 
-        LSH (unsigned int k, unsigned int L, unsigned int N, unsigned int w, unsigned int dimensions);
+        LSH (unsigned int k, unsigned int L, unsigned int N, unsigned int dimensions);
         ~LSH ();
 
         void insertInHashes(Point& point);

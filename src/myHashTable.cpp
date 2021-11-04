@@ -1,10 +1,10 @@
 #include <iostream>
 #include <ctime>
 #include <random>
-#include "myHashTable.h"
-#include "utils.h"
-#include "PQUnique.h"
-#include "PQUnique.t.hpp"
+#include "../include/myHashTable.h"
+#include "../include/utils.h"
+#include "../include/PQUnique.h"
+#include "../include/PQUnique.t.hpp"
 
 using namespace std;
 
@@ -13,7 +13,7 @@ typedef enum{ZERO,HAMMING,EUCLIDEAN} normType;
 myHashTable::myHashTable(unsigned int k, unsigned int N, unsigned int w, unsigned int dimensions){
 
     //initialize a hash of N buckets
-    this->myHash = new set<pair<Point*,int> > [N];
+    for (int i=0 ; i<N ; i++) this->myHash.push_back(set<pair<Point*,int> >());
     this->myHashSize = N;
 
     default_random_engine generator(time(NULL));
@@ -33,10 +33,7 @@ myHashTable::myHashTable(unsigned int k, unsigned int N, unsigned int w, unsigne
     }
 }
 
-myHashTable::~myHashTable(){
-
-    delete(this->myHash);
-}
+myHashTable::~myHashTable(){}
 
 void myHashTable::storeInHash(unsigned int index, Point* point, int pointID){
 

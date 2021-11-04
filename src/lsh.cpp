@@ -1,32 +1,33 @@
 #include <iostream>
 #include <vector>
-#include "lsh.h"
-#include "myHashTable.h"
-#include "utils.h"
-#include "PQUnique.h"
-#include "PQUnique.t.hpp"
+#include "../include/lsh.h"
+#include "../include/myHashTable.h"
+#include "../include/utils.h"
+#include "../include/PQUnique.h"
+#include "../include/PQUnique.t.hpp"
 
 #define BUCKET_MEAN_CAPACITY 8
+#define WINDOW_SIZE 6.0
 
 using namespace std;
 
-static unsigned int w, tableSize;
+static unsigned int tableSize;
 
-LSH::LSH (unsigned int k, unsigned int L, unsigned int N, unsigned int givenW, unsigned int dimensions){
+LSH::LSH (unsigned int k, unsigned int L, unsigned int N, unsigned int dimensions){
 
     srand(time(NULL));
 
     //global static variables
-    w = givenW;
-    tableSize = N/BUCKET_MEAN_CAPACITY;
+    tableSize = N/BUCKET_MEAN_CAPACITY+1;
 
     //initialize lsh hash tables
-    for (int i=0 ; i<L ; i++) 
-        this->myHashes.push_back(myHashTable(k,tableSize,givenW,dimensions));
+    for (int i=0 ; i<L ; i++) {
+        myHashTable temp(k,tableSize,WINDOW_SIZE,dimensions);
+        this->myHashes.push_back(temp);}
     
     //initialize random r-parameters for g function calculation
     for (int i=0 ; i<k ; i++)
-        this->rParameters.push_back((abs(rand()))%INT32_MAX);
+        this->rParameters.push_back((abs(rand()))%10);
 
 }
 
@@ -45,7 +46,7 @@ pair<unsigned int, int> LSH::hashFunction(unsigned int hashID, Point& point){
         currentVTParameters = this->myHashes.at(hashID).getVTParameters(i);
 
         //calculating sum of r_i*h_i ;  That is  r_i*((v*p)+t)/w 
-        result+= this->rParameters.at(i) * ((vector_multiply(point.getvector(),currentVTParameters.first)+currentVTParameters.second)/w);
+        result+= this->rParameters.at(i) * static_cast<int>((vector_multiply(point.getvector(),currentVTParameters.first)+currentVTParameters.second)/WINDOW_SIZE);
     }
 
     //(r_i*h_i)%2^32

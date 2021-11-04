@@ -1,16 +1,12 @@
+#include <cstring>
 #include <iostream>
-#include <string.h>
-#include <stdio.h>
 #include <fstream>
 #include <sstream>
 #include <ctime>
-#include <cstring>
-#include "lsh.h"
-#include "point.h"
-#include "PQUnique.h"
-#include "PQUnique.t.hpp"
-
-#define WINDOWSIZE 6
+#include "../include/lsh.h"
+#include "../include/point.h"
+#include "../include/PQUnique.h"
+#include "../include/PQUnique.t.hpp"
 
 using namespace std;
 
@@ -19,7 +15,8 @@ unsigned int knnRecursivePrint(PQUnique<pair<double,Point*> > &approximateQueue,
 
 int main(int argc, char* argv[]){
 
-    unsigned int k=4, L=1, N=5, R=10000, inputPointCount=0, inputPointDimensions=-1;
+    unsigned int k=4, L=1, N=5, R=10000, inputPointCount=0;
+    int inputPointDimensions=-1;
     string inputFileName, queryFileName, outputFileName, point, token, pointID;
     ofstream outputFileStream;
     ifstream inputFileStream, queryFileStream;
@@ -64,34 +61,30 @@ int main(int argc, char* argv[]){
     }
 
 
-
     //calculating count of input points 
-    while (inputFileStream){
-
-        getline(inputFileStream,point);
+    while (getline(inputFileStream,point)){
 
         //calculating count of point dimensions
         if (inputPointCount==0){
 
             pointStream.str(point);
             while (getline(pointStream,token,' ')) inputPointDimensions++;
+            pointStream.clear();
         }
         inputPointCount++;
     }
 
+
+    pointStream.clear();
+    inputFileStream.clear();
     inputFileStream.seekg(SEEK_SET);
 
-
-
     //lsh system initialization
-    LSH lsh(k,L,inputPointCount,WINDOWSIZE,inputPointDimensions);
-
-
+    LSH lsh(k,L,inputPointCount,inputPointDimensions);
 
     //insert points in lsh system
-    while (inputFileStream){
+    while (getline(inputFileStream,point)){
 
-        getline(inputFileStream,point);
         pointStream.str(point);
 
         //pointID holds the id of point
@@ -106,6 +99,7 @@ int main(int argc, char* argv[]){
         lsh.insertInHashes(currentPoint);
 
         pointVector.clear();
+        pointStream.clear();
     }
 
 
