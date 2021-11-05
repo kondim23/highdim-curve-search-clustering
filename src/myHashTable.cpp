@@ -12,6 +12,8 @@ typedef enum{ZERO,HAMMING,EUCLIDEAN} normType;
 
 myHashTable::myHashTable(unsigned int k, unsigned int N, unsigned int w, unsigned int dimensions){
 
+    srand(time(NULL));
+
     //initialize a hash of N buckets
     for (int i=0 ; i<N ; i++) this->myHash.push_back(set<pair<Point*,int> >());
     this->myHashSize = N;
@@ -23,7 +25,7 @@ myHashTable::myHashTable(unsigned int k, unsigned int N, unsigned int w, unsigne
     for (int i=0 ; i<k ; i++){
 
         //t is a random float in [0,w]
-        this->tParameters.push_back(static_cast <float> (generator()) / (static_cast <float> (RAND_MAX/w)));
+        this->tParameters.push_back(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/w)));
 
         //v is a d-dimension vector of random floats according to N(0,1)
         for (int j=0 ; j<dimensions ; j++) tempV.push_back(distribution(generator));

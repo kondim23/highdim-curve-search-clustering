@@ -15,7 +15,7 @@ PQUnique<T>::~PQUnique(){}
 template <typename T>
 void PQUnique<T>::insert(T item){
 
-    if (this->allItems.find(item) == this->allItems.end()) return;
+    if (this->allItems.find(item) != this->allItems.end()) return;
 
     this->priorityQueue.push(item);
     this->allItems.insert(item);

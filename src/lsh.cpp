@@ -7,7 +7,7 @@
 #include "../include/PQUnique.t.hpp"
 
 #define BUCKET_MEAN_CAPACITY 8
-#define WINDOW_SIZE 6.0
+#define WINDOW_SIZE 4.0
 
 using namespace std;
 
@@ -21,13 +21,12 @@ LSH::LSH (unsigned int k, unsigned int L, unsigned int N, unsigned int dimension
     tableSize = N/BUCKET_MEAN_CAPACITY+1;
 
     //initialize lsh hash tables
-    for (int i=0 ; i<L ; i++) {
-        myHashTable temp(k,tableSize,WINDOW_SIZE,dimensions);
-        this->myHashes.push_back(temp);}
+    for (int i=0 ; i<L ; i++)
+        this->myHashes.push_back(myHashTable(k,tableSize,WINDOW_SIZE,dimensions));
     
     //initialize random r-parameters for g function calculation
     for (int i=0 ; i<k ; i++)
-        this->rParameters.push_back((abs(rand()))%10);
+        this->rParameters.push_back((abs(rand()))%4);
 
 }
 
@@ -53,7 +52,7 @@ pair<unsigned int, int> LSH::hashFunction(unsigned int hashID, Point& point){
     result%=INT32_MAX;
 
     //return pair<index(point),ID(point)>
-    return make_pair(result>0 ? result%tableSize : tableSize+result%tableSize,result);
+    return make_pair(result>=0 ? result%tableSize : tableSize+result%tableSize,result);
 }
 
 
@@ -91,7 +90,7 @@ void LSH::approximateKNN(PQUnique<pair<double, Point*> > &neighboursQueue, Point
 }
 
 
-set<Point*> LSH::rangeSearch(unsigned int radius, Point& point){
+set<Point*> LSH::rangeSearch(double radius, Point& point){
 
     set<Point*> pointsInRange, tempSet;
     pair<unsigned int, int> hashFunctionResults;
@@ -106,7 +105,7 @@ set<Point*> LSH::rangeSearch(unsigned int radius, Point& point){
 
         //insert elements in result set excluding duplicates
         for(Point* item : tempSet)
-            if(pointsInRange.find(item) != pointsInRange.end())
+            if(pointsInRange.find(item) == pointsInRange.end())
                 pointsInRange.insert(item);
     }
 

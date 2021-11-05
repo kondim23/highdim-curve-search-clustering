@@ -33,7 +33,7 @@ class LSH {
 
         priority_queue<pair<double, Point*> > exactKNN(unsigned int neighbours, Point& point);
 
-        set<Point*> rangeSearch(unsigned int radius, Point& point);
+        set<Point*> rangeSearch(double radius, Point& point);
 };
 
 #endif

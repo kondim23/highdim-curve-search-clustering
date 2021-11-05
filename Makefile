@@ -33,4 +33,4 @@ $(OUT): $(OBJS)
 	$(CC) -g $(_OBJS) -o $(BDIR)$(OUT)
 
 clean:
-	rm -rf $(OBJS) $(OUT)
+	rm -rf $(_OBJS) $(BDIR)$(OUT)

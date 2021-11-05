@@ -2,37 +2,37 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <ctime>
+#include <chrono>
 #include "../include/lsh.h"
 #include "../include/point.h"
 #include "../include/PQUnique.h"
 #include "../include/PQUnique.t.hpp"
 
 using namespace std;
+using namespace chrono;
 
 unsigned int knnRecursivePrint(PQUnique<pair<double,Point*> > &approximateQueue,
                                 priority_queue<pair<double,Point*> > &exactQueue);
 
+ofstream outputFileStream;
+
 int main(int argc, char* argv[]){
 
-    unsigned int k=4, L=1, N=5, R=10000, inputPointCount=0;
+    unsigned int k=4, L=1, N=5, inputPointCount=0;
     int inputPointDimensions=-1;
     string inputFileName, queryFileName, outputFileName, point, token, pointID;
-    ofstream outputFileStream;
     ifstream inputFileStream, queryFileStream;
     stringstream pointStream;
     vector<float> pointVector;
     priority_queue<pair<double,Point*> > resultPQueueExactKNN;
     set<Point*> resultInRange;
-    time_t start, stop;
-    double approximateTime, exactTime;
-
+    double R=10000.0;
 
 
     //check and get arguments
     if (argc%2==0 or argc>17){
 
-        cout << "Error in command line arguments" << endl;
+        outputFileStream << "Error in command line arguments" << endl;
         return 1;
     }
 
@@ -44,19 +44,19 @@ int main(int argc, char* argv[]){
         else if(!strcmp(argv[i],"-L")) L = atoi(argv[i+1]);
 		else if(!strcmp(argv[i],"-o")) outputFileName = argv[i+1];
 		else if(!strcmp(argv[i],"-N")) N = atoi(argv[i+1]);
-		else if(!strcmp(argv[i],"-R")) R = atoi(argv[i+1]);
+		else if(!strcmp(argv[i],"-R")) R = atof(argv[i+1]);
     }
 
     PQUnique<pair<double,Point*> >resultPQueueApproximateKNN(N);
 
     //opening files
-    outputFileStream.open(outputFileName);
+    outputFileStream.open(outputFileName,ofstream::trunc);
     inputFileStream.open(inputFileName);
     queryFileStream.open(queryFileName);
 
     if (not (outputFileStream and inputFileStream and queryFileStream)) {
 
-        cout << "Error in file arguments." << endl;
+        outputFileStream << "Error in file arguments." << endl;
         return 1;
     }
 
@@ -68,7 +68,9 @@ int main(int argc, char* argv[]){
         if (inputPointCount==0){
 
             pointStream.str(point);
-            while (getline(pointStream,token,' ')) inputPointDimensions++;
+            while (getline(pointStream,token,' ')) 
+                if (token!="\r")
+                    inputPointDimensions++;
             pointStream.clear();
         }
         inputPointCount++;
@@ -83,7 +85,7 @@ int main(int argc, char* argv[]){
     LSH lsh(k,L,inputPointCount,inputPointDimensions);
 
     //insert points in lsh system
-    while (getline(inputFileStream,point)){
+    while (inputFileStream and getline(inputFileStream,point)){
 
         pointStream.str(point);
 
@@ -91,7 +93,9 @@ int main(int argc, char* argv[]){
         getline(pointStream,pointID,' ');
 
         //collect all vector components
-        while (getline(pointStream,token,' ')) pointVector.push_back(stof(token));
+        while (getline(pointStream,token,' ')) 
+            if (token!="\r")
+                pointVector.push_back(stof(token));
 
         Point currentPoint(pointID,pointVector);
 
@@ -103,35 +107,36 @@ int main(int argc, char* argv[]){
     }
 
 
-    while (queryFileStream){
+    while (queryFileStream and getline(queryFileStream,point)){
 
-        getline(queryFileStream,point);
         pointStream.str(point);
 
         //get Query ID
         getline(pointStream,pointID,' ');
 
-        cout << "Query: " << pointID << endl;
+        outputFileStream << "Query: " << pointID << endl;
 
         //update pointVector with query components
-        while (getline(pointStream,token,' ')) pointVector.push_back(stof(token));
+        while (getline(pointStream,token,' ')) 
+            if (token!="\r")
+                pointVector.push_back(stof(token));
 
         Point currentPoint(pointID,pointVector);
 
         //call approximate knn and count execution time
         //resultPQueueApproximateKNN has max length N
-        start = time(NULL);
+        auto start = high_resolution_clock::now();
         lsh.approximateKNN(resultPQueueApproximateKNN,currentPoint);
-        stop = time(NULL);
+        auto stop = high_resolution_clock::now();
 
-        approximateTime = difftime(start,stop);
+        auto approximateTime = duration_cast<microseconds>(stop - start);
 
         //call exact knn and count execution time 
-        start = time(NULL);
+        start = high_resolution_clock::now();
         resultPQueueExactKNN = lsh.exactKNN(N,currentPoint);
-        stop = time(NULL);
+        stop = high_resolution_clock::now();
 
-        exactTime = difftime(start,stop);
+        auto exactTime = duration_cast<microseconds>(stop - start);
 
         //both priority queues must have same length
         while (resultPQueueApproximateKNN.size() < resultPQueueExactKNN.size())
@@ -141,16 +146,19 @@ int main(int argc, char* argv[]){
         knnRecursivePrint(resultPQueueApproximateKNN,resultPQueueExactKNN);
 
         //print execution times
-        cout << "tLSH: " << approximateTime << endl;
-        cout << "tTrue: " << exactTime << endl;
+        outputFileStream << "tLSH: " << approximateTime.count() << " microseconds" << endl;
+        outputFileStream << "tTrue: " << exactTime.count() << " microseconds" << endl;
 
         //perform range search and print results
         resultInRange = lsh.rangeSearch(R,currentPoint);
 
-        cout << "R-near neighbours:" << endl;
+        outputFileStream << "R-near neighbours:" << endl;
 
         for (Point* pointPtr : resultInRange)
-            cout << pointPtr->getID() << endl;
+            outputFileStream << pointPtr->getID() << endl;
+
+        pointVector.clear();
+        pointStream.clear();
     }
 }
 
@@ -167,9 +175,9 @@ unsigned int knnRecursivePrint(PQUnique<pair<double,Point*> > &approximateQueue,
 
     unsigned int index = knnRecursivePrint(approximateQueue,exactQueue);
 
-    cout << "Nearest neighbour-" << index << ": " << approximateNeighbour.second->getID() << endl;
-    cout << "distanceLSH: " << approximateNeighbour.first;
-    cout << "distanceTrue: " << exactNeighbour.first;
+    outputFileStream << "Nearest neighbour-" << index << ": " << approximateNeighbour.second->getID() << endl;
+    outputFileStream << "distanceLSH: " << approximateNeighbour.first << endl;
+    outputFileStream << "distanceTrue: " << exactNeighbour.first << endl;
 
     return index+1;
 }
