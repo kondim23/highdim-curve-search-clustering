@@ -4,10 +4,11 @@
 #include <vector>
 #include <set>
 #include "point.h"
+#include "confs.h"
 
 using namespace std;
 
-typedef enum{LLOYD,LSH,CUBE} MethodType;
+typedef enum{_LLOYD,_LSH,_CUBE} MethodType;
 
 class Cluster
 {
@@ -17,7 +18,7 @@ private:
     MethodType method;
 
     //a set holding pointers to all Points -- pair(Point,clusterID)*
-    set<pair<Point,int>*> allPoints;
+    map<string,pair<Point,int>*> allPoints;
 
     //a vector of set-clusters holding pointers to clustered Points -- pair(Point,clusterID)*
     vector<set<pair<Point,int>*> > allClusters;
@@ -29,25 +30,28 @@ private:
     void updateCentroids();
 
     //a pointer to the function used for centroid assignment {assignLloyd,assignLSH,assignHyperCube}
-    bool (Cluster::*assignCentroids)();
+    bool (Cluster::*assignCentroids)(Confs&);
 
     //possible assignment to assignCentroids
-    bool assignLloyd();
+    bool assignLloyd(Confs&);
 
     //possible assignment to assignCentroids
-    bool assignLSH();
+    bool assignLSH(Confs&);
 
     //possible assignment to assignCentroids
-    bool assignHyperCube();
+    bool assignHyperCube(Confs&);
     
     pair<double,unsigned int> calculateMinCentroidDistance(Point&);
+    double Cluster::mean_cluster_distance(Point &, unsigned int );
+    unsigned int Cluster::find_closest_centroid(unsigned int);
+    void Cluster::FreePoints();
 
 public:
 
     Cluster(unsigned int, MethodType);
     ~Cluster();
     void insertPoint(Point &point);
-    void startClustering();
+    void startClustering(Confs&);
     void printCentroids();
     void silhouette();
     void printClusters();

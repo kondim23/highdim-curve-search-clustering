@@ -3,14 +3,17 @@ HDIR	:= include/
 SDIR	:= src/
 BDIR	:= bin/
 
-OBJS	= lsh_main.o lsh.o myHashTable.o point.o utils.o
+OBJS_LSH	= lsh_main.o lsh.o myHashTable.o point.o utils.o
+OBJS_CL	= $(OBJS_LSH) cluster_main.o cluster.o confs.o
 SOURCE	= lsh_main.cpp lsh.cpp myHashTable.cpp point.cpp utils.cpp
 HEADER	= lsh.h myHashTable.h point.h utils.h
-OUT	= lsh
+OUT	= lsh cluster
 CC	= g++
 FLAGS	= -g -c
 
-_OBJS = $(patsubst %,$(ODIR)%,$(OBJS))
+_OBJS_LSH = $(patsubst %,$(ODIR)%,$(OBJS_LSH))
+_OBJS_CL = $(patsubst %,$(ODIR)%,$(OBJS_CL))
+_OUT = $(patsubst %,$(BDIR)%,$(OUT))
 
 all: $(OUT)
 
@@ -29,8 +32,20 @@ point.o: $(SDIR)point.cpp $(HDIR)point.h
 utils.o: $(SDIR)utils.cpp $(HDIR)utils.h
 	$(CC) $(FLAGS) $(SDIR)utils.cpp -o $(ODIR)$@
 
-$(OUT): $(OBJS)
-	$(CC) -g $(_OBJS) -o $(BDIR)$(OUT)
+cluster_main.o: $(SDIR)cluster_main.cpp $(HDIR)cluster.h
+	$(CC) $(FLAGS) $(SDIR)cluster_main.cpp -o $(ODIR)$@
+
+cluster.o: $(SDIR)cluster.cpp $(patsubst %,$(HDIR)%,cluster.h utils.h lsh.h)
+	$(CC) $(FLAGS) $(SDIR)cluster.cpp -o $(ODIR)$@
+
+confs.o: $(SDIR)confs.cpp $(HDIR)confs.h
+	$(CC) $(FLAGS) $(SDIR)confs.cpp -o $(ODIR)$@
+
+lsh: $(OBJS_LSH)
+	$(CC) -g $(_OBJS_LSH) -o $(BDIR)$@
+
+cluster: $(OBJS_CL)
+	$(CC) -g $(_OBJS_CL) -o $(BDIR)$@
 
 clean:
-	rm -rf $(_OBJS) $(BDIR)$(OUT)
+	rm -rf $(_OBJS_CL) $(BDIR)$(_OUT)

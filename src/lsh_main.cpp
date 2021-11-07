@@ -32,7 +32,7 @@ int main(int argc, char* argv[]){
     //check and get arguments
     if (argc%2==0 or argc>17){
 
-        outputFileStream << "Error in command line arguments" << endl;
+        cout << "Error in command line arguments" << endl;
         return 1;
     }
 
@@ -62,7 +62,7 @@ int main(int argc, char* argv[]){
 
 
     //calculating count of input points 
-    while (getline(inputFileStream,point)){
+    while (inputFileStream and getline(inputFileStream,point)){
 
         //calculating count of point dimensions
         if (inputPointCount==0){

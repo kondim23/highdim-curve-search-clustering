@@ -6,6 +6,7 @@
 #include <float.h>
 #include "../include/cluster.h"
 #include "../include/utils.h"
+#include "../include/lsh.h"
 
 using namespace std;
 
@@ -28,15 +29,15 @@ Cluster::Cluster(unsigned int mediansCount, MethodType method){
     //set function for centroid assignment and method
     switch (method)
     {
-    case LLOYD:
+    case _LLOYD:
         this->assignCentroids = &(Cluster::assignLloyd);
         break;
 
-    case LSH:
+    case _LSH:
         this->assignCentroids = &(Cluster::assignLSH);
         break;
 
-    case CUBE:
+    case _CUBE:
         this->assignCentroids = &(Cluster::assignHyperCube);
         break;
     }
@@ -45,24 +46,24 @@ Cluster::Cluster(unsigned int mediansCount, MethodType method){
 }
 
 
-Cluster::~Cluster(){}
+Cluster::~Cluster() {this->FreePoints();}
 
 
 void Cluster::insertPoint(Point &point){
 
     //insert a pair(Point,clusterID) to system -- initial clusterID==-1
-    this->allPoints.insert(new pair<Point,int>(point,-1));
+    this->allPoints.insert(make_pair(point.getID(),new pair<Point,int>(point,-1)));
     return;
 }
 
 
-void Cluster::startClustering(){
+void Cluster::startClustering(Confs& confs){
 
     //initialize centroids with k-means++
     this->initializeCentroids();
 
     //execute centroids-points assignment while clusters change states
-    while((this->*assignCentroids)())
+    while((this->*assignCentroids)(confs))
 
         //and update centroids
         this->updateCentroids();
@@ -75,7 +76,7 @@ void Cluster::startClustering(){
 void Cluster::initializeCentroids(){
 
     map<unsigned int,Point*> nonCentroids, prevNonCentroids;
-    set<pair<Point,int>*>::iterator itr;
+    map<string,pair<Point,int>*>::iterator itr;
     map<unsigned int,Point*>::iterator itrMap;
     unsigned int itemToRemove;
     double distanceSum, distance;
@@ -85,7 +86,7 @@ void Cluster::initializeCentroids(){
 
     //initialize a map of pair(distance,Point*) -- all Points mapped by sequence i=(i-1)+1, i in [0,N]
     for (itr=this->allPoints.begin() ; itr!=this->allPoints.end(); itr++)
-        nonCentroids.insert(make_pair(nonCentroids.size(),&((*itr)->first)));
+        nonCentroids.insert(make_pair(nonCentroids.size(),&(itr->second->first)));
 
     //choose a random initial point, erase it from nonCentroids n and insert it in allCentroids t
     itemToRemove = abs(rand())%nonCentroids.size();
@@ -173,30 +174,187 @@ void Cluster::updateCentroids(){
 }
 
 
-bool Cluster::assignLloyd(){
+bool Cluster::assignLloyd(Confs& confs){
 
     bool stateChanged=false;
-    set<pair<Point,int>*>::iterator itr;
+    map<string,pair<Point,int>*>::iterator itr;
     unsigned int index;
 
     //for every point
     for (itr=this->allPoints.begin() ; itr!=this->allPoints.end(); itr++){
 
         //get index of centroid with minimum distance
-        index = this->calculateMinCentroidDistance((*itr)->first).second;
+        index = this->calculateMinCentroidDistance(itr->second->first).second;
 
         //if cluster_to_move_ == previous_cluster continue
-        if (index==(*itr)->second) continue;
+        if (index==itr->second->second) continue;
 
         //if point is clustered in the past remove from previous_cluster
-        else if ((*itr)->second!=-1) this->allClusters.at((*itr)->second).erase(*itr);
+        else if (itr->second->second!=-1) this->allClusters.at(itr->second->second).erase(itr->second);
 
         //add in propriate cluster
-        this->allClusters.at(index).insert(*itr);
+        this->allClusters.at(index).insert(itr->second);
 
         //stateChange==true -> at least one state change happened 
         stateChanged=true;
     }
     
     return stateChanged;
+}
+
+
+bool Cluster::assignLSH(Confs& confs){
+
+    set<Point*> clusteredPoints, rangeSet;
+    map<string,pair<Point,int>*>::iterator itrCentroidSet;
+    set<Point*>::iterator itrRangeSet;
+    pair<Point,int>* pointFromRS;
+    double radius = 100.0;
+    bool stateChanged=false;
+
+    static bool initialization=true;
+    static LSH* lsh = new LSH(confs.get_number_of_vector_hash_functions(),confs.get_number_of_vector_hash_tables(),
+                                this->allPoints.size(),this->allCentroids.at(0).getvector().size());
+
+    if (initialization){
+
+        for (itrCentroidSet=this->allPoints.begin() ; itrCentroidSet!=this->allPoints.end(); itrCentroidSet++){
+            Point p(itrCentroidSet->second->first);
+            lsh->insertInHashes(p);
+        }
+
+        initialization=false;
+    }
+
+    while (clusteredPoints.size() < this->allPoints.size()){
+
+        for(int i=0 ; i<this->allCentroids.size() ; i++){
+
+            rangeSet = lsh->rangeSearch(radius,this->allCentroids.at(i));
+
+            for (itrRangeSet=rangeSet.begin() ; itrRangeSet!=rangeSet.end() ; itrRangeSet++){
+
+                if (clusteredPoints.find(*itrRangeSet)!=clusteredPoints.end()) continue;
+                clusteredPoints.insert(*itrRangeSet);
+
+                pointFromRS = allPoints.at((*itrRangeSet)->getID());
+
+                if (i==pointFromRS->second) continue;
+                else if (pointFromRS->second!=-1) 
+                    this->allClusters.at(pointFromRS->second).erase(pointFromRS);
+
+                this->allClusters.at(i).insert(pointFromRS);
+
+                stateChanged=true;
+            }
+        }
+
+        radius+=100.0;
+    }
+
+    return stateChanged;
+}
+
+
+void Cluster::printCentroids(){
+
+    for (int i=0 ; i<this->allClusters.size() ; i++){
+
+        cout << "CLUSTER-" << i << " {size: " << this->allClusters.at(i).size() << ", " << "centroid:";
+        for (int j=0 ; j<this->allCentroids.at(i).getvector().size() ; j++)
+            cout << " " << this->allCentroids.at(i).getvector().at(j);
+        cout << "}" << endl;
+    }
+
+    return;
+}
+
+void Cluster::printClusters(){
+
+    set<pair<Point,int>*>::iterator itr;
+
+    for (int i=0 ; i<this->allClusters.size() ; i++){
+
+        cout << "CLUSTER-" << i << " {";
+        for (int j=0 ; j<this->allCentroids.at(i).getvector().size() ; j++)
+            cout << " " << this->allCentroids.at(i).getvector().at(j);
+
+        for (itr=this->allClusters.at(i).begin() ; itr!=this->allClusters.at(i).end() ; itr++)
+            cout << ", " << (*itr)->first.getID();
+        cout << "}" << endl;
+    }
+
+    return;
+}
+
+void Cluster::silhouette(){
+
+    set<pair<Point,int>*>::iterator itr;
+    double A,B,totalD=0,clusterD;
+
+    cout << "Silhouette: [";
+
+    for (int i=0 ; i<this->allClusters.size() ; i++){
+
+        clusterD=0;
+
+        for (itr=this->allClusters.at(i).begin() ; itr!=this->allClusters.at(i).end() ; itr++){
+
+            A = this->mean_cluster_distance((*itr)->first,i);
+            B = this->mean_cluster_distance((*itr)->first,this->find_closest_centroid(i));
+
+            clusterD+=(B-A)/max(B,A);
+            totalD+=(B-A)/max(B,A);
+        }
+
+        cout << clusterD/this->allClusters.at(i).size() << ",";
+    }
+
+    cout << totalD/this->allPoints.size() << "]" << endl;
+
+    return;
+}
+
+double Cluster::mean_cluster_distance(Point &point, unsigned int index){
+
+    set<pair<Point,int>*>::iterator itr;
+    double mean_distance=0;
+
+    for (itr=this->allClusters.at(index).begin() ; itr!=this->allClusters.at(index).end() ; itr++){
+
+        if ((*itr)->first.getID()==point.getID()) continue;
+
+        mean_distance += calculate_distance(EUCLIDEAN,(*itr)->first.getvector(),point.getvector());
+    }
+
+    return this->allClusters.at(index).size()-1!=0 ? mean_distance/(this->allClusters.at(index).size()-1) : 0;
+}
+
+unsigned int Cluster::find_closest_centroid(unsigned int centroid){
+
+    double distance,minDistance=DBL_MAX;
+    unsigned int index;
+
+    Point point = this->allCentroids.at(centroid);
+
+    //for every centroid
+    for(int i=0 ; i<this->allCentroids.size() ; i++){
+
+        if (i==centroid) continue;
+
+        //get the minimum distance to Point 
+        distance = calculate_distance(EUCLIDEAN,point.getvector(),this->allCentroids.at(i).getvector());
+        if (distance<minDistance) minDistance,index=distance,i;
+    }
+
+    //return distance and index of centroid 
+    return index;
+}
+
+void Cluster::FreePoints(){
+
+    map<string,pair<Point,int>*>::iterator itr;
+
+    for (itr=this->allPoints.begin() ; itr!=this->allPoints.end(); itr++)
+        delete itr->second;
 }
