@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <set>
+#include <map>
 #include "point.h"
 #include "confs.h"
 
@@ -42,9 +43,9 @@ private:
     bool assignHyperCube(Confs&);
     
     pair<double,unsigned int> calculateMinCentroidDistance(Point&);
-    double Cluster::mean_cluster_distance(Point &, unsigned int );
-    unsigned int Cluster::find_closest_centroid(unsigned int);
-    void Cluster::FreePoints();
+    double mean_cluster_distance(Point &, unsigned int );
+    unsigned int find_closest_centroid(unsigned int);
+    void FreePoints();
 
 public:
 

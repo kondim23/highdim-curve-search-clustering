@@ -4,7 +4,7 @@ SDIR	:= src/
 BDIR	:= bin/
 
 OBJS_LSH	= lsh_main.o lsh.o myHashTable.o point.o utils.o
-OBJS_CL	= $(OBJS_LSH) cluster_main.o cluster.o confs.o
+OBJS_CL	= lsh.o myHashTable.o point.o utils.o cluster_main.o cluster.o confs.o
 SOURCE	= lsh_main.cpp lsh.cpp myHashTable.cpp point.cpp utils.cpp
 HEADER	= lsh.h myHashTable.h point.h utils.h
 OUT	= lsh cluster

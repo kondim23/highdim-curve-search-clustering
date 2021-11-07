@@ -30,15 +30,15 @@ Cluster::Cluster(unsigned int mediansCount, MethodType method){
     switch (method)
     {
     case _LLOYD:
-        this->assignCentroids = &(Cluster::assignLloyd);
+        this->assignCentroids = &Cluster::assignLloyd;
         break;
 
     case _LSH:
-        this->assignCentroids = &(Cluster::assignLSH);
+        this->assignCentroids = &Cluster::assignLSH;
         break;
 
     case _CUBE:
-        this->assignCentroids = &(Cluster::assignHyperCube);
+        this->assignCentroids = &Cluster::assignHyperCube;
         break;
     }
 
@@ -358,3 +358,5 @@ void Cluster::FreePoints(){
     for (itr=this->allPoints.begin() ; itr!=this->allPoints.end(); itr++)
         delete itr->second;
 }
+
+bool Cluster::assignHyperCube(Confs&){return true;} //not implemented

@@ -1,8 +1,8 @@
 #include <iostream>
 #include "../include/confs.h"
 
-Confs::Confs(unsigned int K=5, unsigned int L=3, unsigned int k=4, 
-        unsigned int M=10, unsigned int kc=3, unsigned int pr=2){
+Confs::Confs(unsigned int K, unsigned int L, unsigned int k, 
+        unsigned int M, unsigned int kc, unsigned int pr){
 
     this->number_of_clusters = K;
     this->number_of_vector_hash_tables = L;
