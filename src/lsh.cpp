@@ -26,11 +26,11 @@ LSH::LSH (unsigned int k, unsigned int L, unsigned int N, unsigned int dimension
     
     //initialize random r-parameters for g function calculation
     for (int i=0 ; i<k ; i++)
-        this->rParameters.push_back((abs(rand()))%4);
+        this->rParameters.push_back((abs(rand()))%10);
 
 }
 
-LSH::~LSH(){}
+LSH::~LSH(){this->myHashes.at(0).deleteAllAllocatedPoints();}
 
 pair<unsigned int, int> LSH::hashFunction(unsigned int hashID, Point& point){
 

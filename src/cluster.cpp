@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <float.h>
+#include <fstream>
 #include "../include/cluster.h"
 #include "../include/utils.h"
 #include "../include/lsh.h"
@@ -75,21 +76,21 @@ void Cluster::startClustering(Confs& confs){
 //k-means++
 void Cluster::initializeCentroids(){
 
-    map<unsigned int,Point*> nonCentroids, prevNonCentroids;
+    map<double,Point*> nonCentroids, prevNonCentroids;
     map<string,pair<Point,int>*>::iterator itr;
-    map<unsigned int,Point*>::iterator itrMap;
-    unsigned int itemToRemove;
+    map<double,Point*>::iterator itrMap;
+    double itemToRemove;
     double distanceSum, distance;
-    pair<map<unsigned int,Point*>::iterator,map<unsigned int,Point*>::iterator> pairItrMap;
+    pair<map<double,Point*>::iterator,map<double,Point*>::iterator> pairItrMap;
 
     srand(time(NULL));
 
     //initialize a map of pair(distance,Point*) -- all Points mapped by sequence i=(i-1)+1, i in [0,N]
     for (itr=this->allPoints.begin() ; itr!=this->allPoints.end(); itr++)
-        nonCentroids.insert(make_pair(nonCentroids.size(),&(itr->second->first)));
+        nonCentroids.insert(make_pair(static_cast<double>(nonCentroids.size()),&(itr->second->first)));
 
     //choose a random initial point, erase it from nonCentroids n and insert it in allCentroids t
-    itemToRemove = abs(rand())%nonCentroids.size();
+    itemToRemove = static_cast<double>(abs(rand())%nonCentroids.size());
     this->allCentroids.push_back(*(nonCentroids.find(itemToRemove)->second));
     nonCentroids.erase(itemToRemove);
     
@@ -104,13 +105,13 @@ void Cluster::initializeCentroids(){
 
             //compute accumulated probability = sum of D(i)^2   --   D(i) min distance from some centroid
             distance = calculateMinCentroidDistance(*(itrMap->second)).first;
-            distance *= distance;
-            distanceSum += distance;
+            distanceSum += pow(distance,2);
 
             //insert pair(sum of D(i)^2,Point*) to nonCentroid
             nonCentroids.insert(make_pair(distanceSum,itrMap->second));
-            prevNonCentroids.erase(itrMap);
         }
+
+        prevNonCentroids.clear();
 
         //pairs.first in nonCentroid  are increasing in [0,distanceSum]
         //indicate a new Point for centroid, based on the closest upper_bound in probabilities of a random float
@@ -138,7 +139,10 @@ pair<double,unsigned int> Cluster::calculateMinCentroidDistance(Point &point){
 
         //get the minimum distance to Point 
         distance = calculate_distance(EUCLIDEAN,point.getvector(),this->allCentroids.at(i).getvector());
-        if (distance<minDistance) minDistance,index=distance,i;
+        if (distance<minDistance){
+            minDistance=distance;
+            index=i;
+        }
     }
 
     //return distance and index of centroid 
@@ -192,6 +196,7 @@ bool Cluster::assignLloyd(Confs& confs){
         //if point is clustered in the past remove from previous_cluster
         else if (itr->second->second!=-1) this->allClusters.at(itr->second->second).erase(itr->second);
 
+        itr->second->second = index;
         //add in propriate cluster
         this->allClusters.at(index).insert(itr->second);
 
@@ -211,6 +216,7 @@ bool Cluster::assignLSH(Confs& confs){
     pair<Point,int>* pointFromRS;
     double radius = 100.0;
     bool stateChanged=false;
+    unsigned int times=0;
 
     static bool initialization=true;
     static LSH* lsh = new LSH(confs.get_number_of_vector_hash_functions(),confs.get_number_of_vector_hash_tables(),
@@ -226,7 +232,7 @@ bool Cluster::assignLSH(Confs& confs){
         initialization=false;
     }
 
-    while (clusteredPoints.size() < this->allPoints.size()){
+    while (clusteredPoints.size() < this->allPoints.size() and times++<100){
 
         for(int i=0 ; i<this->allCentroids.size() ; i++){
 
@@ -243,6 +249,7 @@ bool Cluster::assignLSH(Confs& confs){
                 else if (pointFromRS->second!=-1) 
                     this->allClusters.at(pointFromRS->second).erase(pointFromRS);
 
+                pointFromRS->second = i;
                 this->allClusters.at(i).insert(pointFromRS);
 
                 stateChanged=true;
@@ -256,43 +263,43 @@ bool Cluster::assignLSH(Confs& confs){
 }
 
 
-void Cluster::printCentroids(){
+void Cluster::printCentroids(ofstream& out){
 
     for (int i=0 ; i<this->allClusters.size() ; i++){
 
-        cout << "CLUSTER-" << i << " {size: " << this->allClusters.at(i).size() << ", " << "centroid:";
+        out << "CLUSTER-" << i+1 << " {size: " << this->allClusters.at(i).size() << ", " << "centroid:";
         for (int j=0 ; j<this->allCentroids.at(i).getvector().size() ; j++)
-            cout << " " << this->allCentroids.at(i).getvector().at(j);
-        cout << "}" << endl;
+            out << " " << this->allCentroids.at(i).getvector().at(j);
+        out << "}" << endl;
     }
 
     return;
 }
 
-void Cluster::printClusters(){
+void Cluster::printClusters(ofstream& out){
 
     set<pair<Point,int>*>::iterator itr;
 
     for (int i=0 ; i<this->allClusters.size() ; i++){
 
-        cout << "CLUSTER-" << i << " {";
+        out << "CLUSTER-" << i+1 << " {";
         for (int j=0 ; j<this->allCentroids.at(i).getvector().size() ; j++)
-            cout << " " << this->allCentroids.at(i).getvector().at(j);
+            out << " " << this->allCentroids.at(i).getvector().at(j);
 
         for (itr=this->allClusters.at(i).begin() ; itr!=this->allClusters.at(i).end() ; itr++)
-            cout << ", " << (*itr)->first.getID();
-        cout << "}" << endl;
+            out << ", " << (*itr)->first.getID();
+        out << "}" << endl;
     }
 
     return;
 }
 
-void Cluster::silhouette(){
+void Cluster::silhouette(ofstream& out){
 
     set<pair<Point,int>*>::iterator itr;
     double A,B,totalD=0,clusterD;
 
-    cout << "Silhouette: [";
+    out << "Silhouette: [";
 
     for (int i=0 ; i<this->allClusters.size() ; i++){
 
@@ -307,10 +314,10 @@ void Cluster::silhouette(){
             totalD+=(B-A)/max(B,A);
         }
 
-        cout << clusterD/this->allClusters.at(i).size() << ",";
+        out << clusterD/this->allClusters.at(i).size() << ",";
     }
 
-    cout << totalD/this->allPoints.size() << "]" << endl;
+    out << totalD/this->allPoints.size() << "]" << endl;
 
     return;
 }
@@ -344,7 +351,10 @@ unsigned int Cluster::find_closest_centroid(unsigned int centroid){
 
         //get the minimum distance to Point 
         distance = calculate_distance(EUCLIDEAN,point.getvector(),this->allCentroids.at(i).getvector());
-        if (distance<minDistance) minDistance,index=distance,i;
+        if (distance<minDistance) {
+            minDistance = distance;
+            index=i;
+        }
     }
 
     //return distance and index of centroid 

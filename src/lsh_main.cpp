@@ -30,7 +30,7 @@ int main(int argc, char* argv[]){
 
 
     //check and get arguments
-    if (argc%2==0 or argc>17){
+    if (argc%2==0 or argc>15){
 
         cout << "Error in command line arguments" << endl;
         return 1;

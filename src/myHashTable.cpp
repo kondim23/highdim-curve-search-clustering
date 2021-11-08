@@ -35,7 +35,7 @@ myHashTable::myHashTable(unsigned int k, unsigned int N, unsigned int w, unsigne
     }
 }
 
-myHashTable::~myHashTable() {this->deleteAllAllocatedPoints();}
+myHashTable::~myHashTable() {}
 
 void myHashTable::storeInHash(unsigned int index, Point* point, int pointID){
 

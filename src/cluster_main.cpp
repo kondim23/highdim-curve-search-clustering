@@ -15,13 +15,12 @@ int main(int argc, char* argv[]){
     stringstream pointStream;
     ofstream outputFileStream;
     vector<float> pointVector;
-    int inputPointDimensions=-1;
-    unsigned int k=4, L=1, N=5, inputPointCount=0;
     bool complete=false;
     MethodType method;
 
 
-    if (argc>9){
+    //check-get arguments
+    if (argc>10){
 
         cout << "Error in command line arguments" << endl;
         return 1;
@@ -33,7 +32,7 @@ int main(int argc, char* argv[]){
         else if(!strcmp(argv[i],"-c")) configurationsFileName = argv[(i++)+1];
 		else if(!strcmp(argv[i],"-o")) outputFileName = argv[(i++)+1];
         else if(!strcmp(argv[i],"-complete")) complete=true;
-        else if(!strcmp(argv[i],"-method")) {
+        else if(!strcmp(argv[i],"-m")) {
 
             if (!strcmp(argv[i+1],"Classic")) method=_LLOYD;
             else if (!strcmp(argv[i+1],"LSH")) method = _LSH;
@@ -41,6 +40,8 @@ int main(int argc, char* argv[]){
         }
     }
 
+
+    //open-check filestreams
     outputFileStream.open(outputFileName,ofstream::trunc);
     inputFileStream.open(inputFileName);
     configurationsFileStream.open(configurationsFileName);
@@ -51,8 +52,10 @@ int main(int argc, char* argv[]){
         return 1;
     }
 
+    //configurations obj holds data from cluster.conf
     Confs confs;
 
+    //set confs
     while (configurationsFileStream and getline(configurationsFileStream,conf)){
 
         pointStream.str(conf);
@@ -93,8 +96,14 @@ int main(int argc, char* argv[]){
         pointStream.clear();
     }
 
+    configurationsFileStream.close();
+
+
+    //initialize cluster system
     Cluster cluster(confs.get_number_of_clusters(),method);
 
+
+    //get all Points from input
     while (inputFileStream and getline(inputFileStream,point)){
 
         pointStream.str(point);
@@ -109,46 +118,50 @@ int main(int argc, char* argv[]){
 
         Point currentPoint(pointID,pointVector);
 
-        //insert vector to lsh system
+        //insert vector to cluster system
         cluster.insertPoint(currentPoint);
 
         pointVector.clear();
         pointStream.clear();
     }
 
+    inputFileStream.close();
 
+
+    //clustering
     auto start = high_resolution_clock::now();
     cluster.startClustering(confs);
     auto stop = high_resolution_clock::now();
 
     auto executionTime = duration_cast<seconds>(stop - start);
 
-    cout << "Algorithm: ";
+
+    //print results
+    outputFileStream << "Algorithm: ";
 
     switch (method){
 
         case _LLOYD:
-            cout << "Lloyds" << endl;
+            outputFileStream << "Lloyds" << endl;
             break;
         
         case _LSH:
-            cout << "Range Search LSH" << endl;
+            outputFileStream << "Range Search LSH" << endl;
             break;
 
         case _CUBE:
-            cout << "Range Search HyperCube" << endl;
+            outputFileStream << "Range Search HyperCube" << endl;
             break;
     }
 
-    cluster.printCentroids();
+    cluster.printCentroids(outputFileStream);
 
-    cout << "clustering_time: " << executionTime.count() << endl;
+    outputFileStream << "clustering_time: " << executionTime.count() << endl;
 
-    cluster.silhouette();
+    //compute and print silhouette
+    cluster.silhouette(outputFileStream);
     
-    if (complete) cluster.printClusters();
+    if (complete) cluster.printClusters(outputFileStream);
 
-    pointVector.clear();
-    pointStream.clear();
-
+    outputFileStream.close();
 }

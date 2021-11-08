@@ -4,6 +4,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <fstream>
 #include "point.h"
 #include "confs.h"
 
@@ -53,9 +54,9 @@ public:
     ~Cluster();
     void insertPoint(Point &point);
     void startClustering(Confs&);
-    void printCentroids();
-    void silhouette();
-    void printClusters();
+    void printCentroids(ofstream&);
+    void silhouette(ofstream&);
+    void printClusters(ofstream&);
 
 };
 

@@ -48,4 +48,4 @@ cluster: $(OBJS_CL)
 	$(CC) -g $(_OBJS_CL) -o $(BDIR)$@
 
 clean:
-	rm -rf $(_OBJS_CL) $(BDIR)$(_OUT)
+	rm -rf $(_OBJS_CL) lsh_main.o $(_OUT)
