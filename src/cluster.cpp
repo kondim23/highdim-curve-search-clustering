@@ -210,13 +210,15 @@ bool Cluster::assignLloyd(Confs& confs){
 
 bool Cluster::assignLSH(Confs& confs){
 
-    set<Point*> clusteredPoints, rangeSet;
+    set<Point*> rangeSet;
     map<string,pair<Point,int>*>::iterator itrCentroidSet;
     set<Point*>::iterator itrRangeSet;
     pair<Point,int>* pointFromRS;
-    double radius = 100.0;
-    bool stateChanged=false;
-    unsigned int times=0;
+    set<pair<Point,int>*> clusteredPoints;
+    double radius = initializeRadius()/2.0;
+    bool totalStateChanged=false;
+    bool iterationStateChange=true;
+    unsigned int index, times=0;
 
     static bool initialization=true;
     static LSH lsh(confs.get_number_of_vector_hash_functions(),confs.get_number_of_vector_hash_tables(),
@@ -233,8 +235,11 @@ bool Cluster::assignLSH(Confs& confs){
         initialization=false;
     }
 
-    //while points not clustered (max iterations = 100)
-    while (clusteredPoints.size() < this->allPoints.size() and times++<100){
+
+    //perform ANN
+    while (clusteredPoints.size() < this->allPoints.size() and (iterationStateChange or times++<3)){
+
+        iterationStateChange=false;
 
         for(int i=0 ; i<this->allCentroids.size() ; i++){
 
@@ -244,11 +249,11 @@ bool Cluster::assignLSH(Confs& confs){
             //for every point returned
             for (itrRangeSet=rangeSet.begin() ; itrRangeSet!=rangeSet.end() ; itrRangeSet++){
 
-                //if point in set of already clustered points continue
-                if (clusteredPoints.find(*itrRangeSet)!=clusteredPoints.end()) continue;
-                clusteredPoints.insert(*itrRangeSet);
-
                 pointFromRS = allPoints.at((*itrRangeSet)->getID());
+
+                //if point in set of already clustered points continue
+                if (clusteredPoints.find(pointFromRS)!=clusteredPoints.end()) continue;
+                clusteredPoints.insert(pointFromRS);
 
                 //if cluster_to_move_ == previous_cluster continue
                 if (i==pointFromRS->second) continue;
@@ -262,15 +267,49 @@ bool Cluster::assignLSH(Confs& confs){
                 this->allClusters.at(i).insert(pointFromRS);
 
                 //stateChange==true -> at least one state change happened 
-                stateChanged=true;
+                totalStateChanged=iterationStateChange=true;
             }
         }
 
-        radius+=100.0;
+        radius*=2.0;
     }
 
-    return stateChanged;
+    //perform brute force for the rest of the points
+    for (itrCentroidSet=this->allPoints.begin() ; itrCentroidSet!=this->allPoints.end(); itrCentroidSet++){
+
+        if (clusteredPoints.find(itrCentroidSet->second)!=clusteredPoints.end()) 
+            continue;
+
+        //get index of centroid with minimum distance
+        index = this->calculateMinCentroidDistance(itrCentroidSet->second->first).second;
+
+        //if cluster_to_move_ == previous_cluster continue
+        if (index==itrCentroidSet->second->second) continue;
+
+        //if point is clustered in the past remove from previous_cluster
+        else if (itrCentroidSet->second->second!=-1) 
+            this->allClusters.at(itrCentroidSet->second->second).erase(itrCentroidSet->second);
+
+        //add in propriate cluster
+        itrCentroidSet->second->second = index;
+        this->allClusters.at(index).insert(itrCentroidSet->second);
+
+        //stateChange==true -> at least one state change happened 
+        totalStateChanged=true;
+    }
+
+    return totalStateChanged;
 }
+
+double Cluster::initializeRadius(){
+
+    double minDistance=DBL_MAX;
+
+    for (int i=0 ; i<this->allCentroids.size() ; i++)
+        minDistance = min(minDistance,find_closest_centroid(i).first);
+
+    return minDistance;
+}   
 
 
 //print centroids for every cluster
@@ -324,7 +363,7 @@ void Cluster::silhouette(ofstream& out){
         for (itr=this->allClusters.at(i).begin() ; itr!=this->allClusters.at(i).end() ; itr++){
 
             A = this->mean_cluster_distance((*itr)->first,i);
-            B = this->mean_cluster_distance((*itr)->first,this->find_closest_centroid(i));
+            B = this->mean_cluster_distance((*itr)->first,this->find_closest_centroid(i).second);
 
             clusterD+=(B-A)/max(B,A);
             totalD+=(B-A)/max(B,A);
@@ -356,7 +395,7 @@ double Cluster::mean_cluster_distance(Point &point, unsigned int index){
 }
 
 
-unsigned int Cluster::find_closest_centroid(unsigned int centroid){
+pair<double,unsigned int> Cluster::find_closest_centroid(unsigned int centroid){
 
     double distance,minDistance=DBL_MAX;
     unsigned int index;
@@ -377,7 +416,7 @@ unsigned int Cluster::find_closest_centroid(unsigned int centroid){
     }
 
     //return dindex of closest centroid 
-    return index;
+    return make_pair(minDistance,index);
 }
 
 

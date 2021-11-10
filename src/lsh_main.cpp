@@ -106,6 +106,8 @@ int main(int argc, char* argv[]){
         pointStream.clear();
     }
 
+    inputFileStream.close();
+
 
     while (queryFileStream and getline(queryFileStream,point)){
 
@@ -160,6 +162,9 @@ int main(int argc, char* argv[]){
         pointVector.clear();
         pointStream.clear();
     }
+
+    queryFileStream.close();
+    outputFileStream.close();
 }
 
 //recursive print of elements in priority queues of KNN

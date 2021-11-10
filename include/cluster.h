@@ -45,8 +45,9 @@ private:
     
     pair<double,unsigned int> calculateMinCentroidDistance(Point&);
     double mean_cluster_distance(Point &, unsigned int );
-    unsigned int find_closest_centroid(unsigned int);
+    pair<double,unsigned int> find_closest_centroid(unsigned int);
     void FreePoints();
+    double initializeRadius();
 
 public:
 

@@ -45,14 +45,20 @@ pair<unsigned int, int> LSH::hashFunction(unsigned int hashID, Point& point){
         currentVTParameters = this->myHashes.at(hashID).getVTParameters(i);
 
         //calculating sum of r_i*h_i ;  That is  r_i*((v*p)+t)/w 
-        result+= this->rParameters.at(i) * static_cast<int>((vector_multiply(point.getvector(),currentVTParameters.first)+currentVTParameters.second)/WINDOW_SIZE);
+        // result+= static_cast<int>(this->rParameters.at(i)) * static_cast<int>((vector_multiply(point.getvector(),currentVTParameters.first)+currentVTParameters.second)/WINDOW_SIZE);
+        double vm = vector_multiply(point.getvector(),currentVTParameters.first);
+        vm+=currentVTParameters.second;
+        vm/=WINDOW_SIZE;
+        int in=static_cast<int>(vm);
+        int r = (static_cast<int>(this->rParameters.at(i)));
+        result+=r*in;
     }
 
     //(r_i*h_i)%2^32
     result%=INT32_MAX;
 
     //return pair<index(point),ID(point)>
-    return make_pair(result>=0 ? result%tableSize : tableSize+result%tableSize,result);
+    return make_pair(result>=0 ? result%tableSize : tableSize-(abs(result)%tableSize+1),result);
 }
 
 
