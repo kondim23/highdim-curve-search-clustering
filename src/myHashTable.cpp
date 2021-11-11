@@ -134,3 +134,8 @@ priority_queue<pair<double, Point*> > myHashTable::exactKNN(unsigned int neighbo
 
     return neighboursQueue;
 }
+
+unsigned int myHashTable::getBucketPointCount(unsigned int index){
+
+    return this->myHash.at(index).size();
+}

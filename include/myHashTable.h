@@ -46,6 +46,8 @@ class myHashTable {
         set<Point*> rangeSearch(double radius, unsigned int index, Point& point, int pointID);
 
         void deleteAllAllocatedPoints();
+
+        unsigned int getBucketPointCount(unsigned int);
 };
 
 #endif
