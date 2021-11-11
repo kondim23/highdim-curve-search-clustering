@@ -109,61 +109,71 @@ int main(int argc, char* argv[]){
 
     // Starting the implementation of the searches.
 
-    while (queryFileStream and getline(queryFileStream,point)) {
+    do{
 
-        pointStream.str(point);
+        while (queryFileStream and getline(queryFileStream,point)) {
 
-        //get Query ID
-        getline(pointStream,pointID,' ');
+            pointStream.str(point);
 
-        outputFileStream << "Query: " << pointID << endl;
+            //get Query ID
+            getline(pointStream,pointID,' ');
 
-        //update pointVector with query components
-        while (getline(pointStream,token,' ')) 
-            if (token!="\r")
-                pointVector.push_back(stof(token));
+            outputFileStream << "Query: " << pointID << endl;
 
-        Point currentPoint(pointID,pointVector);
+            //update pointVector with query components
+            while (getline(pointStream,token,' ')) 
+                if (token!="\r")
+                    pointVector.push_back(stof(token));
 
-        //call approximate knn and count execution time
-        //resultPQueueApproximateKNN has max length N
-        auto start = high_resolution_clock::now();
-        hcube.approximateKNN(resultPQueueApproximateKNN,currentPoint);
-        auto stop = high_resolution_clock::now();
+            Point currentPoint(pointID,pointVector);
 
-        auto approximateTime = duration_cast<microseconds>(stop - start);
+            //call approximate knn and count execution time
+            //resultPQueueApproximateKNN has max length N
+            auto start = high_resolution_clock::now();
+            hcube.approximateKNN(resultPQueueApproximateKNN,currentPoint);
+            auto stop = high_resolution_clock::now();
 
-        //call exact knn and count execution time 
-        start = high_resolution_clock::now();
-        resultPQueueExactKNN = hcube.exactKNN(N,currentPoint);
-        stop = high_resolution_clock::now();
+            auto approximateTime = duration_cast<microseconds>(stop - start);
 
-        auto exactTime = duration_cast<microseconds>(stop - start);
+            //call exact knn and count execution time 
+            start = high_resolution_clock::now();
+            resultPQueueExactKNN = hcube.exactKNN(N,currentPoint);
+            stop = high_resolution_clock::now();
 
-        //both priority queues must have same length
-        while (resultPQueueApproximateKNN.size() < resultPQueueExactKNN.size())
-            resultPQueueExactKNN.pop();
+            auto exactTime = duration_cast<microseconds>(stop - start);
 
-        //print knn results
-        knnRecursivePrint(resultPQueueApproximateKNN,resultPQueueExactKNN);
+            //both priority queues must have same length
+            while (resultPQueueApproximateKNN.size() < resultPQueueExactKNN.size())
+                resultPQueueExactKNN.pop();
 
-        //print execution times
-        outputFileStream << "tLSH: " << approximateTime.count() << " microseconds" << endl;
-        outputFileStream << "tTrue: " << exactTime.count() << " microseconds" << endl;
+            //print knn results
+            knnRecursivePrint(resultPQueueApproximateKNN,resultPQueueExactKNN);
 
-        //perform range search and print results
-        resultInRange = hcube.rangeSearch(R,currentPoint);
+            //print execution times
+            outputFileStream << "tHypercube: " << approximateTime.count() << " microseconds" << endl;
+            outputFileStream << "tTrue: " << exactTime.count() << " microseconds" << endl;
 
-        outputFileStream << "R-near neighbours:" << endl;
+            //perform range search and print results
+            resultInRange = hcube.rangeSearch(R,currentPoint);
 
-        for (Point* pointPtr : resultInRange)
-            outputFileStream << pointPtr->getID() << endl;
+            outputFileStream << "R-near neighbours:" << endl;
 
-        pointVector.clear();
-        pointStream.clear();
-    }
+            for (Point* pointPtr : resultInRange)
+                outputFileStream << pointPtr->getID() << endl;
 
-    queryFileStream.close();
+            pointVector.clear();
+            pointStream.clear();
+        }
+
+        queryFileStream.close();
+
+        cout << "Enter a new query-file filename or type \"exit\" to exit." << endl;
+        getline(cin,queryFileName);
+
+        if (queryFileName!="exit") queryFileStream.open(queryFileName);
+
+    }while(queryFileName!="exit");
+    
     outputFileStream.close();
 }
 
@@ -181,7 +191,7 @@ unsigned int knnRecursivePrint(PQUnique<pair<double,Point*> > &approximateQueue,
     unsigned int index = knnRecursivePrint(approximateQueue,exactQueue);
 
     outputFileStream << "Nearest neighbour-" << index << ": " << approximateNeighbour.second->getID() << endl;
-    outputFileStream << "distanceLSH: " << approximateNeighbour.first << endl;
+    outputFileStream << "distanceHypercube: " << approximateNeighbour.first << endl;
     outputFileStream << "distanceTrue: " << exactNeighbour.first << endl;
 
     return index+1;

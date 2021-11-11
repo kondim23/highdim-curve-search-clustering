@@ -108,62 +108,71 @@ int main(int argc, char* argv[]){
 
     inputFileStream.close();
 
+    do{
 
-    while (queryFileStream and getline(queryFileStream,point)){
+        while (queryFileStream and getline(queryFileStream,point)){
 
-        pointStream.str(point);
+            pointStream.str(point);
 
-        //get Query ID
-        getline(pointStream,pointID,' ');
+            //get Query ID
+            getline(pointStream,pointID,' ');
 
-        outputFileStream << "Query: " << pointID << endl;
+            outputFileStream << "Query: " << pointID << endl;
 
-        //update pointVector with query components
-        while (getline(pointStream,token,' ')) 
-            if (token!="\r")
-                pointVector.push_back(stof(token));
+            //update pointVector with query components
+            while (getline(pointStream,token,' ')) 
+                if (token!="\r")
+                    pointVector.push_back(stof(token));
 
-        Point currentPoint(pointID,pointVector);
+            Point currentPoint(pointID,pointVector);
 
-        //call approximate knn and count execution time
-        //resultPQueueApproximateKNN has max length N
-        auto start = high_resolution_clock::now();
-        lsh.approximateKNN(resultPQueueApproximateKNN,currentPoint);
-        auto stop = high_resolution_clock::now();
+            //call approximate knn and count execution time
+            //resultPQueueApproximateKNN has max length N
+            auto start = high_resolution_clock::now();
+            lsh.approximateKNN(resultPQueueApproximateKNN,currentPoint);
+            auto stop = high_resolution_clock::now();
 
-        auto approximateTime = duration_cast<microseconds>(stop - start);
+            auto approximateTime = duration_cast<microseconds>(stop - start);
 
-        //call exact knn and count execution time 
-        start = high_resolution_clock::now();
-        resultPQueueExactKNN = lsh.exactKNN(N,currentPoint);
-        stop = high_resolution_clock::now();
+            //call exact knn and count execution time 
+            start = high_resolution_clock::now();
+            resultPQueueExactKNN = lsh.exactKNN(N,currentPoint);
+            stop = high_resolution_clock::now();
 
-        auto exactTime = duration_cast<microseconds>(stop - start);
+            auto exactTime = duration_cast<microseconds>(stop - start);
 
-        //both priority queues must have same length
-        while (resultPQueueApproximateKNN.size() < resultPQueueExactKNN.size())
-            resultPQueueExactKNN.pop();
+            //both priority queues must have same length
+            while (resultPQueueApproximateKNN.size() < resultPQueueExactKNN.size())
+                resultPQueueExactKNN.pop();
 
-        //print knn results
-        knnRecursivePrint(resultPQueueApproximateKNN,resultPQueueExactKNN);
+            //print knn results
+            knnRecursivePrint(resultPQueueApproximateKNN,resultPQueueExactKNN);
 
-        //print execution times
-        outputFileStream << "tLSH: " << approximateTime.count() << " microseconds" << endl;
-        outputFileStream << "tTrue: " << exactTime.count() << " microseconds" << endl;
+            //print execution times
+            outputFileStream << "tLSH: " << approximateTime.count() << " microseconds" << endl;
+            outputFileStream << "tTrue: " << exactTime.count() << " microseconds" << endl;
 
-        //perform range search and print results
-        resultInRange = lsh.rangeSearch(R,currentPoint);
+            //perform range search and print results
+            resultInRange = lsh.rangeSearch(R,currentPoint);
 
-        outputFileStream << "R-near neighbours:" << endl;
+            outputFileStream << "R-near neighbours:" << endl;
 
-        for (Point* pointPtr : resultInRange)
-            outputFileStream << pointPtr->getID() << endl;
+            for (Point* pointPtr : resultInRange)
+                outputFileStream << pointPtr->getID() << endl;
 
-        pointVector.clear();
-        pointStream.clear();
-    }
+            pointVector.clear();
+            pointStream.clear();
+        }
 
-    queryFileStream.close();
+        queryFileStream.close();
+
+        cout << "Enter a new query-file filename or type \"exit\" to exit." << endl;
+        getline(cin,queryFileName);
+
+        if (queryFileName!="exit") queryFileStream.open(queryFileName);
+
+    }while(queryFileName!="exit");
+
     outputFileStream.close();
 }
 

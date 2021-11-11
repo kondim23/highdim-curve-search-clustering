@@ -13,7 +13,7 @@ using namespace std;
 
 static unsigned int tableSize;
 
-static unsigned int hd_probes,hd_M,temp_probes,temp_M;
+static int hd_probes,hd_M,temp_probes,temp_M;
 
 
 HCUBE::HCUBE (unsigned int k, unsigned int N , unsigned int dimensions,int probes,int M) {
@@ -156,8 +156,8 @@ bool HCUBE::nextProbe_KNN(void* p1, void* p2 , Point& point,unsigned int number)
 
 bool HCUBE::nextProbe_RS(void* p1, void* p2 , Point& point,unsigned int number) {
 
-    set<Point*> pointsInRange, tempSet;
-    set<Point*>* pointInRange = (set<Point*>*) p1;
+    set<Point*> tempSet;
+    set<Point*>* pointsInRange = (set<Point*>*) p1;
     double radius = *(double*)p2;
 
     if ( !temp_M or !temp_probes ) return true;
@@ -166,8 +166,11 @@ bool HCUBE::nextProbe_RS(void* p1, void* p2 , Point& point,unsigned int number) 
 
     //insert elements in result set excluding duplicates
     for(Point* item : tempSet)
-        if(pointsInRange.find(item) == pointsInRange.end())
-            pointsInRange.insert(item);
+        if(pointsInRange->find(item) == pointsInRange->end())
+            pointsInRange->insert(item);
+
+    temp_probes--;
+    temp_M -= this->myHash->getBucketPointCount(number);
 
     if ( temp_M <= 0 || !temp_probes ) return true;
 
