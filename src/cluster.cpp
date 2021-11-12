@@ -230,7 +230,7 @@ bool Cluster::assignLSH(Confs& confs){
 
         for (itrCentroidSet=this->allPoints.begin() ; itrCentroidSet!=this->allPoints.end(); itrCentroidSet++){
             Point p(itrCentroidSet->second->first);
-            lsh.insertInHashes(p);
+            lsh.insert(p);
         }
 
         initialization=false;
@@ -315,7 +315,7 @@ bool Cluster::assignHyperCube(Confs& confs){
     unsigned int index, times=0, itemCh=0;
 
     static bool initialization=true;
-    static HCUBE hcube(confs.get_number_of_hypercube_dimensions(),this->allPoints.size(),
+    static HCUBE hcube(confs.get_number_of_hypercube_dimensions(),
                 this->allCentroids.at(0).getvector().size(), confs.get_number_of_probes(),confs.get_max_number_M_hypercube());
 
     //initialize cube system with all Points
@@ -323,7 +323,7 @@ bool Cluster::assignHyperCube(Confs& confs){
 
         for (itrCentroidSet=this->allPoints.begin() ; itrCentroidSet!=this->allPoints.end(); itrCentroidSet++){
             Point p(itrCentroidSet->second->first);
-            hcube.insertInHashe(p);
+            hcube.insert(p);
         }
 
         initialization=false;

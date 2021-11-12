@@ -28,6 +28,7 @@ LSH::LSH (unsigned int k, unsigned int L, unsigned int N, unsigned int dimension
     for (int i=0 ; i<k ; i++)
         this->rParameters.push_back((abs(rand()))%10);
 
+    this->method = "LSH";
 }
 
 LSH::~LSH(){this->myHashes.at(0).deleteAllAllocatedPoints();}
@@ -62,7 +63,7 @@ pair<unsigned int, int> LSH::hashFunction(unsigned int hashID, Point& point){
 }
 
 
-void LSH::insertInHashes(Point& point){
+void LSH::insert(Point& point){
 
     pair<unsigned int, int> hashFunctionResults;
 

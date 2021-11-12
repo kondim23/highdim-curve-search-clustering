@@ -3,9 +3,9 @@ HDIR	:= include/
 SDIR	:= src/
 BDIR	:= bin/
 
-OBJS_LSH	= lsh_main.o lsh.o myHashTable.o point.o utils.o
-OBJS_CL		= lsh.o hcube.o myHashTable.o point.o utils.o cluster_main.o cluster.o confs.o
-OBJS_CUBE 	= hcube.o hcube_main.o myHashTable.o point.o utils.o
+OBJS_LSH	= lsh_main.o lsh.o myHashTable.o point.o utils.o core_utils.o knn.o
+OBJS_CL		= lsh.o hcube.o myHashTable.o point.o utils.o cluster_main.o cluster.o confs.o core_utils.o knn.o
+OBJS_CUBE 	= hcube.o hcube_main.o myHashTable.o point.o utils.o core_utils.o knn.o
 SOURCE		= lsh_main.cpp lsh.cpp myHashTable.cpp point.cpp utils.cpp
 HEADER		= lsh.h myHashTable.h point.h utils.h
 OUT			= lsh cluster cube
@@ -48,6 +48,12 @@ hcube_main.o: $(SDIR)hcube_main.cpp $(patsubst %,$(HDIR)%,hcube.h point.h)
 
 hcube.o: $(SDIR)hcube.cpp $(patsubst %,$(HDIR)%,hcube.h myHashTable.h utils.h)
 	$(CC) $(FLAGS) $(SDIR)hcube.cpp -o $(ODIR)$@
+
+core_utils.o: $(SDIR)core_utils.cpp $(patsubst %,$(HDIR)%,core_utils.h point.h PQUnique.h PQUnique.t.hpp)
+	$(CC) $(FLAGS) $(SDIR)core_utils.cpp -o $(ODIR)$@
+
+knn.o: $(SDIR)knn.cpp $(HDIR)knn.h
+	$(CC) $(FLAGS) $(SDIR)knn.cpp -o $(ODIR)$@
 
 lsh: $(OBJS_LSH)
 	$(CC) -g $(_OBJS_LSH) -o $(BDIR)$@

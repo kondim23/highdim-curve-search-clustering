@@ -1,3 +1,6 @@
+#ifndef PQUNIQUE_T_HPP
+#define PQUNIQUE_T_HPP
+
 #include <iostream>
 #include "PQUnique.h"
 
@@ -51,3 +54,5 @@ unsigned int PQUnique<T>::size(){
 
     return this->allItems.size();
 }
+
+#endif

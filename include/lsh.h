@@ -3,13 +3,14 @@
 
 #include "myHashTable.h"
 #include "point.h"
+#include "knn.h"
 #include <vector>
 #include <queue>
 
 using std::vector;
 using std::priority_queue;
 
-class LSH {
+class LSH : public KNN{
 
     private:
 
@@ -27,7 +28,7 @@ class LSH {
         LSH (unsigned int k, unsigned int L, unsigned int N, unsigned int dimensions);
         ~LSH ();
 
-        void insertInHashes(Point& point);
+        void insert(Point& point);
 
         void approximateKNN(PQUnique<pair<double, Point*> > &neighboursQueue, Point& point);
 

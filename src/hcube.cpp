@@ -16,7 +16,7 @@ static unsigned int tableSize;
 static int hd_probes,hd_M,temp_probes,temp_M;
 
 
-HCUBE::HCUBE (unsigned int k, unsigned int N , unsigned int dimensions,int probes,int M) {
+HCUBE::HCUBE (unsigned int k, unsigned int dimensions,int probes,int M) {
 
     // NOTE--> N here is the total amount of points in the dataset.
 
@@ -31,12 +31,14 @@ HCUBE::HCUBE (unsigned int k, unsigned int N , unsigned int dimensions,int probe
     // initialize the vector of map for the h-f pairs 
 
     for (int i= 0 ; i < k ; i++) this->fMappings.push_back(map<int, int>());
+
+    this->method = "Hypercube";
 }
 
 HCUBE::~HCUBE() {delete this->myHash;}
 
 
-void HCUBE::insertInHashe(Point &point) {
+void HCUBE::insert(Point &point) {
 
 
     Point* pointPtr = new Point(point);

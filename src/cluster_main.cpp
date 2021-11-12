@@ -8,12 +8,13 @@
 using namespace std;
 using namespace chrono;
 
+ofstream outputFileStream;
+
 int main(int argc, char* argv[]){
 
     string inputFileName, configurationsFileName, outputFileName, point, token, pointID, conf;
     ifstream inputFileStream, configurationsFileStream;
     stringstream pointStream;
-    ofstream outputFileStream;
     vector<float> pointVector;
     bool complete=false;
     MethodType method;

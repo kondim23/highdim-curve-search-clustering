@@ -7,11 +7,12 @@
 #include "point.h"
 #include "PQUnique.h"
 #include "PQUnique.t.hpp"
+#include "../include/knn.h"
 
 using std::vector;
 using std::priority_queue;
 
-class HCUBE {
+class HCUBE : public KNN{
 
     private:
 
@@ -31,10 +32,10 @@ class HCUBE {
 
     public:
 
-        HCUBE(unsigned int k,unsigned int N,unsigned int dimensions,int probes,int M);
+        HCUBE(unsigned int k,unsigned int dimensions,int probes,int M);
         ~HCUBE();
 
-        void insertInHashe(Point& point);
+        void insert(Point& point);
 
         void approximateKNN(PQUnique <pair<double, Point*> > &neighborsQueue,Point& point);
 
