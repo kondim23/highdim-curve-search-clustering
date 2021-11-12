@@ -14,11 +14,8 @@ typedef enum{_LLOYD,_LSH,_CUBE} MethodType;
 
 class Cluster
 {
-private:
+protected:
     
-    //the method used for clustering {LLOYD,LSH,CUBE}
-    MethodType method;
-
     //a set holding pointers to all Points -- pair(Point,clusterID)*
     map<string,pair<Point,int>*> allPoints;
 
@@ -30,35 +27,25 @@ private:
 
     void initializeCentroids();
     void updateCentroids();
-
-    //a pointer to the function used for centroid assignment {assignLloyd,assignLSH,assignHyperCube}
-    bool (Cluster::*assignCentroids)(Confs&);
-
-    //possible assignment to assignCentroids
-    bool assignLloyd(Confs&);
-
-    //possible assignment to assignCentroids
-    bool assignLSH(Confs&);
-
-    //possible assignment to assignCentroids
-    bool assignHyperCube(Confs&);
+    virtual bool assignCentroids();
     
     pair<double,unsigned int> calculateMinCentroidDistance(Point&);
     double mean_cluster_distance(Point &, unsigned int );
     pair<double,unsigned int> find_closest_centroid(unsigned int);
     void FreePoints();
     double initializeRadius();
+    string methodName;
 
 public:
 
-    Cluster(unsigned int, MethodType);
+    Cluster(Confs&);
     ~Cluster();
     void insertPoint(Point &point);
-    void startClustering(Confs&);
+    void startClustering();
     void printCentroids(ofstream&);
     void silhouette(ofstream&);
     void printClusters(ofstream&);
-
+    string getMethod();
 };
 
 #endif

@@ -4,6 +4,9 @@
 #include <sstream>
 #include <chrono>
 #include "../include/cluster.h"
+#include "../include/clusterLloyd.h"
+#include "../include/clusterReverse.h"
+#include "../include/core_utils.h"
 
 using namespace std;
 using namespace chrono;
@@ -18,6 +21,8 @@ int main(int argc, char* argv[]){
     vector<float> pointVector;
     bool complete=false;
     MethodType method;
+    Cluster *clusterMethod;
+    pair<unsigned int,int> inputPointStats;
 
 
     //check-get arguments
@@ -101,7 +106,11 @@ int main(int argc, char* argv[]){
 
 
     //initialize cluster system
-    Cluster cluster(confs.get_number_of_clusters(),method);
+
+    if (method==_LLOYD) 
+        clusterMethod = new clusterLloyd(confs);
+    else 
+        clusterMethod = new clusterReverse(confs,method,getPointCountAndDimensions(inputFileStream));
 
 
     //get all Points from input
@@ -120,7 +129,7 @@ int main(int argc, char* argv[]){
         Point currentPoint(pointID,pointVector);
 
         //insert vector to cluster system
-        cluster.insertPoint(currentPoint);
+        clusterMethod->insertPoint(currentPoint);
 
         pointVector.clear();
         pointStream.clear();
@@ -131,38 +140,25 @@ int main(int argc, char* argv[]){
 
     //clustering
     auto start = high_resolution_clock::now();
-    cluster.startClustering(confs);
+    clusterMethod->startClustering();
     auto stop = high_resolution_clock::now();
 
     auto executionTime = duration_cast<seconds>(stop - start);
 
 
     //print results
-    outputFileStream << "Algorithm: ";
+    outputFileStream << "Algorithm: " << clusterMethod->getMethod() << endl;
 
-    switch (method){
-
-        case _LLOYD:
-            outputFileStream << "Lloyds" << endl;
-            break;
-        
-        case _LSH:
-            outputFileStream << "Range Search LSH" << endl;
-            break;
-
-        case _CUBE:
-            outputFileStream << "Range Search HyperCube" << endl;
-            break;
-    }
-
-    cluster.printCentroids(outputFileStream);
+    clusterMethod->printCentroids(outputFileStream);
 
     outputFileStream << "clustering_time: " << executionTime.count() << endl;
 
     //compute and print silhouette
-    cluster.silhouette(outputFileStream);
+    clusterMethod->silhouette(outputFileStream);
     
-    if (complete) cluster.printClusters(outputFileStream);
+    if (complete) clusterMethod->printClusters(outputFileStream);
 
     outputFileStream.close();
+
+    delete clusterMethod;
 }

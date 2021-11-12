@@ -13,14 +13,13 @@ using namespace chrono;
 
 extern ofstream outputFileStream;
 
-void knn_core(KNN *method, ifstream &inputFileStream, ifstream &queryFileStream, unsigned int N){
+void knn_core(KNN *method, ifstream &inputFileStream, ifstream &queryFileStream, unsigned int N, float R){
 
     string point, token, pointID, queryFileName;
     stringstream pointStream;
     vector<float> pointVector;
     priority_queue<pair<double,Point*> > resultPQueueExactKNN;
     set<Point*> resultInRange;
-    double R=10000.0;
 
     PQUnique<pair<double,Point*> >resultPQueueApproximateKNN(N);
 
@@ -149,7 +148,7 @@ void openCheckFiles(ifstream &inputFileStream, ifstream &queryFileStream, string
     return;
 }
 
-pair<unsigned int,unsigned int> getPointCountAndDimensions(ifstream &inputFileStream){
+pair<unsigned int,int> getPointCountAndDimensions(ifstream &inputFileStream){
 
     string point, token;
     unsigned int inputPointCount=0;

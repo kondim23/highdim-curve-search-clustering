@@ -53,7 +53,7 @@ int main(int argc, char* argv[]){
     LSH lsh(k,L,inputPointStats.first,inputPointStats.second);
 
     //execute knn and range search
-    knn_core(&lsh,inputFileStream,queryFileStream,N);
+    knn_core(&lsh,inputFileStream,queryFileStream,N,R);
 
     //close streams
     inputFileStream.close();

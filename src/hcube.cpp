@@ -35,7 +35,11 @@ HCUBE::HCUBE (unsigned int k, unsigned int dimensions,int probes,int M) {
     this->method = "Hypercube";
 }
 
-HCUBE::~HCUBE() {delete this->myHash;}
+HCUBE::~HCUBE() {
+    
+    this->myHash->deleteAllAllocatedPoints();
+    delete this->myHash;
+}
 
 
 void HCUBE::insert(Point &point) {

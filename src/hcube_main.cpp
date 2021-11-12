@@ -51,7 +51,7 @@ int main(int argc, char* argv[]){
     HCUBE hcube(k,inputPointDimensions,probes,M);
 
     //execute knn and range search
-    knn_core(&hcube,inputFileStream,queryFileStream,N);
+    knn_core(&hcube,inputFileStream,queryFileStream,N,R);
 
     //close streams
     inputFileStream.close();

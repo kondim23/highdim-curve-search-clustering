@@ -4,7 +4,7 @@ SDIR	:= src/
 BDIR	:= bin/
 
 OBJS_LSH	= lsh_main.o lsh.o myHashTable.o point.o utils.o core_utils.o knn.o
-OBJS_CL		= lsh.o hcube.o myHashTable.o point.o utils.o cluster_main.o cluster.o confs.o core_utils.o knn.o
+OBJS_CL		= lsh.o hcube.o myHashTable.o point.o utils.o cluster_main.o cluster.o confs.o core_utils.o knn.o clusterLloyd.o clusterReverse.o
 OBJS_CUBE 	= hcube.o hcube_main.o myHashTable.o point.o utils.o core_utils.o knn.o
 SOURCE		= lsh_main.cpp lsh.cpp myHashTable.cpp point.cpp utils.cpp
 HEADER		= lsh.h myHashTable.h point.h utils.h
@@ -19,7 +19,7 @@ _OUT = $(patsubst %,$(BDIR)%,$(OUT))
 
 all: $(OUT)
 
-lsh_main.o: $(SDIR)lsh_main.cpp $(patsubst %,$(HDIR)%,lsh.h point.h PQUnique.h PQUnique.t.hpp)
+lsh_main.o: $(SDIR)lsh_main.cpp $(patsubst %,$(HDIR)%,lsh.h point.h PQUnique.h PQUnique.t.hpp core_utils.h)
 	$(CC) $(FLAGS) $(SDIR)lsh_main.cpp -o $(ODIR)$@
 
 lsh.o: $(SDIR)lsh.cpp $(patsubst %,$(HDIR)%,lsh.h myHashTable.h utils.h PQUnique.h PQUnique.t.hpp)
@@ -34,16 +34,16 @@ point.o: $(SDIR)point.cpp $(HDIR)point.h
 utils.o: $(SDIR)utils.cpp $(HDIR)utils.h
 	$(CC) $(FLAGS) $(SDIR)utils.cpp -o $(ODIR)$@
 
-cluster_main.o: $(SDIR)cluster_main.cpp $(HDIR)cluster.h
+cluster_main.o: $(SDIR)cluster_main.cpp $(patsubst %,$(HDIR)%,cluster.h clusterLloyd.h clusterReverse.h core_utils.h)
 	$(CC) $(FLAGS) $(SDIR)cluster_main.cpp -o $(ODIR)$@
 
-cluster.o: $(SDIR)cluster.cpp $(patsubst %,$(HDIR)%,cluster.h utils.h lsh.h)
+cluster.o: $(SDIR)cluster.cpp $(patsubst %,$(HDIR)%,cluster.h utils.h lsh.h hcube.h confs.h)
 	$(CC) $(FLAGS) $(SDIR)cluster.cpp -o $(ODIR)$@
 
 confs.o: $(SDIR)confs.cpp $(HDIR)confs.h
 	$(CC) $(FLAGS) $(SDIR)confs.cpp -o $(ODIR)$@
 
-hcube_main.o: $(SDIR)hcube_main.cpp $(patsubst %,$(HDIR)%,hcube.h point.h)
+hcube_main.o: $(SDIR)hcube_main.cpp $(patsubst %,$(HDIR)%,hcube.h point.h core_utils.h)
 	$(CC) $(FLAGS) $(SDIR)hcube_main.cpp -o $(ODIR)$@
 
 hcube.o: $(SDIR)hcube.cpp $(patsubst %,$(HDIR)%,hcube.h myHashTable.h utils.h)
@@ -54,6 +54,12 @@ core_utils.o: $(SDIR)core_utils.cpp $(patsubst %,$(HDIR)%,core_utils.h point.h P
 
 knn.o: $(SDIR)knn.cpp $(HDIR)knn.h
 	$(CC) $(FLAGS) $(SDIR)knn.cpp -o $(ODIR)$@
+
+clusterLloyd.o: $(SDIR)clusterLloyd.cpp $(patsubst %,$(HDIR)%,clusterLloyd.h confs.h)
+	$(CC) $(FLAGS) $(SDIR)clusterLloyd.cpp -o $(ODIR)$@
+
+clusterReverse.o: $(SDIR)clusterReverse.cpp $(patsubst %,$(HDIR)%,clusterReverse.h lsh.h hcube.h)
+	$(CC) $(FLAGS) $(SDIR)clusterReverse.cpp -o $(ODIR)$@
 
 lsh: $(OBJS_LSH)
 	$(CC) -g $(_OBJS_LSH) -o $(BDIR)$@

@@ -9,42 +9,26 @@
 #include "../include/utils.h"
 #include "../include/lsh.h"
 #include "../include/hcube.h"
+#include "../include/confs.h"
 
 using namespace std;
 
 typedef enum{ZERO,HAMMING,EUCLIDEAN} normType;
 
 
-Cluster::Cluster(unsigned int mediansCount, MethodType method){
+Cluster::Cluster(Confs &confs){
 
     //wrong arguments
-    if (!mediansCount){
+    if (!confs.get_number_of_clusters()){
 
         cout << "Error in cluster.conf: number_of_clusters <= 0>" << endl;
         exit(1);
     }
 
     //initialize allClusters with mediansCount sets
-    for (int i=0 ; i<mediansCount ; i++)
+    for (int i=0 ; i<confs.get_number_of_clusters() ; i++)
         this->allClusters.push_back(set<pair<Point,int>*>());
 
-    //set function for centroid assignment and method
-    switch (method)
-    {
-    case _LLOYD:
-        this->assignCentroids = &Cluster::assignLloyd;
-        break;
-
-    case _LSH:
-        this->assignCentroids = &Cluster::assignLSH;
-        break;
-
-    case _CUBE:
-        this->assignCentroids = &Cluster::assignHyperCube;
-        break;
-    }
-
-    this->method = method;
 }
 
 
@@ -59,13 +43,13 @@ void Cluster::insertPoint(Point &point){
 }
 
 
-void Cluster::startClustering(Confs& confs){
+void Cluster::startClustering(){
 
     //initialize centroids with k-means++
     this->initializeCentroids();
 
     //execute centroids-points assignment while clusters change states
-    while((this->*assignCentroids)(confs))
+    while(this->assignCentroids())
 
         //and update centroids
         this->updateCentroids();
@@ -178,224 +162,6 @@ void Cluster::updateCentroids(){
     return;    
 }
 
-
-bool Cluster::assignLloyd(Confs& confs){
-
-    bool stateChanged=false;
-    map<string,pair<Point,int>*>::iterator itr;
-    unsigned int index;
-
-    //for every point
-    for (itr=this->allPoints.begin() ; itr!=this->allPoints.end(); itr++){
-
-        //get index of centroid with minimum distance
-        index = this->calculateMinCentroidDistance(itr->second->first).second;
-
-        //if cluster_to_move_ == previous_cluster continue
-        if (index==itr->second->second) continue;
-
-        //if point is clustered in the past remove from previous_cluster
-        else if (itr->second->second!=-1) this->allClusters.at(itr->second->second).erase(itr->second);
-
-        //add in propriate cluster
-        itr->second->second = index;
-        this->allClusters.at(index).insert(itr->second);
-
-        //stateChange==true -> at least one state change happened 
-        stateChanged=true;
-    }
-    
-    return stateChanged;
-}
-
-
-bool Cluster::assignLSH(Confs& confs){
-
-    set<Point*> rangeSet;
-    map<string,pair<Point,int>*>::iterator itrCentroidSet;
-    set<Point*>::iterator itrRangeSet;
-    pair<Point,int>* pointFromRS;
-    set<pair<Point,int>*> clusteredPoints;
-    double radius = initializeRadius()/2.0;
-    bool totalStateChanged=false;
-    bool iterationStateChange=true;
-    unsigned int index, times=0;
-
-    static bool initialization=true;
-    static LSH lsh(confs.get_number_of_vector_hash_functions(),confs.get_number_of_vector_hash_tables(),
-                                this->allPoints.size(),this->allCentroids.at(0).getvector().size());
-
-    //initialize lsh system with all Points
-    if (initialization){
-
-        for (itrCentroidSet=this->allPoints.begin() ; itrCentroidSet!=this->allPoints.end(); itrCentroidSet++){
-            Point p(itrCentroidSet->second->first);
-            lsh.insert(p);
-        }
-
-        initialization=false;
-    }
-
-
-    //perform ANN
-    while (clusteredPoints.size() < this->allPoints.size() and (iterationStateChange or times++<3)){
-
-        iterationStateChange=false;
-
-        for(int i=0 ; i<this->allCentroids.size() ; i++){
-
-            //perform RS for every centroid as query
-            rangeSet = lsh.rangeSearch(radius,this->allCentroids.at(i));
-
-            //for every point returned
-            for (itrRangeSet=rangeSet.begin() ; itrRangeSet!=rangeSet.end() ; itrRangeSet++){
-
-                pointFromRS = allPoints.at((*itrRangeSet)->getID());
-
-                //if point in set of already clustered points continue
-                if (clusteredPoints.find(pointFromRS)!=clusteredPoints.end()) continue;
-                clusteredPoints.insert(pointFromRS);
-
-                //if cluster_to_move_ == previous_cluster continue
-                if (i==pointFromRS->second) continue;
-
-                //if point is clustered in the past remove from previous_cluster
-                else if (pointFromRS->second!=-1) 
-                    this->allClusters.at(pointFromRS->second).erase(pointFromRS);
-
-                //add in propriate cluster
-                pointFromRS->second = i;
-                this->allClusters.at(i).insert(pointFromRS);
-
-                //stateChange==true -> at least one state change happened 
-                totalStateChanged=iterationStateChange=true;
-            }
-        }
-
-        radius*=2.0;
-    }
-
-    //perform brute force for the rest of the points
-    for (itrCentroidSet=this->allPoints.begin() ; itrCentroidSet!=this->allPoints.end(); itrCentroidSet++){
-
-        if (clusteredPoints.find(itrCentroidSet->second)!=clusteredPoints.end()) 
-            continue;
-
-        //get index of centroid with minimum distance
-        index = this->calculateMinCentroidDistance(itrCentroidSet->second->first).second;
-
-        //if cluster_to_move_ == previous_cluster continue
-        if (index==itrCentroidSet->second->second) continue;
-
-        //if point is clustered in the past remove from previous_cluster
-        else if (itrCentroidSet->second->second!=-1) 
-            this->allClusters.at(itrCentroidSet->second->second).erase(itrCentroidSet->second);
-
-        //add in propriate cluster
-        itrCentroidSet->second->second = index;
-        this->allClusters.at(index).insert(itrCentroidSet->second);
-
-        //stateChange==true -> at least one state change happened 
-        // totalStateChanged=true;
-    }
-
-    return totalStateChanged;
-}
-
-bool Cluster::assignHyperCube(Confs& confs){
-
-    set<Point*> rangeSet;
-    map<string,pair<Point,int>*>::iterator itrCentroidSet;
-    set<Point*>::iterator itrRangeSet;
-    pair<Point,int>* pointFromRS;
-    set<pair<Point,int>*> clusteredPoints;
-    double radius = initializeRadius()/2.0;
-    bool totalStateChanged=false;
-    bool iterationStateChange=true;
-    unsigned int index, times=0, itemCh=0;
-
-    static bool initialization=true;
-    static HCUBE hcube(confs.get_number_of_hypercube_dimensions(),
-                this->allCentroids.at(0).getvector().size(), confs.get_number_of_probes(),confs.get_max_number_M_hypercube());
-
-    //initialize cube system with all Points
-    if (initialization){
-
-        for (itrCentroidSet=this->allPoints.begin() ; itrCentroidSet!=this->allPoints.end(); itrCentroidSet++){
-            Point p(itrCentroidSet->second->first);
-            hcube.insert(p);
-        }
-
-        initialization=false;
-    }
-
-
-    //perform ANN
-    while (clusteredPoints.size() < this->allPoints.size() and (iterationStateChange or times++<3)){
-
-        iterationStateChange=false;
-
-        for(int i=0 ; i<this->allCentroids.size() ; i++){
-
-            //perform RS for every centroid as query
-            rangeSet = hcube.rangeSearch(radius,this->allCentroids.at(i));
-
-            //for every point returned
-            for (itrRangeSet=rangeSet.begin() ; itrRangeSet!=rangeSet.end() ; itrRangeSet++){
-
-                pointFromRS = allPoints.at((*itrRangeSet)->getID());
-
-                //if point in set of already clustered points continue
-                if (clusteredPoints.find(pointFromRS)!=clusteredPoints.end()) continue;
-                clusteredPoints.insert(pointFromRS);
-
-                //if cluster_to_move_ == previous_cluster continue
-                if (i==pointFromRS->second) continue;
-
-                //if point is clustered in the past remove from previous_cluster
-                else if (pointFromRS->second!=-1) 
-                    this->allClusters.at(pointFromRS->second).erase(pointFromRS);
-
-                //add in propriate cluster
-                pointFromRS->second = i;
-                this->allClusters.at(i).insert(pointFromRS);
-
-                //stateChange==true -> at least one state change happened 
-                totalStateChanged=iterationStateChange=true;
-                itemCh++;
-            }
-        }
-
-        radius*=2.0;
-    }
-
-    //perform brute force for the rest of the points
-    for (itrCentroidSet=this->allPoints.begin() ; itrCentroidSet!=this->allPoints.end(); itrCentroidSet++){
-
-        if (clusteredPoints.find(itrCentroidSet->second)!=clusteredPoints.end()) 
-            continue;
-
-        //get index of centroid with minimum distance
-        index = this->calculateMinCentroidDistance(itrCentroidSet->second->first).second;
-
-        //if cluster_to_move_ == previous_cluster continue
-        if (index==itrCentroidSet->second->second) continue;
-
-        //if point is clustered in the past remove from previous_cluster
-        else if (itrCentroidSet->second->second!=-1) 
-            this->allClusters.at(itrCentroidSet->second->second).erase(itrCentroidSet->second);
-
-        //add in propriate cluster
-        itrCentroidSet->second->second = index;
-        this->allClusters.at(index).insert(itrCentroidSet->second);
-
-        //stateChange==true -> at least one state change happened 
-        // totalStateChanged=true;
-        // itemCh++;
-    }
-
-    return totalStateChanged;
-}
 
 double Cluster::initializeRadius(){
 
@@ -524,3 +290,7 @@ void Cluster::FreePoints(){
     for (itr=this->allPoints.begin() ; itr!=this->allPoints.end(); itr++)
         delete itr->second;
 }
+
+bool Cluster::assignCentroids(){}
+
+string Cluster::getMethod() {return this->methodName;}
