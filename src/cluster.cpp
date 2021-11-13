@@ -25,7 +25,7 @@ Cluster::Cluster(Confs &confs){
         exit(1);
     }
 
-    //initialize allClusters with mediansCount sets
+    //initialize allClusters with number_of_clusters sets
     for (int i=0 ; i<confs.get_number_of_clusters() ; i++)
         this->allClusters.push_back(set<pair<Point,int>*>());
 
@@ -167,6 +167,7 @@ double Cluster::initializeRadius(){
 
     double minDistance=DBL_MAX;
 
+    //find and return min distance across all centroids
     for (int i=0 ; i<this->allCentroids.size() ; i++)
         minDistance = min(minDistance,find_closest_centroid(i).first);
 
@@ -246,6 +247,7 @@ double Cluster::mean_cluster_distance(Point &point, unsigned int index){
     set<pair<Point,int>*>::iterator itr;
     double mean_distance=0;
 
+    //iterate between all points in cluster[index]
     for (itr=this->allClusters.at(index).begin() ; itr!=this->allClusters.at(index).end() ; itr++){
 
         if ((*itr)->first.getID()==point.getID()) continue;
@@ -253,6 +255,7 @@ double Cluster::mean_cluster_distance(Point &point, unsigned int index){
         mean_distance += calculate_distance(EUCLIDEAN,(*itr)->first.getvector(),point.getvector());
     }
 
+    //return mean distance
     return this->allClusters.at(index).size()-1!=0 ? mean_distance/(this->allClusters.at(index).size()-1) : 0;
 }
 

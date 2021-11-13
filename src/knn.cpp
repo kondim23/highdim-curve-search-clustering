@@ -1,5 +1,7 @@
 #include "../include/knn.h"
 
+//All virtual functions will be overloaded
+
 unsigned int KNN::hashFunction(Point& point){}
 KNN::KNN(){}
 KNN::~KNN(){}

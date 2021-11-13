@@ -13,11 +13,12 @@ class KNN {
 
     private:
 
-        //the g hash function - returns pair<index(point),ID(point)>
+        //the g hash function - will be overloaded based on method (LSH - Hypercube)
         virtual unsigned int hashFunction(Point& point);
 
     protected:
 
+        //the method used (LSH - Hypercube)
         string method;
 
     public:
@@ -25,6 +26,8 @@ class KNN {
         KNN();
         ~KNN();
 
+        //Every member below will be overloaded based on method (LSH - Hypercube)
+        
         virtual void insert(Point& point);
 
         virtual void approximateKNN(PQUnique <pair<double, Point*> > &neighborsQueue,Point& point);

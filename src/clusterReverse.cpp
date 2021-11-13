@@ -6,7 +6,7 @@
 clusterReverse::clusterReverse(Confs& confs, MethodType mType, pair<unsigned int, int> pointStats) 
                 : Cluster(confs){
 
-    // set function for centroid assignment and method
+    //set method to LSH or HCUBE
     switch (mType)
     {
     case _LSH:
@@ -42,7 +42,7 @@ bool clusterReverse::assignCentroids(){
 
     static bool initialization=true;
 
-    //initialize lsh system with all Points
+    //initialize knn system with all Points
     if (initialization){
 
         for (itrCentroidSet=this->allPoints.begin() ; itrCentroidSet!=this->allPoints.end(); itrCentroidSet++){

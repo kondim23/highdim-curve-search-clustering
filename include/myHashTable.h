@@ -23,7 +23,7 @@ class myHashTable {
         //t parameters for computing h function
         vector<float> tParameters;
 
-        //a hash table of sets
+        //a hash table of sets of points
         vector<set< pair< Point*,int > > > myHash;
 
         //count of buckets
@@ -34,8 +34,10 @@ class myHashTable {
         myHashTable(unsigned int k, unsigned int N, unsigned int w, unsigned int dimensions);
         ~myHashTable();
 
+        //store a point with id pointID in bucket index
         void storeInHash(unsigned int index, Point* point, int pointID);
 
+        //get v and t for computing h
         pair<vector<float>,float> getVTParameters(unsigned int index);
 
         void approximateKNN(PQUnique<pair<double, Point*> > &pqUnique,
@@ -47,6 +49,7 @@ class myHashTable {
 
         void deleteAllAllocatedPoints();
 
+        //returns the count of points in given bucket 
         unsigned int getBucketPointCount(unsigned int);
 };
 

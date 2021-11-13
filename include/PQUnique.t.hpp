@@ -9,6 +9,7 @@ using namespace std;
 template <typename T>
 PQUnique<T>::PQUnique(unsigned int size){
 
+    //set max size
     this->sizeQueue=size;
 }
 
@@ -18,11 +19,13 @@ PQUnique<T>::~PQUnique(){}
 template <typename T>
 void PQUnique<T>::insert(T item){
 
+    //only unique items
     if (this->allItems.find(item) != this->allItems.end()) return;
 
     this->priorityQueue.push(item);
     this->allItems.insert(item);
 
+    //max size this->sizeQueue
     if (this->priorityQueue.size() > this->sizeQueue) {
 
         T popedItem = this->priorityQueue.top();

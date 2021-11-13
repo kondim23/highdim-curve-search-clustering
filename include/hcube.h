@@ -16,18 +16,24 @@ class HCUBE : public KNN{
 
     private:
 
-    //the g hash function - returns pair<index(point),ID(point)>
+    //the g hash function - returns index(point)
     unsigned int hashFunction(Point& point);
 
+    //the hash table of hcube
     myHashTable* myHash;
 
+    //a vector holding a map h->f for every h_i
     vector<map<int,int> > fMappings;
 
+    //recursively computes all numbers with hamming distance 'distance' of number 'number' having 'bit' bits
+    //for each number generated calls nextProbe_KNN() or nextProbe_RS()
     bool hammingDistance(unsigned int number, int bit, int distance, Point& point, 
                         bool (HCUBE::*nextProbe)(void*,void*,Point&,unsigned int),void* p1,void* p2);
 
-    // bool nextProbe(PQUnique<pair<double, Point*> > &pqUnique , Point& point,int number);
+    //checks next probe updating a PQUnique for KNN
     bool nextProbe_KNN(void* p1, void* p2 , Point& point,unsigned int number);
+
+    //checks next probe updating a set for Range Search
     bool nextProbe_RS(void* p1, void* p2 , Point& point,unsigned int number);
 
     public:

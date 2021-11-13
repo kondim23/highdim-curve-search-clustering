@@ -14,6 +14,8 @@ Confs::Confs(unsigned int K, unsigned int L, unsigned int k,
 
 Confs::~Confs(){}
 
+
+//getters and setters
 unsigned int Confs::get_number_of_clusters() {return this->number_of_clusters;}
 unsigned int Confs::get_number_of_vector_hash_tables() {return this->number_of_vector_hash_tables;}
 unsigned int Confs::get_number_of_vector_hash_functions() {return this->number_of_vector_hash_functions;}

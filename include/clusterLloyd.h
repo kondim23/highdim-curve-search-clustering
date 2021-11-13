@@ -8,6 +8,7 @@ class clusterLloyd : public Cluster
 {
     private:
         
+        //Lloyd's assign - overloads cluster class assignCentroids()
         bool assignCentroids();
         
     public:

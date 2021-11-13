@@ -10,7 +10,10 @@ class Point
 {
 private:
 
+    //id of point 
     string id;
+
+    //vector of point
     vector<float> pointVector;
 
 public:

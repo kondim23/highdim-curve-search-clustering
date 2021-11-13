@@ -29,6 +29,7 @@ double vector_multiply(vector<float>& vector1,vector<float>& vector2){
     return result;
 }
 
+//based on a_i =b_i + c_i
 vector<float> add_vectors(vector<float>& v1,vector<float>& v2){
 
     vector<float> vecToReturn;
@@ -39,7 +40,7 @@ vector<float> add_vectors(vector<float>& v1,vector<float>& v2){
     return vecToReturn;
 }
 
-
+//based on a_i = b_i / mul
 vector<float> divide_vector(vector<float>& vec,int mul){
 
     vector<float> vecToReturn;

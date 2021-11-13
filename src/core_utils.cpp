@@ -37,7 +37,7 @@ void knn_core(KNN *method, ifstream &inputFileStream, ifstream &queryFileStream,
 
         Point currentPoint(pointID,pointVector);
 
-        //insert vector to lsh system
+        //insert vector to knn system
         method->insert(currentPoint);
 
         pointVector.clear();
@@ -132,6 +132,8 @@ unsigned int knnRecursivePrint(KNN *method,PQUnique<pair<double,Point*> > &appro
     return index+1;
 }
 
+
+//open files and check filestreams
 void openCheckFiles(ifstream &inputFileStream, ifstream &queryFileStream, string inputFileName, string outputFileName,
                     string queryFileName){
 
@@ -148,6 +150,7 @@ void openCheckFiles(ifstream &inputFileStream, ifstream &queryFileStream, string
     return;
 }
 
+//get count of points and dimensions of points from input
 pair<unsigned int,int> getPointCountAndDimensions(ifstream &inputFileStream){
 
     string point, token;

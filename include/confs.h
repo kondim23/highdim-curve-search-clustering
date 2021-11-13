@@ -5,6 +5,7 @@ class Confs
 {
 private:
 
+    //all members of cluster.conf
     unsigned int number_of_clusters;
     unsigned int number_of_vector_hash_tables;
     unsigned int number_of_vector_hash_functions;
@@ -13,9 +14,13 @@ private:
     unsigned int number_of_probes;
 
 public:
+
+    //initialize with default values
     Confs(unsigned int K=5, unsigned int L=3, unsigned int k=4, 
         unsigned int M=10, unsigned int kc=3, unsigned int pr=2);
     ~Confs();
+
+    //getters and setters
     unsigned int get_number_of_clusters();
     unsigned int get_number_of_vector_hash_tables();
     unsigned int get_number_of_vector_hash_functions();

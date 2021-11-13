@@ -6,6 +6,8 @@
 
 using namespace std;
 
+//a priority queue holding unique elements with max size
+
 template <typename T>
 class PQUnique
 {

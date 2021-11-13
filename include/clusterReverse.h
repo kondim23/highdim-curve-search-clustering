@@ -9,7 +9,10 @@ class clusterReverse : public Cluster
 {
     private:
         
+        //Reverse assign - overloads cluster class assignCentroids()
         bool assignCentroids();
+
+        //a pointer to the method used for reverse clustering (LSH - Hypercube)
         KNN *method;
         
     public:

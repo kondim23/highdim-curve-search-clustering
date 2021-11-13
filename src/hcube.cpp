@@ -13,12 +13,12 @@ using namespace std;
 
 static unsigned int tableSize;
 
+
+//used for not exceding max probes and points in search
 static int hd_probes,hd_M,temp_probes,temp_M;
 
 
 HCUBE::HCUBE (unsigned int k, unsigned int dimensions,int probes,int M) {
-
-    // NOTE--> N here is the total amount of points in the dataset.
 
     tableSize=pow(2,k);
 
@@ -29,7 +29,6 @@ HCUBE::HCUBE (unsigned int k, unsigned int dimensions,int probes,int M) {
     this->myHash = new myHashTable(k,tableSize,WINDOW_SIZE,dimensions);
 
     // initialize the vector of map for the h-f pairs 
-
     for (int i= 0 ; i < k ; i++) this->fMappings.push_back(map<int, int>());
 
     this->method = "Hypercube";
@@ -47,12 +46,10 @@ void HCUBE::insert(Point &point) {
 
     Point* pointPtr = new Point(point);
     
-    // IN HCUBE i dont need the hashID, since
-    // i only have 1 hash table. Entering -1 because i dont want to modify the parameters of the function
-    this->myHash->storeInHash(this->hashFunction(point),pointPtr,0); // Fixed value 0 cause we dont need that in hcube
+    //insert point in hash
+    this->myHash->storeInHash(this->hashFunction(point),pointPtr,0);
 
     return ;
-
 }
 
 
@@ -60,36 +57,36 @@ unsigned int HCUBE::hashFunction(Point& point) {
 
     //holds parameters v and t for calculation of h
     pair<vector<float>, float> currentVTParameters; // vector for v , standard value for t
-    int hi_keeper; // just to store temporary the hi(p) result
+    int hi_keeper; //store temporary the hi(p) result
     int result;
-    int fi_keeper; // just to store temporary the fi result
+    int fi_keeper; //store temporary the fi result
     map<int, int>::iterator itr;
-    int sum = 0 ; // sum of the d' bits ( sto dekadiko susthma)
+    int sum = 0 ; // sum of the d' bits
 
     // Providing a seed value
     srand((unsigned) time(NULL));
 
     for (int i =0 ; i<this->fMappings.size() ; i++) {
         
+        //get v and t
         currentVTParameters = myHash->getVTParameters(i); 
 
+        //comput h_i
         hi_keeper = static_cast<int>((vector_multiply(point.getvector(),currentVTParameters.first)+currentVTParameters.second)/WINDOW_SIZE);
 
+        //search h_i
         itr = fMappings[i].find(hi_keeper);
 
         if (itr == fMappings[i].end() ) {
 
-            // This value wasn't part of the vector , so we need to get a label
+            //set a new f and update map
             fi_keeper = abs(rand()) % 2;
-            fMappings[i].insert(make_pair(hi_keeper,fi_keeper)); // insert the new pair to our map
+            fMappings[i].insert(make_pair(hi_keeper,fi_keeper));
         }
-        // get the already set flag from previous inputPoint with the same hi(p) result
+        // get the already set bit from previous inputPoint with the same hi(p) result
         else fi_keeper = itr->second;
 
-        // if (fi_keeper) sum += pow(2,this->fMappings.size()-1-i);
         if (fi_keeper) sum += (1 << (this->fMappings.size()-1-i));
-
-        // in case of need, the result has the concatenation of d' bits.
     }
 
     return sum;
@@ -101,6 +98,7 @@ void HCUBE::approximateKNN(PQUnique <pair<double, Point*> > &neighborsQueue,Poin
     temp_M = hd_M;
     temp_probes = hd_probes;
         
+    //for every sequence of nums in hamming distance [1,k] call nextProbeKNN() until max probes or points reached
     for (int i = 1 ; i <= fMappings.size() ; i++ )
         if(hammingDistance(this->hashFunction(point),this->fMappings.size(),i,point,&HCUBE::nextProbe_KNN,&neighborsQueue,NULL))
             break;
@@ -116,6 +114,7 @@ set<Point*> HCUBE::rangeSearch(double radius, Point& point) {
 
     set<Point*> setToReturn;
         
+    //for every sequence of nums in hamming distance [1,k] call nextProbeRS() until max probes or points reached
     for (int i = 1 ; i <= fMappings.size() ; i++ )
         if(hammingDistance(this->hashFunction(point),this->fMappings.size(),i,point,&HCUBE::nextProbe_RS,&setToReturn,&radius))
             break;
@@ -123,7 +122,7 @@ set<Point*> HCUBE::rangeSearch(double radius, Point& point) {
     return setToReturn;    
 }
 
-
+//recursively calculate numbers of hamming distance 'distance' and call nextProbe
 bool HCUBE::hammingDistance(unsigned  int number, int bit, int distance, Point& point, 
                             bool (HCUBE::*nextProbe)(void*,void*,Point&,unsigned int),void* p1,void* p2) {
 
@@ -132,11 +131,14 @@ bool HCUBE::hammingDistance(unsigned  int number, int bit, int distance, Point& 
     else if (bit-1<0) 
         return false;
 
+    //hamming distance with current bit
     if (hammingDistance(number,bit-1,distance,point,nextProbe,p1,p2))
         return true;
 
+    //change current bit
     number = number ^ (1<<(bit-1));
 
+    //hamming distance with new bit
     if (hammingDistance(number,bit-1,distance-1,point,nextProbe,p1,p2))
         return true;
 
@@ -150,6 +152,7 @@ bool HCUBE::nextProbe_KNN(void* p1, void* p2 , Point& point,unsigned int number)
 
     if ( !temp_M or !temp_probes ) return true;
 
+    //call knn and update pqUnique with results
     this->myHash->approximateKNN(*pqUnique,number,point,0);
 
     temp_probes--;
@@ -168,6 +171,7 @@ bool HCUBE::nextProbe_RS(void* p1, void* p2 , Point& point,unsigned int number) 
 
     if ( !temp_M or !temp_probes ) return true;
 
+    //call RS and get tempSet with results
     tempSet = this->myHash->rangeSearch(radius,number,point,0);
 
     //insert elements in result set excluding duplicates
