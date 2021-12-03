@@ -15,7 +15,7 @@ myHashTable::myHashTable(unsigned int k, unsigned int N, unsigned int w, unsigne
     srand(time(NULL));
 
     //initialize a hash of N buckets
-    for (int i=0 ; i<N ; i++) this->myHash.push_back(set<pair<Point*,int> >());
+    for (int i=0 ; i<N ; i++) this->myHash.push_back(set<pair<Sequence*,int> >());
     this->myHashSize = N;
 
     default_random_engine generator(time(NULL));
@@ -37,10 +37,10 @@ myHashTable::myHashTable(unsigned int k, unsigned int N, unsigned int w, unsigne
 
 myHashTable::~myHashTable() {}
 
-void myHashTable::storeInHash(unsigned int index, Point* point, int pointID){
+void myHashTable::storeInHash(unsigned int index, Sequence* sequence, int sequenceID){
 
-    //store a pair <pointPtr,ID(point)> in Hash[index]
-    this->myHash[index].insert(make_pair(point,pointID));
+    //store a pair <pointPtr,ID(sequence)> in Hash[index]
+    this->myHash[index].insert(make_pair(sequence,sequenceID));
     return;
 }
 
@@ -52,33 +52,33 @@ pair<vector<float>,float> myHashTable::getVTParameters(unsigned int index){
 
 void myHashTable::deleteAllAllocatedPoints(){
 
-    set<pair<Point*,int> >::iterator itr;
+    set<pair<Sequence*,int> >::iterator itr;
 
     //in every bucket
     for(int i=0 ; i<this->myHashSize ; i++)
-        //for every point
+        //for every sequence
         for (itr = this->myHash[i].begin(); itr != this->myHash[i].end(); itr++)
-            //delete allocated pointer to point
+            //delete allocated pointer to sequence
             delete((*itr).first);
 
     return;
 }
 
-void myHashTable::approximateKNN(PQUnique<pair<double, Point*> > &pqUnique,
-    unsigned int index, Point& point, int pointID){
+void myHashTable::approximateKNN(PQUnique<pair<double, Sequence*> > &pqUnique,
+    unsigned int index, Sequence* sequence, int sequenceID){
 
-    set<pair<Point*,int> >::iterator itr;
+    set<pair<Sequence*,int> >::iterator itr;
 
     //the queue to be returned 
-    priority_queue<pair<double, Point*> > neighboursQueue;
+    priority_queue<pair<double, Sequence*> > neighboursQueue;
     double currentDistance;
 
-    //for every point in bucket myHash[index]
+    //for every sequence in bucket myHash[index]
     for(itr = this->myHash[index].begin(); itr != this->myHash[index].end(); itr++) {
 
-        if (itr->second==pointID){
+        if (itr->second==sequenceID){
 
-            currentDistance = calculate_distance(EUCLIDEAN,itr->first->getvector(),point.getvector());
+            currentDistance = calculate_distance(EUCLIDEAN,itr->first->getvector(),sequence->getvector());
 
             //insert in size-limited PQUnique list
             pqUnique.insert(make_pair(currentDistance,itr->first));
@@ -88,37 +88,37 @@ void myHashTable::approximateKNN(PQUnique<pair<double, Point*> > &pqUnique,
     return;
 }
 
-set<Point*> myHashTable::rangeSearch(double radius, unsigned int index, Point& point, int pointID){
+set<Sequence*> myHashTable::rangeSearch(double radius, unsigned int index, Sequence* sequence, int sequenceID){
     
-    set<pair<Point*,int> >::iterator itr;
-    set<Point*> setToReturn;
+    set<pair<Sequence*,int> >::iterator itr;
+    set<Sequence*> setToReturn;
     double currentDistance;
 
-    //for every point in bucket myHash[index]
+    //for every sequence in bucket myHash[index]
     for(itr = this->myHash[index].begin(); itr != this->myHash[index].end(); itr++) {
 
-            //insert in set if point in radius
-        if (itr->second==pointID and 
-            calculate_distance(EUCLIDEAN,itr->first->getvector(),point.getvector())<=radius) 
+            //insert in set if sequence in radius
+        if (itr->second==sequenceID and 
+            calculate_distance(EUCLIDEAN,itr->first->getvector(),sequence->getvector())<=radius) 
                 setToReturn.insert(itr->first);
     }
 
     return setToReturn;
 }
 
-priority_queue<pair<double, Point*> > myHashTable::exactKNN(unsigned int neighboursCount, Point& point){
+priority_queue<pair<double, Sequence*> > myHashTable::exactKNN(unsigned int neighboursCount, Sequence* sequence){
 
-    set<pair<Point*,int> >::iterator itr;
-    priority_queue<pair<double, Point*> > neighboursQueue;
+    set<pair<Sequence*,int> >::iterator itr;
+    priority_queue<pair<double, Sequence*> > neighboursQueue;
     double currentDistance;
 
     //for every bucket
     for(int i=0 ; i<this->myHashSize ; i++)
 
-        //for every point in bucket myHash[index]
+        //for every sequence in bucket myHash[index]
         for (itr = this->myHash[i].begin(); itr != this->myHash[i].end(); itr++){
 
-            currentDistance = calculate_distance(EUCLIDEAN,itr->first->getvector(),point.getvector());
+            currentDistance = calculate_distance(EUCLIDEAN,itr->first->getvector(),sequence->getvector());
 
             //queue not full
             if (neighboursQueue.size()<neighboursCount)

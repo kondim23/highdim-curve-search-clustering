@@ -4,7 +4,7 @@
 #include <vector>
 #include <map>
 #include "myHashTable.h"
-#include "point.h"
+#include "sequence.h"
 #include "PQUnique.h"
 #include "PQUnique.t.hpp"
 #include "../include/knn.h"
@@ -17,7 +17,7 @@ class HCUBE : public KNN{
     private:
 
     //the g hash function - returns index(point)
-    unsigned int hashFunction(Point& point);
+    unsigned int hashFunction(Sequence* point);
 
     //the hash table of hcube
     myHashTable* myHash;
@@ -27,27 +27,27 @@ class HCUBE : public KNN{
 
     //recursively computes all numbers with hamming distance 'distance' of number 'number' having 'bit' bits
     //for each number generated calls nextProbe_KNN() or nextProbe_RS()
-    bool hammingDistance(unsigned int number, int bit, int distance, Point& point, 
-                        bool (HCUBE::*nextProbe)(void*,void*,Point&,unsigned int),void* p1,void* p2);
+    bool hammingDistance(unsigned int number, int bit, int distance, Sequence* point, 
+                        bool (HCUBE::*nextProbe)(void*,void*,Sequence*,unsigned int),void* p1,void* p2);
 
     //checks next probe updating a PQUnique for KNN
-    bool nextProbe_KNN(void* p1, void* p2 , Point& point,unsigned int number);
+    bool nextProbe_KNN(void* p1, void* p2 , Sequence* point,unsigned int number);
 
     //checks next probe updating a set for Range Search
-    bool nextProbe_RS(void* p1, void* p2 , Point& point,unsigned int number);
+    bool nextProbe_RS(void* p1, void* p2 , Sequence* point,unsigned int number);
 
     public:
 
         HCUBE(unsigned int k,unsigned int dimensions,int probes,int M);
         ~HCUBE();
 
-        void insert(Point& point);
+        void insert(Sequence* point);
 
-        void approximateKNN(PQUnique <pair<double, Point*> > &neighborsQueue,Point& point);
+        void approximateKNN(PQUnique <pair<double, Sequence*> > &neighborsQueue,Sequence* point);
 
-        priority_queue<pair<double, Point*> > exactKNN(unsigned int neighbours, Point& point);
+        priority_queue<pair<double, Sequence*> > exactKNN(unsigned int neighbours, Sequence* point);
 
-        set<Point*> rangeSearch(double radius, Point& point);
+        set<Sequence*> rangeSearch(double radius, Sequence* point);
 };
 
 #endif

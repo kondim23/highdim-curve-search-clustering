@@ -126,10 +126,8 @@ int main(int argc, char* argv[]){
             if (token!="\r")
                 pointVector.push_back(stof(token));
 
-        Point currentPoint(pointID,pointVector);
-
         //insert vector to cluster system
-        clusterMethod->insertPoint(currentPoint);
+        clusterMethod->insertPoint(new Sequence(pointID,pointVector));
 
         pointVector.clear();
         pointStream.clear();

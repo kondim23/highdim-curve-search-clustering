@@ -17,7 +17,7 @@ clusterLloyd::~clusterLloyd(){}
 bool clusterLloyd::assignCentroids(){
 
     bool stateChanged=false;
-    map<string,pair<Point,int>*>::iterator itr;
+    map<string,pair<Sequence*,int>*>::iterator itr;
     unsigned int index;
 
     //for every point

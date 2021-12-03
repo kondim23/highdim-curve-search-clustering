@@ -2,11 +2,11 @@
 
 //All virtual functions will be overloaded
 
-unsigned int KNN::hashFunction(Point& point){}
+unsigned int KNN::hashFunction(Sequence* point){}
 KNN::KNN(){}
 KNN::~KNN(){}
-void KNN::insert(Point& point){}
-void KNN::approximateKNN(PQUnique <pair<double, Point*> > &neighborsQueue,Point& point){}
-priority_queue<pair<double, Point*> > KNN::exactKNN(unsigned int neighbours, Point& point){}
-set<Point*> KNN::rangeSearch(double radius, Point& point){}
+void KNN::insert(Sequence* point){}
+void KNN::approximateKNN(PQUnique <pair<double, Sequence*> > &neighborsQueue,Sequence* point){}
+priority_queue<pair<double, Sequence*> > KNN::exactKNN(unsigned int neighbours, Sequence* point){}
+set<Sequence*> KNN::rangeSearch(double radius, Sequence* point){}
 string KNN::getMethod() {return this->method;}

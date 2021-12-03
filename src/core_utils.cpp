@@ -4,7 +4,7 @@
 #include <sstream>
 #include <chrono>
 #include "../include/core_utils.h"
-#include "../include/point.h"
+#include "../include/sequence.h"
 #include "../include/PQUnique.h"
 #include "../include/PQUnique.t.hpp"
 
@@ -18,10 +18,10 @@ void knn_core(KNN *method, ifstream &inputFileStream, ifstream &queryFileStream,
     string point, token, pointID, queryFileName;
     stringstream pointStream;
     vector<float> pointVector;
-    priority_queue<pair<double,Point*> > resultPQueueExactKNN;
-    set<Point*> resultInRange;
+    priority_queue<pair<double,Sequence*> > resultPQueueExactKNN;
+    set<Sequence*> resultInRange;
 
-    PQUnique<pair<double,Point*> >resultPQueueApproximateKNN(N);
+    PQUnique<pair<double,Sequence*> >resultPQueueApproximateKNN(N);
 
     while (inputFileStream and getline(inputFileStream,point)){
 
@@ -35,10 +35,8 @@ void knn_core(KNN *method, ifstream &inputFileStream, ifstream &queryFileStream,
             if (token!="\r")
                 pointVector.push_back(stof(token));
 
-        Point currentPoint(pointID,pointVector);
-
         //insert vector to knn system
-        method->insert(currentPoint);
+        method->insert(new Sequence(pointID,pointVector));
 
         pointVector.clear();
         pointStream.clear();
@@ -60,19 +58,19 @@ void knn_core(KNN *method, ifstream &inputFileStream, ifstream &queryFileStream,
                 if (token!="\r")
                     pointVector.push_back(stof(token));
 
-            Point currentPoint(pointID,pointVector);
+            Sequence* currentSequence = new Sequence(pointID,pointVector);
 
             //call approximate knn and count execution time
             //resultPQueueApproximateKNN has max length N
             auto start = high_resolution_clock::now();
-            method->approximateKNN(resultPQueueApproximateKNN,currentPoint);
+            method->approximateKNN(resultPQueueApproximateKNN,currentSequence);
             auto stop = high_resolution_clock::now();
 
             auto approximateTime = duration_cast<microseconds>(stop - start);
 
             //call exact knn and count execution time 
             start = high_resolution_clock::now();
-            resultPQueueExactKNN = method->exactKNN(N,currentPoint);
+            resultPQueueExactKNN = method->exactKNN(N,currentSequence);
             stop = high_resolution_clock::now();
 
             auto exactTime = duration_cast<microseconds>(stop - start);
@@ -89,11 +87,11 @@ void knn_core(KNN *method, ifstream &inputFileStream, ifstream &queryFileStream,
             outputFileStream << "tTrue: " << exactTime.count() << " microseconds" << endl;
 
             //perform range search and print results
-            resultInRange = method->rangeSearch(R,currentPoint);
+            resultInRange = method->rangeSearch(R,currentSequence);
 
             outputFileStream << "R-near neighbours:" << endl;
 
-            for (Point* pointPtr : resultInRange)
+            for (Sequence* pointPtr : resultInRange)
                 outputFileStream << pointPtr->getID() << endl;
 
             pointVector.clear();
@@ -113,14 +111,14 @@ void knn_core(KNN *method, ifstream &inputFileStream, ifstream &queryFileStream,
 }
 
 //recursive print of elements in priority queues of KNN
-unsigned int knnRecursivePrint(KNN *method,PQUnique<pair<double,Point*> > &approximateQueue,
-                    priority_queue<pair<double,Point*> > &exactQueue){
+unsigned int knnRecursivePrint(KNN *method,PQUnique<pair<double,Sequence*> > &approximateQueue,
+                    priority_queue<pair<double,Sequence*> > &exactQueue){
 
     if (approximateQueue.empty() or exactQueue.empty()) return 1;
 
-    pair<double,Point*> approximateNeighbour = approximateQueue.pop();
+    pair<double,Sequence*> approximateNeighbour = approximateQueue.pop();
 
-    pair<double,Point*> exactNeighbour = exactQueue.top();
+    pair<double,Sequence*> exactNeighbour = exactQueue.top();
     exactQueue.pop();
 
     unsigned int index = knnRecursivePrint(method,approximateQueue,exactQueue);

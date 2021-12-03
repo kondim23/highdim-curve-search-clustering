@@ -3,7 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <chrono>
-#include "../include/point.h"
+#include "../include/sequence.h"
 #include "../include/hcube.h"
 #include "../include/core_utils.h"
 

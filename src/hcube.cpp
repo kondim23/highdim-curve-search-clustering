@@ -41,19 +41,16 @@ HCUBE::~HCUBE() {
 }
 
 
-void HCUBE::insert(Point &point) {
-
-
-    Point* pointPtr = new Point(point);
+void HCUBE::insert(Sequence* sequence) {
     
-    //insert point in hash
-    this->myHash->storeInHash(this->hashFunction(point),pointPtr,0);
+    //insert sequence in hash
+    this->myHash->storeInHash(this->hashFunction(sequence),sequence,0);
 
     return ;
 }
 
 
-unsigned int HCUBE::hashFunction(Point& point) {
+unsigned int HCUBE::hashFunction(Sequence* sequence) {
 
     //holds parameters v and t for calculation of h
     pair<vector<float>, float> currentVTParameters; // vector for v , standard value for t
@@ -72,7 +69,7 @@ unsigned int HCUBE::hashFunction(Point& point) {
         currentVTParameters = myHash->getVTParameters(i); 
 
         //comput h_i
-        hi_keeper = static_cast<int>((vector_multiply(point.getvector(),currentVTParameters.first)+currentVTParameters.second)/WINDOW_SIZE);
+        hi_keeper = static_cast<int>((vector_multiply(sequence->getvector(),currentVTParameters.first)+currentVTParameters.second)/WINDOW_SIZE);
 
         //search h_i
         itr = fMappings[i].find(hi_keeper);
@@ -93,67 +90,67 @@ unsigned int HCUBE::hashFunction(Point& point) {
 }
 
 
-void HCUBE::approximateKNN(PQUnique <pair<double, Point*> > &neighborsQueue,Point& point) {
+void HCUBE::approximateKNN(PQUnique <pair<double, Sequence*> > &neighborsQueue,Sequence* sequence) {
 
     temp_M = hd_M;
     temp_probes = hd_probes;
         
     //for every sequence of nums in hamming distance [1,k] call nextProbeKNN() until max probes or points reached
     for (int i = 1 ; i <= fMappings.size() ; i++ )
-        if(hammingDistance(this->hashFunction(point),this->fMappings.size(),i,point,&HCUBE::nextProbe_KNN,&neighborsQueue,NULL))
+        if(hammingDistance(this->hashFunction(sequence),this->fMappings.size(),i,sequence,&HCUBE::nextProbe_KNN,&neighborsQueue,NULL))
             break;
 
 
     return ;
 }
 
-set<Point*> HCUBE::rangeSearch(double radius, Point& point) {
+set<Sequence*> HCUBE::rangeSearch(double radius, Sequence* sequence) {
 
     temp_M = hd_M;
     temp_probes = hd_probes;
 
-    set<Point*> setToReturn;
+    set<Sequence*> setToReturn;
         
     //for every sequence of nums in hamming distance [1,k] call nextProbeRS() until max probes or points reached
     for (int i = 1 ; i <= fMappings.size() ; i++ )
-        if(hammingDistance(this->hashFunction(point),this->fMappings.size(),i,point,&HCUBE::nextProbe_RS,&setToReturn,&radius))
+        if(hammingDistance(this->hashFunction(sequence),this->fMappings.size(),i,sequence,&HCUBE::nextProbe_RS,&setToReturn,&radius))
             break;
 
     return setToReturn;    
 }
 
 //recursively calculate numbers of hamming distance 'distance' and call nextProbe
-bool HCUBE::hammingDistance(unsigned  int number, int bit, int distance, Point& point, 
-                            bool (HCUBE::*nextProbe)(void*,void*,Point&,unsigned int),void* p1,void* p2) {
+bool HCUBE::hammingDistance(unsigned  int number, int bit, int distance, Sequence* sequence, 
+                            bool (HCUBE::*nextProbe)(void*,void*,Sequence*,unsigned int),void* p1,void* p2) {
 
     if (!distance) 
-        return (this->*nextProbe)(p1,p2,point,number);
+        return (this->*nextProbe)(p1,p2,sequence,number);
     else if (bit-1<0) 
         return false;
 
     //hamming distance with current bit
-    if (hammingDistance(number,bit-1,distance,point,nextProbe,p1,p2))
+    if (hammingDistance(number,bit-1,distance,sequence,nextProbe,p1,p2))
         return true;
 
     //change current bit
     number = number ^ (1<<(bit-1));
 
     //hamming distance with new bit
-    if (hammingDistance(number,bit-1,distance-1,point,nextProbe,p1,p2))
+    if (hammingDistance(number,bit-1,distance-1,sequence,nextProbe,p1,p2))
         return true;
 
     return false;
 }
 
 
-bool HCUBE::nextProbe_KNN(void* p1, void* p2 , Point& point,unsigned int number) {
+bool HCUBE::nextProbe_KNN(void* p1, void* p2 , Sequence* sequence,unsigned int number) {
 
-    PQUnique<pair<double, Point*> >* pqUnique = (PQUnique<pair<double, Point*> >*) p1;
+    PQUnique<pair<double, Sequence*> >* pqUnique = (PQUnique<pair<double, Sequence*> >*) p1;
 
     if ( !temp_M or !temp_probes ) return true;
 
     //call knn and update pqUnique with results
-    this->myHash->approximateKNN(*pqUnique,number,point,0);
+    this->myHash->approximateKNN(*pqUnique,number,sequence,0);
 
     temp_probes--;
     temp_M -= this->myHash->getBucketPointCount(number);
@@ -163,19 +160,19 @@ bool HCUBE::nextProbe_KNN(void* p1, void* p2 , Point& point,unsigned int number)
     return false;
 }
 
-bool HCUBE::nextProbe_RS(void* p1, void* p2 , Point& point,unsigned int number) {
+bool HCUBE::nextProbe_RS(void* p1, void* p2 , Sequence* sequence,unsigned int number) {
 
-    set<Point*> tempSet;
-    set<Point*>* pointsInRange = (set<Point*>*) p1;
+    set<Sequence*> tempSet;
+    set<Sequence*>* pointsInRange = (set<Sequence*>*) p1;
     double radius = *(double*)p2;
 
     if ( !temp_M or !temp_probes ) return true;
 
     //call RS and get tempSet with results
-    tempSet = this->myHash->rangeSearch(radius,number,point,0);
+    tempSet = this->myHash->rangeSearch(radius,number,sequence,0);
 
     //insert elements in result set excluding duplicates
-    for(Point* item : tempSet)
+    for(Sequence* item : tempSet)
         if(pointsInRange->find(item) == pointsInRange->end())
             pointsInRange->insert(item);
 
@@ -188,7 +185,7 @@ bool HCUBE::nextProbe_RS(void* p1, void* p2 , Point& point,unsigned int number) 
 }
 
 
-priority_queue<pair<double, Point*> > HCUBE::exactKNN(unsigned int neighbours, Point& point){
+priority_queue<pair<double, Sequence*> > HCUBE::exactKNN(unsigned int neighbours, Sequence* sequence){
 
-    return this->myHash->exactKNN(neighbours,point);
+    return this->myHash->exactKNN(neighbours,sequence);
 }

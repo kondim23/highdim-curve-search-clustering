@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <map>
-#include "point.h"
+#include "sequence.h"
 #include "PQUnique.h"
 #include "PQUnique.t.hpp"
 
@@ -14,7 +14,7 @@ class KNN {
     private:
 
         //the g hash function - will be overloaded based on method (LSH - Hypercube)
-        virtual unsigned int hashFunction(Point& point);
+        virtual unsigned int hashFunction(Sequence* point);
 
     protected:
 
@@ -28,13 +28,13 @@ class KNN {
 
         //Every member below will be overloaded based on method (LSH - Hypercube)
         
-        virtual void insert(Point& point);
+        virtual void insert(Sequence* point);
 
-        virtual void approximateKNN(PQUnique <pair<double, Point*> > &neighborsQueue,Point& point);
+        virtual void approximateKNN(PQUnique <pair<double, Sequence*> > &neighborsQueue,Sequence* point);
 
-        virtual priority_queue<pair<double, Point*> > exactKNN(unsigned int neighbours, Point& point);
+        virtual priority_queue<pair<double, Sequence*> > exactKNN(unsigned int neighbours, Sequence* point);
 
-        virtual set<Point*> rangeSearch(double radius, Point& point);
+        virtual set<Sequence*> rangeSearch(double radius, Sequence* point);
 
         string getMethod();
 };

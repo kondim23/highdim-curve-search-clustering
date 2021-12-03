@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include "../include/lsh.h"
+#include "../include/lsh_vector.h"
 #include "../include/myHashTable.h"
 #include "../include/utils.h"
 #include "../include/PQUnique.h"
@@ -13,7 +13,7 @@ using namespace std;
 
 static unsigned int tableSize;
 
-LSH::LSH (unsigned int k, unsigned int L, unsigned int N, unsigned int dimensions){
+LSHvector::LSHvector (unsigned int k, unsigned int L, unsigned int N, unsigned int dimensions){
 
     srand(time(NULL));
 
@@ -31,9 +31,9 @@ LSH::LSH (unsigned int k, unsigned int L, unsigned int N, unsigned int dimension
     this->method = "LSH";
 }
 
-LSH::~LSH(){this->myHashes.at(0).deleteAllAllocatedPoints();}
+LSHvector::~LSHvector(){this->myHashes.at(0).deleteAllAllocatedPoints();}
 
-pair<unsigned int, int> LSH::hashFunction(unsigned int hashID, Point& point){
+pair<unsigned int, int> LSHvector::hashFunction(unsigned int hashID, Sequence* sequence){
 
     long long int result=0;
 
@@ -46,72 +46,71 @@ pair<unsigned int, int> LSH::hashFunction(unsigned int hashID, Point& point){
         currentVTParameters = this->myHashes.at(hashID).getVTParameters(i);
 
         //calculating sum of r_i*h_i ;  That is  r_i*((v*p)+t)/w 
-        // result+= static_cast<int>(this->rParameters.at(i)) * static_cast<int>((vector_multiply(point.getvector(),currentVTParameters.first)+currentVTParameters.second)/WINDOW_SIZE);
-        double vm = vector_multiply(point.getvector(),currentVTParameters.first);
+        // result+= static_cast<int>(this->rParameters.at(i)) * static_cast<int>((vector_multiply(sequence.getvector(),currentVTParameters.first)+currentVTParameters.second)/WINDOW_SIZE);
+        double vm = vector_multiply(sequence->getvector(),currentVTParameters.first);
         vm+=currentVTParameters.second;
         vm/=WINDOW_SIZE;
         int in=static_cast<int>(vm);
         int r = (static_cast<int>(this->rParameters.at(i)));
         result+=r*in;
+        result%=INT32_MAX;
     }
 
     //(r_i*h_i)%2^32
     result%=INT32_MAX;
 
-    //return pair<index(point),ID(point)>
+    //return pair<index(sequence),ID(sequence)>
     return make_pair(result>=0 ? result%tableSize : tableSize-(abs(result)%tableSize+1),result);
 }
 
 
-void LSH::insert(Point& point){
+void LSHvector::insert(Sequence* sequence){
 
     pair<unsigned int, int> hashFunctionResults;
 
-    Point* pointPtr = new Point(point);
-
     for (int i=0 ; i<this->myHashes.size() ; i++){
 
-        //get index(point), ID(point) and store point.
-        hashFunctionResults = this->hashFunction(i,point);
-        this->myHashes.at(i).storeInHash(hashFunctionResults.first,pointPtr,hashFunctionResults.second);
+        //get index(sequence), ID(sequence) and store sequence.
+        hashFunctionResults = this->hashFunction(i,sequence);
+        this->myHashes.at(i).storeInHash(hashFunctionResults.first,sequence,hashFunctionResults.second);
     }
 
     return;
 }
 
 
-void LSH::approximateKNN(PQUnique<pair<double, Point*> > &neighboursQueue, Point& point){
+void LSHvector::approximateKNN(PQUnique<pair<double, Sequence*> > &neighboursQueue, Sequence* sequence){
 
     pair<unsigned int, int> hashFunctionResults;
 
     for (int i=0 ; i<this->myHashes.size() ; i++){
 
-        //get index(point) and ID(point)
-        hashFunctionResults = this->hashFunction(i,point);
+        //get index(sequence) and ID(sequence)
+        hashFunctionResults = this->hashFunction(i,sequence);
 
         //get knn for hash with hashID==i
-        this->myHashes.at(i).approximateKNN(neighboursQueue,hashFunctionResults.first,point,hashFunctionResults.second);        
+        this->myHashes.at(i).approximateKNN(neighboursQueue,hashFunctionResults.first,sequence,hashFunctionResults.second);        
     }
 
     return;
 }
 
 
-set<Point*> LSH::rangeSearch(double radius, Point& point){
+set<Sequence*> LSHvector::rangeSearch(double radius, Sequence* sequence){
 
-    set<Point*> pointsInRange, tempSet;
+    set<Sequence*> pointsInRange, tempSet;
     pair<unsigned int, int> hashFunctionResults;
 
     for (int i=0 ; i<this->myHashes.size() ; i++){
 
-        //get index(point) and ID(point)
-        hashFunctionResults = this->hashFunction(i,point);
+        //get index(sequence) and ID(sequence)
+        hashFunctionResults = this->hashFunction(i,sequence);
 
         //get set of points in range for hash with hashID==i
-        tempSet = this->myHashes.at(i).rangeSearch(radius,hashFunctionResults.first,point,hashFunctionResults.second);
+        tempSet = this->myHashes.at(i).rangeSearch(radius,hashFunctionResults.first,sequence,hashFunctionResults.second);
 
         //insert elements in result set excluding duplicates
-        for(Point* item : tempSet)
+        for(Sequence* item : tempSet)
             if(pointsInRange.find(item) == pointsInRange.end())
                 pointsInRange.insert(item);
     }
@@ -120,7 +119,7 @@ set<Point*> LSH::rangeSearch(double radius, Point& point){
 }
 
 
-priority_queue<pair<double, Point*> > LSH::exactKNN(unsigned int neighbours, Point& point){
+priority_queue<pair<double, Sequence*> > LSHvector::exactKNN(unsigned int neighbours, Sequence* sequence){
 
-    return this->myHashes.at(0).exactKNN(neighbours,point);
+    return this->myHashes.at(0).exactKNN(neighbours,sequence);
 }

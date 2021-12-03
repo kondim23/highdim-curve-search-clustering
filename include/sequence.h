@@ -6,7 +6,7 @@
 
 using namespace std;
 
-class Point
+class Sequence
 {
 private:
 
@@ -18,8 +18,8 @@ private:
 
 public:
 
-    Point(string id, vector<float> &pointVector);
-    ~Point();
+    Sequence(string id, vector<float> &pointVector);
+    ~Sequence();
     string getID();
     vector<float>& getvector();
 

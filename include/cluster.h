@@ -5,7 +5,7 @@
 #include <set>
 #include <map>
 #include <fstream>
-#include "point.h"
+#include "sequence.h"
 #include "confs.h"
 
 using namespace std;
@@ -17,13 +17,13 @@ class Cluster
 protected:
     
     //a map holding pointers to all Points -- pair(Point,clusterID)* -- mapped by PointID
-    map<string,pair<Point,int>*> allPoints;
+    map<string,pair<Sequence*,int>*> allPoints;
 
     //a vector of set-clusters holding pointers to clustered Points -- pair(Point,clusterID)*
-    vector<set<pair<Point,int>*> > allClusters;
+    vector<set<pair<Sequence*,int>*> > allClusters;
 
     //a vector of Points representing the centroids
-    vector<Point> allCentroids;
+    vector<Sequence*> allCentroids;
 
     //k-means++
     void initializeCentroids();
@@ -35,10 +35,10 @@ protected:
     virtual bool assignCentroids();
     
     //find closest centroid to point
-    pair<double,unsigned int> calculateMinCentroidDistance(Point&);
+    pair<double,unsigned int> calculateMinCentroidDistance(Sequence*);
 
     //calculate the mean distance of given point on points in given cluster 
-    double mean_cluster_distance(Point &, unsigned int );
+    double mean_cluster_distance(Sequence *, unsigned int );
 
     //find closect centroid to given centroid 
     pair<double,unsigned int> find_closest_centroid(unsigned int);
@@ -56,7 +56,7 @@ public:
 
     Cluster(Confs&);
     ~Cluster();
-    void insertPoint(Point &point);
+    void insertPoint(Sequence *point);
     void startClustering();
     void printCentroids(ofstream&);
 

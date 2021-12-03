@@ -5,7 +5,7 @@
 #include <set>
 #include <queue>
 #include <utility>
-#include "point.h"
+#include "sequence.h"
 #include "PQUnique.h"
 
 using std::vector;
@@ -24,7 +24,7 @@ class myHashTable {
         vector<float> tParameters;
 
         //a hash table of sets of points
-        vector<set< pair< Point*,int > > > myHash;
+        vector<set< pair< Sequence*,int > > > myHash;
 
         //count of buckets
         unsigned int myHashSize;
@@ -35,17 +35,17 @@ class myHashTable {
         ~myHashTable();
 
         //store a point with id pointID in bucket index
-        void storeInHash(unsigned int index, Point* point, int pointID);
+        void storeInHash(unsigned int index, Sequence* point, int pointID);
 
         //get v and t for computing h
         pair<vector<float>,float> getVTParameters(unsigned int index);
 
-        void approximateKNN(PQUnique<pair<double, Point*> > &pqUnique,
-            unsigned int index, Point& point, int pointID);
+        void approximateKNN(PQUnique<pair<double, Sequence*> > &pqUnique,
+            unsigned int index, Sequence* point, int pointID);
 
-        priority_queue<pair<double, Point*> > exactKNN(unsigned int neighbours, Point& point);
+        priority_queue<pair<double, Sequence*> > exactKNN(unsigned int neighbours, Sequence* point);
             
-        set<Point*> rangeSearch(double radius, unsigned int index, Point& point, int pointID);
+        set<Sequence*> rangeSearch(double radius, unsigned int index, Sequence* point, int pointID);
 
         void deleteAllAllocatedPoints();
 

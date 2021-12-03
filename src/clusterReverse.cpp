@@ -1,5 +1,5 @@
 #include "../include/clusterReverse.h"
-#include "../include/lsh.h"
+#include "../include/lsh_vector.h"
 #include "../include/hcube.h"
 
 
@@ -10,7 +10,7 @@ clusterReverse::clusterReverse(Confs& confs, MethodType mType, pair<unsigned int
     switch (mType)
     {
     case _LSH:
-        this->method = new LSH(confs.get_number_of_vector_hash_functions(),confs.get_number_of_vector_hash_tables(),
+        this->method = new LSHvector(confs.get_number_of_vector_hash_functions(),confs.get_number_of_vector_hash_tables(),
                                 pointStats.first,pointStats.second);
         this->methodName = "Range Search LSH";
         break;
@@ -30,15 +30,15 @@ clusterReverse::~clusterReverse() { delete this->method; }
 bool clusterReverse::assignCentroids(){
 
     
-    map<string,pair<Point,int>*>::iterator itrCentroidSet;
-    set<Point*>::iterator itrRangeSet;
-    pair<Point,int>* pointFromRS;
-    set<pair<Point,int>*> clusteredPoints;
+    map<string,pair<Sequence*,int>*>::iterator itrCentroidSet;
+    set<Sequence*>::iterator itrRangeSet;
+    pair<Sequence*,int>* pointFromRS;
+    set<pair<Sequence*,int>*> clusteredPoints;
     double radius = initializeRadius()/2.0;
     bool totalStateChanged=false;
     bool iterationStateChange=true;
     unsigned int index, times=0;
-    set<Point*> rangeSet;
+    set<Sequence*> rangeSet;
 
     static bool initialization=true;
 
@@ -46,8 +46,8 @@ bool clusterReverse::assignCentroids(){
     if (initialization){
 
         for (itrCentroidSet=this->allPoints.begin() ; itrCentroidSet!=this->allPoints.end(); itrCentroidSet++){
-            Point p(itrCentroidSet->second->first);
-            this->method->insert(p);
+            // Sequence* p(itrCentroidSet->second->first);
+            this->method->insert(itrCentroidSet->second->first);
         }
 
         initialization=false;

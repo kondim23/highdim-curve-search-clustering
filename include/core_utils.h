@@ -15,7 +15,7 @@ void openCheckFiles(ifstream &inputFileStream, ifstream &queryFileStream, string
                     string outputFileName, string queryFileName);
 
 //recursively print results of knn from given priority queue
-unsigned int knnRecursivePrint(KNN *method,PQUnique<pair<double,Point*> > &approximateQueue,
-                                priority_queue<pair<double,Point*> > &exactQueue);
+unsigned int knnRecursivePrint(KNN *method,PQUnique<pair<double,Sequence*> > &approximateQueue,
+                                priority_queue<pair<double,Sequence*> > &exactQueue);
 
 #endif

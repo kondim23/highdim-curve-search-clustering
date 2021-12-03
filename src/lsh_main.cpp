@@ -3,8 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <chrono>
-#include "../include/lsh.h"
-#include "../include/point.h"
+#include "../include/lsh_vector.h"
 #include "../include/PQUnique.h"
 #include "../include/PQUnique.t.hpp"
 #include "../include/core_utils.h"
@@ -50,7 +49,7 @@ int main(int argc, char* argv[]){
     inputPointStats = getPointCountAndDimensions(inputFileStream);
 
     //lsh system initialization
-    LSH lsh(k,L,inputPointStats.first,inputPointStats.second);
+    LSHvector lsh(k,L,inputPointStats.first,inputPointStats.second);
 
     //execute knn and range search
     knn_core(&lsh,inputFileStream,queryFileStream,N,R);
