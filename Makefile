@@ -3,12 +3,12 @@ HDIR	:= include/
 SDIR	:= src/
 BDIR	:= bin/
 
-OBJS_LSH	= lsh_main.o lsh_vector.o myHashTable.o sequence.o utils.o core_utils.o knn.o
-OBJS_CL		= lsh_vector.o hcube.o myHashTable.o sequence.o utils.o cluster_main.o cluster.o confs.o core_utils.o knn.o clusterLloyd.o clusterReverse.o
-OBJS_CUBE 	= hcube.o hcube_main.o myHashTable.o sequence.o utils.o core_utils.o knn.o
+OBJS_LSH	= lsh_main.o lsh_vector.o myHashTable.o sequence.o utils.o core_utils.o knn.o point.o
+OBJS_CL		= point.o lsh_vector.o hcube.o myHashTable.o sequence.o utils.o cluster_main.o cluster.o confs.o core_utils.o knn.o clusterLloyd.o clusterReverse.o
+OBJS_CUBE 	= point.o hcube.o hcube_main.o myHashTable.o sequence.o utils.o core_utils.o knn.o
 SOURCE		= lsh_main.cpp lsh_vector.cpp myHashTable.cpp sequence.cpp utils.cpp
 HEADER		= lsh_vector.h myHashTable.h sequence.h utils.h
-OUT			= lsh_vector cluster cube
+OUT			= lsh cluster cube
 CC			= g++
 FLAGS		= -g -c
 
@@ -43,6 +43,21 @@ cluster.o: $(SDIR)cluster.cpp $(patsubst %,$(HDIR)%,cluster.h utils.h lsh_vector
 confs.o: $(SDIR)confs.cpp $(HDIR)confs.h
 	$(CC) $(FLAGS) $(SDIR)confs.cpp -o $(ODIR)$@
 
+curve.o: $(SDIR)curve.cpp $(patsubst %,$(HDIR)%,curve.h lsh_curve.h utils.h)
+	$(CC) $(FLAGS) $(SDIR)curve.cpp -o $(ODIR)$@
+	
+lsh_continuous.o: $(SDIR)lsh_continuous.cpp $(HDIR)lsh_continuous.h
+	$(CC) $(FLAGS) $(SDIR)lsh_continuous.cpp -o $(ODIR)$@
+
+lsh_curve.o: $(SDIR)lsh_curve.cpp $(patsubst %,$(HDIR)%,curve.h lsh_curve.h)
+	$(CC) $(FLAGS) $(SDIR)lsh_curve.cpp -o $(ODIR)$@
+
+lsh_discrete.o: $(SDIR)lsh_discrete.cpp $(HDIR)lsh_discrete.h
+	$(CC) $(FLAGS) $(SDIR)lsh_discrete.cpp -o $(ODIR)$@
+
+point.o: $(SDIR)point.cpp $(patsubst %,$(HDIR)%,point.h utils.h)
+	$(CC) $(FLAGS) $(SDIR)point.cpp -o $(ODIR)$@
+
 hcube_main.o: $(SDIR)hcube_main.cpp $(patsubst %,$(HDIR)%,hcube.h sequence.h core_utils.h)
 	$(CC) $(FLAGS) $(SDIR)hcube_main.cpp -o $(ODIR)$@
 
@@ -61,7 +76,7 @@ clusterLloyd.o: $(SDIR)clusterLloyd.cpp $(patsubst %,$(HDIR)%,clusterLloyd.h con
 clusterReverse.o: $(SDIR)clusterReverse.cpp $(patsubst %,$(HDIR)%,clusterReverse.h lsh_vector.h hcube.h)
 	$(CC) $(FLAGS) $(SDIR)clusterReverse.cpp -o $(ODIR)$@
 
-lsh_vector: $(OBJS_LSH)
+lsh: $(OBJS_LSH)
 	$(CC) -g $(_OBJS_LSH) -o $(BDIR)$@
 
 cluster: $(OBJS_CL)

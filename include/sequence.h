@@ -1,5 +1,5 @@
-#ifndef POINT_H
-#define POINT_H
+#ifndef SEQUENCE_H
+#define SEQUENCE_H
 
 #include <iostream>
 #include <vector>
@@ -8,7 +8,7 @@ using namespace std;
 
 class Sequence
 {
-private:
+protected:
 
     //id of point 
     string id;
@@ -22,7 +22,8 @@ public:
     ~Sequence();
     string getID();
     vector<float>& getvector();
-
+    virtual double get_distance(Sequence*);
+    void setVector(vector<float> key);
 };
 
 #endif

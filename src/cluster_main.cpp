@@ -7,6 +7,7 @@
 #include "../include/clusterLloyd.h"
 #include "../include/clusterReverse.h"
 #include "../include/core_utils.h"
+#include "../include/point.h"
 
 using namespace std;
 using namespace chrono;
@@ -127,7 +128,7 @@ int main(int argc, char* argv[]){
                 pointVector.push_back(stof(token));
 
         //insert vector to cluster system
-        clusterMethod->insertPoint(new Sequence(pointID,pointVector));
+        clusterMethod->insertPoint(new Point(pointID,pointVector));
 
         pointVector.clear();
         pointStream.clear();

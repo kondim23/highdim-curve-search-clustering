@@ -5,6 +5,7 @@
 #include <chrono>
 #include "../include/core_utils.h"
 #include "../include/sequence.h"
+#include "../include/point.h"
 #include "../include/PQUnique.h"
 #include "../include/PQUnique.t.hpp"
 
@@ -36,7 +37,7 @@ void knn_core(KNN *method, ifstream &inputFileStream, ifstream &queryFileStream,
                 pointVector.push_back(stof(token));
 
         //insert vector to knn system
-        method->insert(new Sequence(pointID,pointVector));
+        method->insert(new Point(pointID,pointVector));
 
         pointVector.clear();
         pointStream.clear();
@@ -58,7 +59,7 @@ void knn_core(KNN *method, ifstream &inputFileStream, ifstream &queryFileStream,
                 if (token!="\r")
                     pointVector.push_back(stof(token));
 
-            Sequence* currentSequence = new Sequence(pointID,pointVector);
+            Sequence* currentSequence = new Point(pointID,pointVector);
 
             //call approximate knn and count execution time
             //resultPQueueApproximateKNN has max length N
