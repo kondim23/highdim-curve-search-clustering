@@ -3,9 +3,10 @@
 
 
 
-clusterLloyd::clusterLloyd(Confs& confs) : Cluster(confs){
+clusterLloyd::clusterLloyd(Confs& confs,bool frechet) : Cluster(confs){
 
     this->methodName = "Lloyds";
+    if (frechet) this->updateCentroids = &clusterLloyd::updateCentroidsCurve;
 }
     
 

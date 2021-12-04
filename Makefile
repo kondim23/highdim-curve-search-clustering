@@ -4,7 +4,7 @@ SDIR	:= src/
 BDIR	:= bin/
 
 OBJS_LSH	= lsh_main.o lsh_vector.o myHashTable.o sequence.o utils.o core_utils.o knn.o point.o
-OBJS_CL		= point.o lsh_vector.o hcube.o myHashTable.o sequence.o utils.o cluster_main.o cluster.o confs.o core_utils.o knn.o clusterLloyd.o clusterReverse.o lsh_discrete.o lsh_curve.o
+OBJS_CL		= point.o lsh_vector.o hcube.o myHashTable.o sequence.o utils.o cluster_main.o cluster.o confs.o core_utils.o knn.o clusterLloyd.o clusterReverse.o lsh_discrete.o lsh_curve.o curve.o
 OBJS_CUBE 	= point.o hcube.o hcube_main.o myHashTable.o sequence.o utils.o core_utils.o knn.o
 OBJS_SEARCH	= point.o hcube.o search.o myHashTable.o sequence.o utils.o knn.o lsh_vector.o lsh_continuous.o lsh_curve.o lsh_discrete.o curve.o
 SOURCE		= lsh_main.cpp lsh_vector.cpp myHashTable.cpp sequence.cpp utils.cpp

@@ -96,7 +96,7 @@ int main(int argc, char* argv[]){
         getline(cin,queryFileName);
     }
 
-    if (algorithm==S_FRECHET != metric!=M_NONE)
+    if ((algorithm==S_FRECHET) != (metric!=M_NONE))
         cout << "Metric is only declared on Frechet algorithm - will be ignored." << endl;
 
     //opening files
@@ -262,6 +262,8 @@ int main(int argc, char* argv[]){
     inputFileStream.close();
     queryFileStream.close();
     outputFileStream.close();
+
+    delete method;
 
     return 0;
 }

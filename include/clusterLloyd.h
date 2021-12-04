@@ -13,7 +13,7 @@ class clusterLloyd : public Cluster
         
     public:
 
-        clusterLloyd(Confs&);
+        clusterLloyd(Confs&,bool);
         ~clusterLloyd();
 };
 

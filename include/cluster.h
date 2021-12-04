@@ -10,7 +10,8 @@
 
 using namespace std;
 
-typedef enum{_LLOYD,_LSH,_CUBE,_LSH_CURVE} MethodType;
+typedef enum{CL_NONE,CL_LLOYD,CL_LSH,CL_CUBE,CL_LSH_CURVE} MethodType;
+typedef enum{U_NONE,U_FRECHET,U_VECTOR} MeanType;
 
 class Cluster
 {

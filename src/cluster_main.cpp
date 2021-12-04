@@ -8,6 +8,7 @@
 #include "../include/clusterReverse.h"
 #include "../include/core_utils.h"
 #include "../include/point.h"
+#include "../include/curve.h"
 
 using namespace std;
 using namespace chrono;
@@ -20,14 +21,14 @@ int main(int argc, char* argv[]){
     ifstream inputFileStream, configurationsFileStream;
     stringstream pointStream;
     vector<float> pointVector;
-    bool complete=false;
-    MethodType method;
+    bool complete=false,silhouette=false;
+    MethodType method=CL_NONE;
+    MeanType meanMethod=U_NONE;
     Cluster *clusterMethod;
-    pair<unsigned int,int> inputPointStats;
-
+    Sequence* sequence;
 
     //check-get arguments
-    if (argc>10){
+    if (argc>12){
 
         cout << "Error in command line arguments" << endl;
         return 1;
@@ -39,14 +40,51 @@ int main(int argc, char* argv[]){
         else if(!strcmp(argv[i],"-c")) configurationsFileName = argv[(i++)+1];
 		else if(!strcmp(argv[i],"-o")) outputFileName = argv[(i++)+1];
         else if(!strcmp(argv[i],"-complete")) complete=true;
-        else if(!strcmp(argv[i],"-m")) {
+        else if(!strcmp(argv[i],"-silhouette")) silhouette=true;
+        else if(!strcmp(argv[i],"-assignment")) {
 
-            if (!strcmp(argv[i+1],"Classic")) method=_LLOYD;
-            else if (!strcmp(argv[i+1],"LSH")) method = _LSH;
-            else if (!strcmp(argv[i+1],"Hypercube")) method = _CUBE;
+            if (!strcmp(argv[i+1],"Classic")) method=CL_LLOYD;
+            else if (!strcmp(argv[i+1],"LSH")) method = CL_LSH;
+            else if (!strcmp(argv[i+1],"Hypercube")) method = CL_CUBE;
+            else if (!strcmp(argv[i+1],"LSH_Frechet")) method = CL_LSH_CURVE;
+        }
+        else if(!strcmp(argv[i],"-update")) {
+
+            if (!strcmp(argv[i+1],"Frechet")) meanMethod=U_FRECHET;
+            else if (!strcmp(argv[i+1],"Vector")) meanMethod = U_VECTOR;
         }
     }
 
+
+    if (method==CL_NONE or meanMethod==U_NONE){
+        
+        cout << "Error: Undefined assignment or update method." << endl;
+        return 1;
+    }
+
+    if(inputFileName.empty()){
+
+        cout << "Enter input file:" << endl;
+        getline(cin,inputFileName);
+    }
+
+    if(outputFileName.empty()){
+
+        cout << "Enter output file:" << endl;
+        getline(cin,outputFileName);
+    }
+
+    if(configurationsFileName.empty()){
+
+        cout << "Enter conf file:" << endl;
+        getline(cin,configurationsFileName);
+    }
+
+    if (method!=CL_LLOYD and ((method==CL_LSH_CURVE) != (meanMethod==U_FRECHET))){
+
+        cout << "Error: Bad match of assignment and update functions." << endl;
+        return 1;
+    }
 
     //open-check filestreams
     outputFileStream.open(outputFileName,ofstream::trunc);
@@ -108,8 +146,8 @@ int main(int argc, char* argv[]){
 
     //initialize cluster system
 
-    if (method==_LLOYD) 
-        clusterMethod = new clusterLloyd(confs);
+    if (method==CL_LLOYD) 
+        clusterMethod = new clusterLloyd(confs,meanMethod==U_FRECHET);
     else 
         clusterMethod = new clusterReverse(confs,method,getPointCountAndDimensions(inputFileStream));
 
@@ -128,7 +166,13 @@ int main(int argc, char* argv[]){
                 pointVector.push_back(stof(token));
 
         //insert vector to cluster system
-        clusterMethod->insertPoint(new Point(pointID,pointVector));
+        // clusterMethod->insertPoint(new Point(pointID,pointVector));
+
+
+        if (meanMethod==U_FRECHET) sequence = new Curve(pointID,pointVector);
+        else sequence = new Point(pointID, pointVector);
+
+        clusterMethod->insertPoint(sequence);
 
         pointVector.clear();
         pointStream.clear();
@@ -153,7 +197,7 @@ int main(int argc, char* argv[]){
     outputFileStream << "clustering_time: " << executionTime.count() << endl;
 
     //compute and print silhouette
-    clusterMethod->silhouette(outputFileStream);
+    if (silhouette) clusterMethod->silhouette(outputFileStream);
     
     if (complete) clusterMethod->printClusters(outputFileStream);
 

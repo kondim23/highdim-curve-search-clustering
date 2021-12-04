@@ -10,19 +10,19 @@ clusterReverse::clusterReverse(Confs& confs, MethodType mType, pair<unsigned int
     //set method to LSH or HCUBE
     switch (mType)
     {
-    case _LSH:
+    case CL_LSH:
         this->method = new LSHvector(confs.get_number_of_vector_hash_functions(),confs.get_number_of_vector_hash_tables(),
                                 pointStats.first,pointStats.second);
         this->methodName = "Range Search LSH";
         break;
 
-    case _CUBE:
+    case CL_CUBE:
         this->method = new HCUBE(confs.get_number_of_hypercube_dimensions(), pointStats.second, 
                                 confs.get_number_of_probes(),confs.get_max_number_M_hypercube());
         this->methodName = "Range Search Hypercube";
         break;
 
-    case _LSH_CURVE:
+    case CL_LSH_CURVE:
         this->method = new DiscreteLSHcurve(pointStats.first,pointStats.second,4.0,
                                             confs.get_number_of_vector_hash_tables());
         this->updateCentroids = &clusterReverse::updateCentroidsCurve;
