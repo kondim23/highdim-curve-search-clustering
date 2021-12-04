@@ -1,5 +1,5 @@
-#ifndef LSH_H
-#define LHS_H
+#ifndef LSH_VECTOR_H
+#define LSH_VECTOR_H
 
 #include "myHashTable.h"
 #include "sequence.h"

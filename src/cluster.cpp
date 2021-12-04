@@ -29,6 +29,7 @@ Cluster::Cluster(Confs &confs){
     for (int i=0 ; i<confs.get_number_of_clusters() ; i++)
         this->allClusters.push_back(set<pair<Sequence*,int>*>());
 
+    this->updateCentroids = &Cluster::updateCentroidsPoint;
 }
 
 
@@ -52,7 +53,7 @@ void Cluster::startClustering(){
     while(this->assignCentroids())
 
         //and update centroids
-        this->updateCentroids();
+        (this->*updateCentroids)();
 
     return;
 }
@@ -135,7 +136,7 @@ pair<double,unsigned int> Cluster::calculateMinCentroidDistance(Sequence *sequen
 }
 
 
-void Cluster::updateCentroids(){
+void Cluster::updateCentroidsPoint(){
 
     set<pair<Sequence*,int>*>::iterator itr;
     vector<float> currentPoint;
@@ -161,6 +162,13 @@ void Cluster::updateCentroids(){
     }
 
     return;    
+}
+
+
+void Cluster::updateCentroidsCurve(){
+
+    //calls a recursive function for every cluster - computes mean curve
+    return;
 }
 
 

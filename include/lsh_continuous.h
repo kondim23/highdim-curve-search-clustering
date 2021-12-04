@@ -12,7 +12,7 @@ private:
 
 public:
 
-    ContinuousLSHcurve(unsigned int N, unsigned int dimensions, unsigned int L=5);
+    ContinuousLSHcurve(unsigned int N, unsigned int dimensions, double delta, unsigned int L=5);
     ~ContinuousLSHcurve();
 };
 

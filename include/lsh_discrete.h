@@ -13,7 +13,7 @@ private:
 
 public:
 
-    DiscreteLSHcurve(unsigned int N, unsigned int dimensions, float delta, unsigned int L=5);
+    DiscreteLSHcurve(unsigned int N, unsigned int dimensions, double delta, unsigned int L=5);
     ~DiscreteLSHcurve();
 };
 

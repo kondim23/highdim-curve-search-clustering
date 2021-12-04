@@ -1,5 +1,6 @@
 #include "../include/clusterReverse.h"
 #include "../include/lsh_vector.h"
+#include "../include/lsh_discrete.h"
 #include "../include/hcube.h"
 
 
@@ -19,6 +20,13 @@ clusterReverse::clusterReverse(Confs& confs, MethodType mType, pair<unsigned int
         this->method = new HCUBE(confs.get_number_of_hypercube_dimensions(), pointStats.second, 
                                 confs.get_number_of_probes(),confs.get_max_number_M_hypercube());
         this->methodName = "Range Search Hypercube";
+        break;
+
+    case _LSH_CURVE:
+        this->method = new DiscreteLSHcurve(pointStats.first,pointStats.second,4.0,
+                                            confs.get_number_of_vector_hash_tables());
+        this->updateCentroids = &clusterReverse::updateCentroidsCurve;
+        this->methodName = "LSH_Frechet_Discrete";
         break;
     }
 }

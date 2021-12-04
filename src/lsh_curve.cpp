@@ -6,7 +6,7 @@
 
 frechet_type frechet_distance_type;
 
-LSHcurve::LSHcurve (unsigned int N, unsigned int dimensions, float delta, unsigned int L){
+LSHcurve::LSHcurve (unsigned int N, unsigned int dimensions, double delta, unsigned int L){
 
     //initialize lsh hash tables
     for (int i=0 ; i<L ; i++)

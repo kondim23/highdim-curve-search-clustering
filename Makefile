@@ -4,15 +4,17 @@ SDIR	:= src/
 BDIR	:= bin/
 
 OBJS_LSH	= lsh_main.o lsh_vector.o myHashTable.o sequence.o utils.o core_utils.o knn.o point.o
-OBJS_CL		= point.o lsh_vector.o hcube.o myHashTable.o sequence.o utils.o cluster_main.o cluster.o confs.o core_utils.o knn.o clusterLloyd.o clusterReverse.o
+OBJS_CL		= point.o lsh_vector.o hcube.o myHashTable.o sequence.o utils.o cluster_main.o cluster.o confs.o core_utils.o knn.o clusterLloyd.o clusterReverse.o lsh_discrete.o lsh_curve.o
 OBJS_CUBE 	= point.o hcube.o hcube_main.o myHashTable.o sequence.o utils.o core_utils.o knn.o
+OBJS_SEARCH	= point.o hcube.o search.o myHashTable.o sequence.o utils.o knn.o lsh_vector.o lsh_continuous.o lsh_curve.o lsh_discrete.o curve.o
 SOURCE		= lsh_main.cpp lsh_vector.cpp myHashTable.cpp sequence.cpp utils.cpp
 HEADER		= lsh_vector.h myHashTable.h sequence.h utils.h
-OUT			= lsh cluster cube
+OUT			= lsh cluster cube search
 CC			= g++
 FLAGS		= -g -c
 
 _OBJS_LSH = $(patsubst %,$(ODIR)%,$(OBJS_LSH))
+_OBJS_SEARCH = $(patsubst %,$(ODIR)%,$(OBJS_SEARCH))
 _OBJS_CUBE = $(patsubst %,$(ODIR)%,$(OBJS_CUBE))
 _OBJS_CL = $(patsubst %,$(ODIR)%,$(OBJS_CL))
 _OUT = $(patsubst %,$(BDIR)%,$(OUT))
@@ -76,6 +78,9 @@ clusterLloyd.o: $(SDIR)clusterLloyd.cpp $(patsubst %,$(HDIR)%,clusterLloyd.h con
 clusterReverse.o: $(SDIR)clusterReverse.cpp $(patsubst %,$(HDIR)%,clusterReverse.h lsh_vector.h hcube.h)
 	$(CC) $(FLAGS) $(SDIR)clusterReverse.cpp -o $(ODIR)$@
 
+search.o: $(SDIR)search.cpp $(patsubst %,$(HDIR)%,lsh_vector.h hcube.h lsh_continuous.h lsh_discrete.h knn.h PQUnique.h PQUnique.t.hpp point.h curve.h)
+	$(CC) $(FLAGS) $(SDIR)search.cpp -o $(ODIR)$@
+
 lsh: $(OBJS_LSH)
 	$(CC) -g $(_OBJS_LSH) -o $(BDIR)$@
 
@@ -85,5 +90,8 @@ cluster: $(OBJS_CL)
 cube: $(OBJS_CUBE)
 	$(CC) -g $(_OBJS_CUBE) -o $(BDIR)$@
 
+search: $(OBJS_SEARCH)
+	$(CC) -g $(_OBJS_SEARCH) -o $(BDIR)$@
+
 clean:
-	rm -rf $(_OBJS_CL) $(_OBJS_LSH) $(_OBJS_CUBE) $(_OUT)
+	rm -rf $(_OBJS_CL) $(_OBJS_LSH) $(_OBJS_CUBE) $(_OBJS_SEARCH) $(_OUT)

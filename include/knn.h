@@ -7,6 +7,9 @@
 #include "PQUnique.h"
 #include "PQUnique.t.hpp"
 
+typedef enum{S_NONE,S_LSH,S_HCUBE,S_FRECHET} searchMethodType;
+
+
 using std::priority_queue;
 
 class KNN {

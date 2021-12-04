@@ -10,7 +10,7 @@
 using std::vector;
 using std::priority_queue;
 
-typedef enum{CONTINUOUS,DISCRETE} frechet_type;
+typedef enum{M_NONE,M_CONTINUOUS,M_DISCRETE} frechet_type;
 
 class LSHcurve : public KNN{
 
@@ -21,11 +21,11 @@ class LSHcurve : public KNN{
         //lsh method hash tables of count L
         vector<LSHvector> myHashes;
 
-        float delta;
+        double delta;
 
     public:
 
-        LSHcurve (unsigned int N, unsigned int dimensions, float delta, unsigned int L=5);
+        LSHcurve (unsigned int N, unsigned int dimensions, double delta, unsigned int L=5);
         ~LSHcurve ();
 
         void insert(Sequence* curve);

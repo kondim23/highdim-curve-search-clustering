@@ -10,7 +10,7 @@
 
 using namespace std;
 
-typedef enum{_LLOYD,_LSH,_CUBE} MethodType;
+typedef enum{_LLOYD,_LSH,_CUBE,_LSH_CURVE} MethodType;
 
 class Cluster
 {
@@ -29,7 +29,11 @@ protected:
     void initializeCentroids();
 
     //compute the new centroid of each cluster
-    void updateCentroids();
+    void updateCentroidsPoint();
+
+    void updateCentroidsCurve();
+
+    void (Cluster::*updateCentroids)();
 
     //assign points to clusters - overloaded based on method (Lloyd's - Reverse RS)
     virtual bool assignCentroids();

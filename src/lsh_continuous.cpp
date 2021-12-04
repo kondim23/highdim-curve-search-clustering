@@ -2,10 +2,10 @@
 
 extern frechet_type frechet_distance_type;
 
-ContinuousLSHcurve::ContinuousLSHcurve(unsigned int N, unsigned int dimensions, unsigned int L)
-    : LSHcurve(N,dimensions,1){
+ContinuousLSHcurve::ContinuousLSHcurve(unsigned int N, unsigned int dimensions, double delta, unsigned int L)
+    : LSHcurve(N,dimensions,delta,1){
 
-    frechet_distance_type=CONTINUOUS;
+    frechet_distance_type=M_CONTINUOUS;
 }
 
 vector<float> ContinuousLSHcurve::hashFunction(unsigned int hashID, Sequence* curve){
