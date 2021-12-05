@@ -13,8 +13,6 @@
 
 using namespace std;
 
-typedef enum{ZERO,HAMMING,EUCLIDEAN} normType;
-
 
 Cluster::Cluster(Confs &confs){
 

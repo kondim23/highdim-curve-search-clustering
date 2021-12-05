@@ -4,6 +4,8 @@
 #include <vector>
 using std::vector;
 
+typedef enum{ZERO,HAMMING,EUCLIDEAN} normType;
+
 //calculate distance of 2 vectors
 double calculate_distance(unsigned int normSize, vector<float>&,vector<float>&);
 

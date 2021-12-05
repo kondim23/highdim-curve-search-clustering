@@ -7,6 +7,8 @@
 #include <vector>
 #include <queue>
 
+#define PADDING_VALUE 1000.0
+
 using std::vector;
 using std::priority_queue;
 

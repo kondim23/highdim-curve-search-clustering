@@ -12,6 +12,11 @@ Curve::Curve(string id, vector<float> &pointVector) : Sequence(id,pointVector){
     this->curveVector = pointVector;
 }
 
+vector<float> Curve::getCurve(){
+
+    return this->curveVector;
+}
+
 double Curve::get_distance(Curve* point){
 
     return  frechet_distance_type==M_CONTINUOUS ? continuous_frechet(this,point) : discrete_frechet(this,point);
@@ -28,3 +33,4 @@ double discrete_frechet(Curve*,Curve*){
 
     return 1.0;
 }
+

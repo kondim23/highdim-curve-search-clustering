@@ -8,8 +8,6 @@
 
 using namespace std;
 
-typedef enum{ZERO,HAMMING,EUCLIDEAN} normType;
-
 myHashTable::myHashTable(unsigned int k, unsigned int N, unsigned int w, unsigned int dimensions){
 
     srand(time(NULL));
