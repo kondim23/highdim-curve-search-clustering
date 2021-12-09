@@ -9,11 +9,12 @@ class DiscreteLSHcurve : public LSHcurve
 private:
 
     vector<float> tParameters;
+    unsigned int dimensions;
     vector<float> hashFunction(unsigned int hashID, Sequence* curve);
 
 public:
 
-    DiscreteLSHcurve(unsigned int N, unsigned int dimensions, double delta, unsigned int L=5);
+    DiscreteLSHcurve(unsigned int N, unsigned int dimensions, double delta, unsigned int L=5, unsigned int point_dimensions=2);
     ~DiscreteLSHcurve();
 };
 

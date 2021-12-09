@@ -1,7 +1,7 @@
 #include <iostream>
 #include "../include/sequence.h"
 
-Sequence::Sequence(string id, vector<float> &pointVector){
+Sequence::Sequence(string id, vector<float> pointVector){
 
     this->id=id;
     this->pointVector=pointVector;
@@ -20,3 +20,4 @@ void Sequence::setVector(vector<float> key){
 }
 
 double Sequence::get_distance(Sequence*){}
+Sequence* Sequence::get_copy(){}

@@ -18,12 +18,13 @@ protected:
 
 public:
 
-    Sequence(string id, vector<float> &pointVector);
+    Sequence(string id, vector<float> pointVector);
     ~Sequence();
     string getID();
     vector<float>& getvector();
     virtual double get_distance(Sequence*);
     void setVector(vector<float> key);
+    virtual Sequence* get_copy();
 };
 
 #endif

@@ -7,6 +7,7 @@
 #include "../include/PQUnique.h"
 #include "../include/PQUnique.t.hpp"
 #include "../include/core_utils.h"
+#include "../include/utils.h"
 
 using namespace std;
 

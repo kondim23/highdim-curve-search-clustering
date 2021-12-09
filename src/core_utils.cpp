@@ -148,32 +148,3 @@ void openCheckFiles(ifstream &inputFileStream, ifstream &queryFileStream, string
 
     return;
 }
-
-//get count of points and dimensions of points from input
-pair<unsigned int,int> getPointCountAndDimensions(ifstream &inputFileStream){
-
-    string point, token;
-    unsigned int inputPointCount=0;
-    int inputPointDimensions=-1;
-    stringstream pointStream;
-
-    while (inputFileStream and getline(inputFileStream,point)){
-
-        //calculating count of point dimensions
-        if (inputPointCount==0){
-
-            pointStream.str(point);
-            while (getline(pointStream,token,' ')) 
-                if (token!="\r")
-                    inputPointDimensions++;
-            pointStream.clear();
-        }
-        inputPointCount++;
-    }
-    
-    pointStream.clear();
-    inputFileStream.clear();
-    inputFileStream.seekg(SEEK_SET);
-
-    return make_pair(inputPointCount,inputPointDimensions);
-}

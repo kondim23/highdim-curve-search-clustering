@@ -6,7 +6,7 @@
 #include "../include/cluster.h"
 #include "../include/clusterLloyd.h"
 #include "../include/clusterReverse.h"
-#include "../include/core_utils.h"
+#include "../include/utils.h"
 #include "../include/point.h"
 #include "../include/curve.h"
 
@@ -20,7 +20,6 @@ int main(int argc, char* argv[]){
     string inputFileName, configurationsFileName, outputFileName, point, token, pointID, conf;
     ifstream inputFileStream, configurationsFileStream;
     stringstream pointStream;
-    vector<float> pointVector;
     bool complete=false,silhouette=false;
     MethodType method=CL_NONE;
     MeanType meanMethod=U_NONE;
@@ -160,21 +159,12 @@ int main(int argc, char* argv[]){
         //pointID holds the id of point
         getline(pointStream,pointID,' ');
 
-        //collect all vector components
-        while (getline(pointStream,token,' ')) 
-            if (token!="\r")
-                pointVector.push_back(stof(token));
-
-        //insert vector to cluster system
-        // clusterMethod->insertPoint(new Point(pointID,pointVector));
-
-
-        if (meanMethod==U_FRECHET) sequence = new Curve(pointID,pointVector);
-        else sequence = new Point(pointID, pointVector);
+        //insert sequence to cluster system
+        if (meanMethod==U_FRECHET) sequence = new Curve(pointID,read_curve(pointStream));
+        else sequence = new Point(pointID, read_point(pointStream));
 
         clusterMethod->insertPoint(sequence);
 
-        pointVector.clear();
         pointStream.clear();
     }
 

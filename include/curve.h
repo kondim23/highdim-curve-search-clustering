@@ -11,15 +11,16 @@ class Curve : public Sequence
 {
 private:
 
-    vector<float> curveVector;
+    vector<vector<float> > curveVector;
 
 public:
 
-    Curve(string id, vector<float> &pointVector);
+    Curve(string id, vector<vector<float> > pointVector);
     ~Curve();
     double get_distance(Curve*);
-    vector<float> getCurve();
+    vector<vector<float> > getCurve();
     void setVector(vector<float>);
+    Sequence* get_copy();
 };
 
 #endif

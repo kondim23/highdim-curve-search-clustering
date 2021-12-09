@@ -7,9 +7,6 @@
 //the core of KNN and range search - used in lsh_main and hcube_main
 void knn_core(KNN *method, ifstream &inputFileStream, ifstream &queryFileStream, unsigned int N, float R);
 
-//returns the count of points and count of dimensions of each point in input
-pair<unsigned int, int> getPointCountAndDimensions(ifstream &inputFileStream);
-
 //open files indicated by filenames and check for errors
 void openCheckFiles(ifstream &inputFileStream, ifstream &queryFileStream, string inputFileName,
                     string outputFileName, string queryFileName);

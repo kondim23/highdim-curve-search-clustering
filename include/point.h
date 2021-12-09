@@ -11,9 +11,10 @@ class Point : public Sequence
 {
 public:
 
-    Point(string id, vector<float> &pointVector);
+    Point(string id, vector<float> pointVector);
     ~Point();
     double get_distance(Sequence*);
+    Sequence* get_copy();
 };
 
 #endif

@@ -1,4 +1,6 @@
 #include <iostream>
+#include <sstream>
+#include <fstream>
 #include <cmath>
 #include "../include/utils.h"
 
@@ -49,4 +51,60 @@ vector<float> divide_vector(vector<float>& vec,int mul){
         vecToReturn.push_back(vec.at(i)/static_cast<float>(mul));
 
     return vecToReturn;
+}
+
+
+vector<vector<float> > read_curve(stringstream& curveStream){
+
+    string token;
+    vector<vector<float> > curve;
+    float counter=1.0;
+
+    while (getline(curveStream,token,' ')) 
+            if (token!="\r")
+                curve.push_back(vector<float>(counter++,stof(token)));
+
+    return curve;
+}
+
+
+vector<float> read_point(stringstream& pointStream){
+
+    string token;
+    vector<float> pointVector;
+
+    while (getline(pointStream,token,' ')) 
+            if (token!="\r")
+                pointVector.push_back(stof(token));
+
+    return pointVector;
+}
+
+//get count of points and dimensions of points from input
+pair<unsigned int,int> getPointCountAndDimensions(ifstream &inputFileStream){
+
+    string point, token;
+    unsigned int inputPointCount=0;
+    int inputPointDimensions=-1;
+    stringstream pointStream;
+
+    while (inputFileStream and getline(inputFileStream,point)){
+
+        //calculating count of point dimensions
+        if (inputPointCount==0){
+
+            pointStream.str(point);
+            while (getline(pointStream,token,' ')) 
+                if (token!="\r")
+                    inputPointDimensions++;
+            pointStream.clear();
+        }
+        inputPointCount++;
+    }
+    
+    pointStream.clear();
+    inputFileStream.clear();
+    inputFileStream.seekg(SEEK_SET);
+
+    return make_pair(inputPointCount,inputPointDimensions);
 }

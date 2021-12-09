@@ -12,6 +12,7 @@
 #include "../include/PQUnique.t.hpp"
 #include "../include/point.h"
 #include "../include/curve.h"
+#include "../include/utils.h"
 
 using namespace std;
 using namespace chrono;
@@ -156,7 +157,6 @@ int main(int argc, char* argv[]){
     {
 
         string pointID;
-        vector<float> pointVector;
         priority_queue<pair<double,Sequence*> > resultPQueueExactKNN;
         set<Sequence*> resultInRange;
         Sequence *sequence;
@@ -170,20 +170,14 @@ int main(int argc, char* argv[]){
             //pointID holds the id of point
             getline(pointStream,pointID,' ');
 
-            //collect all vector components
-            while (getline(pointStream,token,' ')) 
-                if (token!="\r")
-                    pointVector.push_back(stof(token));
-
             //insert vector to knn system
             // method->insert(new Point(pointID,pointVector));
 
-            if (algorithm==S_FRECHET) sequence = new Curve(pointID,pointVector);
-            else sequence = new Point(pointID, pointVector);
+            if (algorithm==S_FRECHET) sequence = new Curve(pointID,read_curve(pointStream));
+            else sequence = new Point(pointID, read_point(pointStream));
 
             method->insert(sequence);
 
-            pointVector.clear();
             pointStream.clear();
         }
 
@@ -198,15 +192,10 @@ int main(int argc, char* argv[]){
 
                 outputFileStream << "Query: " << pointID << endl;
 
-                //update pointVector with query components
-                while (getline(pointStream,token,' ')) 
-                    if (token!="\r")
-                        pointVector.push_back(stof(token));
-
                 // sequence = new Point(pointID,pointVector);
 
-                if (algorithm==S_FRECHET) sequence = new Curve(pointID,pointVector);
-                else sequence = new Point(pointID, pointVector);
+                if (algorithm==S_FRECHET) sequence = new Curve(pointID,read_curve(pointStream));
+                else sequence = new Point(pointID, read_point(pointStream));
 
                 //call approximate knn and count execution time
                 //resultPQueueApproximateKNN has max length N
@@ -242,7 +231,6 @@ int main(int argc, char* argv[]){
                 for (Sequence* pointPtr : resultInRange)
                     outputFileStream << pointPtr->getID() << endl;
 
-                pointVector.clear();
                 pointStream.clear();
             }
 

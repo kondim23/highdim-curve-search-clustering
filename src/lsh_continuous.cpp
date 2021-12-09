@@ -17,26 +17,30 @@ vector<float> ContinuousLSHcurve::hashFunction(unsigned int hashID, Sequence* se
 
     //implement filtering snapping minima maxima
 
-    Curve* curve = (Curve*) sequence;
-    vector<float> key = curve->getCurve(), pointA ,pointB ,pointC;
+    // Curve* curve = (Curve*) sequence;
+    vector<vector<float> > curve = ((Curve*) sequence)->getCurve();
+    vector<float> pointA ,pointB ,pointC, key;
     double distanceAB,distanceBC,term;
-    int counter=1;
+    unsigned int keysize = curve.size();
+
 
 
     //filtering
 
-    for (int i=0 ; i<key.size()-2 ; i++){
+    for (int i=0 ; i<curve.size()-2 ; i++){
 
-        pointA = vector<float>(counter++,key.at(i));
-        pointB = vector<float>(counter++,key.at(i+1));
-        pointC = vector<float>(counter++,key.at(i+2));
+        pointA = vector<float>(curve.at(i));
+        pointB = vector<float>(curve.at(i+1));
+        pointC = vector<float>(curve.at(i+2));
 
         distanceAB = calculate_distance(EUCLIDEAN,pointA,pointB);
         distanceBC = calculate_distance(EUCLIDEAN,pointB,pointC);
 
         if (distanceAB < ERROR_TOLERANCE and distanceBC < ERROR_TOLERANCE)
-            key.erase(key.begin()+i+1);
+            curve.erase(curve.begin()+(i--)+1);
     }
+
+    for(vector<float> point : curve) key.push_back(point.at(1));
 
 
     //snapping
@@ -59,7 +63,7 @@ vector<float> ContinuousLSHcurve::hashFunction(unsigned int hashID, Sequence* se
 
     //padding
 
-    for (int i=key.size() ; i<curve->getCurve().size() ; i++)
+    for (int i=key.size() ; i<keysize ; i++)
         key.push_back(PADDING_VALUE);
 
     return key;

@@ -10,6 +10,7 @@
 #include "../include/lsh_vector.h"
 #include "../include/hcube.h"
 #include "../include/confs.h"
+#include "../include/point.h"
 
 using namespace std;
 
@@ -75,7 +76,7 @@ void Cluster::initializeCentroids(){
 
     //choose a random initial point, erase it from nonCentroids n and insert it in allCentroids t
     itemToRemove = static_cast<double>(abs(rand())%nonCentroids.size());
-    this->allCentroids.push_back(new Sequence(*(nonCentroids.find(itemToRemove)->second)));
+    this->allCentroids.push_back(nonCentroids.find(itemToRemove)->second->get_copy());
     nonCentroids.erase(itemToRemove);
     
     prevNonCentroids = nonCentroids;
@@ -102,7 +103,7 @@ void Cluster::initializeCentroids(){
         pairItrMap = nonCentroids.equal_range(static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/distanceSum)));
 
         //remove from nonCentroids - add to allCentroids
-        this->allCentroids.push_back(new Sequence(*(pairItrMap.first->second)));
+        this->allCentroids.push_back(pairItrMap.first->second->get_copy());
         nonCentroids.erase(pairItrMap.first);
         
         prevNonCentroids = nonCentroids;
@@ -122,7 +123,8 @@ pair<double,unsigned int> Cluster::calculateMinCentroidDistance(Sequence *sequen
     for(int i=0 ; i<this->allCentroids.size() ; i++){
 
         //get the minimum distance to Point 
-        distance = calculate_distance(EUCLIDEAN,sequence->getvector(),this->allCentroids.at(i)->getvector());
+        // distance = calculate_distance(EUCLIDEAN,sequence->getvector(),this->allCentroids.at(i)->getvector());
+        distance = sequence->get_distance(this->allCentroids.at(i));
         if (distance<minDistance){
             minDistance=distance;
             index=i;
@@ -154,7 +156,7 @@ void Cluster::updateCentroidsPoint(){
 
         //save new centroid
         delete(this->allCentroids.at(i));
-        this->allCentroids.at(i) = new Sequence(to_string(i),currentPoint);
+        this->allCentroids.at(i) = new Point(to_string(i),currentPoint);
 
         currentPoint.clear();
     }
@@ -259,7 +261,8 @@ double Cluster::mean_cluster_distance(Sequence *sequence, unsigned int index){
 
         if ((*itr)->first->getID()==sequence->getID()) continue;
 
-        mean_distance += calculate_distance(EUCLIDEAN,(*itr)->first->getvector(),sequence->getvector());
+        // mean_distance += calculate_distance(EUCLIDEAN,(*itr)->first->getvector(),sequence->getvector());
+        mean_distance += sequence->get_distance((*itr)->first);
     }
 
     //return mean distance
@@ -280,7 +283,8 @@ pair<double,unsigned int> Cluster::find_closest_centroid(unsigned int centroid){
         if (i==centroid) continue;
 
         //get the minimum distance to given centroid 
-        distance = calculate_distance(EUCLIDEAN,sequence->getvector(),this->allCentroids.at(i)->getvector());
+        // distance = calculate_distance(EUCLIDEAN,sequence->getvector(),this->allCentroids.at(i)->getvector());
+        distance = sequence->get_distance(this->allCentroids.at(i));
         if (distance<minDistance) {
             minDistance = distance;
             index=i;

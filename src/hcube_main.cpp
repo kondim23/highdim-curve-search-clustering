@@ -6,6 +6,7 @@
 #include "../include/sequence.h"
 #include "../include/hcube.h"
 #include "../include/core_utils.h"
+#include "../include/utils.h"
 
 using namespace std;
 
