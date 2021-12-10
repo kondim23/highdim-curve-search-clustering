@@ -3,6 +3,8 @@
 
 Point::Point(string id, vector<float> pointVector) : Sequence(id,pointVector){}
 
+Point::~Point(){}
+
 Sequence* Point::get_copy(){
 
     return new Point(*this);

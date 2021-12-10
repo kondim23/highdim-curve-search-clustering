@@ -1,6 +1,7 @@
 #include <iostream>
 #include <random>
 #include <ctime>
+#include <cmath>
 #include <map>
 #include <string>
 #include <float.h>
@@ -11,9 +12,12 @@
 #include "../include/hcube.h"
 #include "../include/confs.h"
 #include "../include/point.h"
+#include "../include/curve.h"
 
 using namespace std;
 
+
+Curve* mean_recursive(set<pair<Sequence*,int>*>,double);
 
 Cluster::Cluster(Confs &confs){
 
@@ -167,8 +171,59 @@ void Cluster::updateCentroidsPoint(){
 
 void Cluster::updateCentroidsCurve(){
 
+    double b_tree_height;
+
     //calls a recursive function for every cluster - computes mean curve
+    for (int i=0 ; i<this->allClusters.size() ; i++){
+        
+        delete (this->allCentroids.at(i));
+        b_tree_height = ceil(log(this->allClusters.at(i).size()));
+        this->allCentroids.at(i) = mean_recursive(this->allClusters.at(i),b_tree_height);
+    }
+
     return;
+}
+
+Curve* mean_recursive(set<pair<Sequence*,int>*> cluster, double height){
+
+    Curve *left, *right;
+    set<pair<Sequence*,int>*>::iterator itr;
+
+    if (!height){
+
+        if (cluster.empty()) return NULL;
+        else {
+
+            itr = cluster.begin();
+            for (int i=abs(rand())%cluster.size() ; i>0 ; i--) itr++;
+            left = (Curve*) (*itr)->first;
+            cluster.erase(itr);
+        }
+
+        if (cluster.empty()) return new Curve(*(Curve*)left);
+        else {
+
+            itr = cluster.begin();
+            for (int i=abs(rand())%cluster.size() ; i>0 ; i--) itr++;
+            right = (Curve*) (*itr)->first;
+            cluster.erase(itr);
+        }
+
+        return new Curve(left->mean_curve(right));
+    }
+
+    left = mean_recursive(cluster,height-1);
+    if (left==NULL) return NULL;
+
+    right = mean_recursive(cluster,height-1);
+    if (right==NULL) return left;
+
+    Curve* mean_c = new Curve(left->mean_curve(right));
+
+    delete (left);
+    delete (right);
+
+    return mean_c;
 }
 
 

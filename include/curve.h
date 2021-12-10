@@ -21,6 +21,7 @@ public:
     vector<vector<float> > getCurve();
     void setVector(vector<float>);
     Sequence* get_copy();
+    Curve mean_curve(Curve*);
 };
 
 #endif
