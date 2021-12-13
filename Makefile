@@ -3,10 +3,10 @@ HDIR	:= include/
 SDIR	:= src/
 BDIR	:= bin/
 
-OBJS_LSH	= lsh_main.o lsh_vector.o myHashTable.o sequence.o utils.o core_utils.o knn.o point.o
-OBJS_CL		= point.o lsh_vector.o hcube.o myHashTable.o sequence.o utils.o cluster_main.o cluster.o confs.o core_utils.o knn.o clusterLloyd.o clusterReverse.o lsh_discrete.o lsh_curve.o curve.o
-OBJS_CUBE 	= point.o hcube.o hcube_main.o myHashTable.o sequence.o utils.o core_utils.o knn.o
-OBJS_SEARCH	= point.o hcube.o search.o myHashTable.o sequence.o utils.o knn.o lsh_vector.o lsh_continuous.o lsh_curve.o lsh_discrete.o curve.o
+OBJS_LSH	= lsh_main.o lsh_vector.o myHashTable.o sequence.o utils.o core_utils.o knn.o point.o fred.o
+OBJS_CL		= point.o lsh_vector.o hcube.o myHashTable.o sequence.o utils.o cluster_main.o fred.o cluster.o confs.o core_utils.o knn.o clusterLloyd.o clusterReverse.o lsh_discrete.o lsh_curve.o curve.o
+OBJS_CUBE 	= point.o hcube.o hcube_main.o myHashTable.o sequence.o utils.o core_utils.o knn.o fred.o
+OBJS_SEARCH	= point.o hcube.o search.o myHashTable.o sequence.o utils.o knn.o lsh_vector.o fred.o lsh_continuous.o lsh_curve.o lsh_discrete.o curve.o
 SOURCE		= lsh_main.cpp lsh_vector.cpp myHashTable.cpp sequence.cpp utils.cpp
 HEADER		= lsh_vector.h myHashTable.h sequence.h utils.h
 OUT			= lsh cluster cube search
@@ -80,6 +80,9 @@ clusterReverse.o: $(SDIR)clusterReverse.cpp $(patsubst %,$(HDIR)%,clusterReverse
 
 search.o: $(SDIR)search.cpp $(patsubst %,$(HDIR)%,lsh_vector.h hcube.h lsh_continuous.h lsh_discrete.h knn.h PQUnique.h PQUnique.t.hpp point.h curve.h)
 	$(CC) $(FLAGS) $(SDIR)search.cpp -o $(ODIR)$@
+
+fred.o: $(SDIR)/fred/frechet.cpp $(HDIR)/fred/frechet.hpp
+	$(CC) $(FLAGS) $(SDIR)/fred/frechet.cpp -o $(ODIR)$@
 
 lsh: $(OBJS_LSH)
 	$(CC) -g $(_OBJS_LSH) -o $(BDIR)$@
