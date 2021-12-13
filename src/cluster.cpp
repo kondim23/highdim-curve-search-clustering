@@ -172,13 +172,21 @@ void Cluster::updateCentroidsPoint(){
 void Cluster::updateCentroidsCurve(){
 
     double b_tree_height;
+    Curve* mean_returned;
+    vector<vector<float > > new_centroid;
+    unsigned int proper_curve_size = ((Curve*)this->allPoints.at(0)->first)->get_curve_size();
 
     //calls a recursive function for every cluster - computes mean curve
     for (int i=0 ; i<this->allClusters.size() ; i++){
         
         delete (this->allCentroids.at(i));
         b_tree_height = ceil(log(this->allClusters.at(i).size()));
-        this->allCentroids.at(i) = mean_recursive(this->allClusters.at(i),b_tree_height);
+        // this->allCentroids.at(i) = mean_recursive(this->allClusters.at(i),b_tree_height);
+
+        mean_returned = mean_recursive(this->allClusters.at(i),b_tree_height);
+        mean_returned->filter_until_max_size(proper_curve_size);
+
+        this->allCentroids.at(i) = mean_returned;
     }
 
     return;

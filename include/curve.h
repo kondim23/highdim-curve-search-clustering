@@ -22,6 +22,10 @@ public:
     void setVector(vector<float>);
     Sequence* get_copy();
     Curve mean_curve(Curve*);
+    unsigned int get_curve_size();
+    void filter_until_max_size(unsigned int max_size);
 };
+
+vector<vector<float> > filter(vector<vector<float> >, float rate=0.1);
 
 #endif

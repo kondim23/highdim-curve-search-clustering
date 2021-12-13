@@ -1,6 +1,11 @@
 #include "../include/curve.h"
 #include "../include/lsh_curve.h"
 #include "../include/utils.h"
+#include "../include/fred/curve.hpp"
+#include "../include/fred/point.hpp"
+#include "../include/fred/frechet.hpp"
+
+#define ERROR_TOLERANCE 10.0
 
 extern frechet_type frechet_distance_type;
 
@@ -28,6 +33,42 @@ Sequence* Curve::get_copy(){
 double Curve::get_distance(Curve* point){
 
     return  frechet_distance_type==M_CONTINUOUS ? continuous_frechet(this,point) : discrete_frechet(this,point);
+}
+
+unsigned int Curve::get_curve_size(){
+
+    return this->curveVector.size();
+}
+
+void Curve::filter_until_max_size(unsigned int max_size){
+
+    unsigned int rate=1;
+
+    while (this->curveVector.size() > max_size)
+        this->curveVector = filter(this->curveVector,++rate);
+
+    return;
+}
+
+vector<vector<float> > filter(vector<vector<float> > curve, float rate){
+
+    vector<float> pointA ,pointB ,pointC;
+    double distanceAB,distanceBC;
+
+    for (int i=0 ; i<curve.size()-2 ; i++){
+
+        pointA = vector<float>(curve.at(i));
+        pointB = vector<float>(curve.at(i+1));
+        pointC = vector<float>(curve.at(i+2));
+
+        distanceAB = calculate_distance(EUCLIDEAN,pointA,pointB);
+        distanceBC = calculate_distance(EUCLIDEAN,pointB,pointC);
+
+        if (distanceAB < ERROR_TOLERANCE*rate and distanceBC < ERROR_TOLERANCE*rate)
+            curve.erase(curve.begin()+(i--)+1);
+    }
+
+    return curve;
 }
 
 Curve Curve::mean_curve(Curve* c2){
@@ -88,14 +129,36 @@ Curve Curve::mean_curve(Curve* c2){
     return Curve("mean",mean_c);
 }
 
-//non implemented
-double continuous_frechet(Curve*,Curve*){
+double continuous_frechet(Curve* c1,Curve* c2){
 
-    return 1.0;
+    //initialize fred classes
+
+    FredCurve fc1(c1->getCurve().size()), fc2(c2->getCurve().size());
+
+    for (vector<float> point : c1->getCurve()){
+
+        FredPoint fp(c1->getCurve().at(0).size());
+
+        for (int i=0 ; i< point.size() ; i++)
+            fp.set(i,point.at(i));
+
+        fc1.push_back(fp);
+    }
+
+    for (vector<float> point : c2->getCurve()){
+
+        FredPoint fp(c2->getCurve().at(0).size());
+
+        for (int i=0 ; i< point.size() ; i++)
+            fp.set(i,point.at(i));
+
+        fc2.push_back(fp);
+    }
+
+    //use fred implementation to get the result
+    return Frechet::Continuous::distance(fc1,fc2).value;
 }
 
-//non implemented
-//TODO #4 euclidean or 1d?
 double discrete_frechet(Curve* c1,Curve* c2){
 
 

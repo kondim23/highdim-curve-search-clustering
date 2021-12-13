@@ -2,8 +2,6 @@
 #include "../include/utils.h"
 #include <cmath>
 
-#define ERROR_TOLERANCE 10.0
-
 extern frechet_type frechet_distance_type;
 
 ContinuousLSHcurve::ContinuousLSHcurve(unsigned int N, unsigned int dimensions, double delta, unsigned int L)
@@ -12,10 +10,8 @@ ContinuousLSHcurve::ContinuousLSHcurve(unsigned int N, unsigned int dimensions, 
     frechet_distance_type=M_CONTINUOUS;
 }
 
+//implement filtering, snapping, keep minima maxima
 vector<float> ContinuousLSHcurve::hashFunction(unsigned int hashID, Sequence* sequence){
-
-
-    //implement filtering snapping minima maxima
 
     // Curve* curve = (Curve*) sequence;
     vector<vector<float> > curve = ((Curve*) sequence)->getCurve();
@@ -24,27 +20,15 @@ vector<float> ContinuousLSHcurve::hashFunction(unsigned int hashID, Sequence* se
     unsigned int keysize = curve.size();
 
 
-
     //filtering
+    curve = filter(((Curve*) sequence)->getCurve());
 
-    for (int i=0 ; i<curve.size()-2 ; i++){
-
-        pointA = vector<float>(curve.at(i));
-        pointB = vector<float>(curve.at(i+1));
-        pointC = vector<float>(curve.at(i+2));
-
-        distanceAB = calculate_distance(EUCLIDEAN,pointA,pointB);
-        distanceBC = calculate_distance(EUCLIDEAN,pointB,pointC);
-
-        if (distanceAB < ERROR_TOLERANCE and distanceBC < ERROR_TOLERANCE)
-            curve.erase(curve.begin()+(i--)+1);
-    }
-
+    //reduce dimension to 1
     for(vector<float> point : curve) key.push_back(point.at(1));
 
 
     //snapping
-    //check later
+
     for (float& item : key){
 
         term = item > 0 ? this->delta/2.0 : 0.0-this->delta/2.0;
