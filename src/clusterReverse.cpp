@@ -3,6 +3,8 @@
 #include "../include/lsh_discrete.h"
 #include "../include/hcube.h"
 
+#define DELTA_RATE 100000
+
 
 clusterReverse::clusterReverse(Confs& confs, MethodType mType, pair<unsigned int, int> pointStats) 
                 : Cluster(confs){
@@ -23,7 +25,7 @@ clusterReverse::clusterReverse(Confs& confs, MethodType mType, pair<unsigned int
         break;
 
     case CL_LSH_CURVE:
-        this->method = new DiscreteLSHcurve(pointStats.first,pointStats.second,4.0,
+        this->method = new DiscreteLSHcurve(pointStats.first, pointStats.second, 4.0*2.0*(double)pointStats.second/DELTA_RATE,
                                             confs.get_number_of_vector_hash_tables());
         this->updateCentroids = &clusterReverse::updateCentroidsCurve;
         this->methodName = "LSH_Frechet_Discrete";

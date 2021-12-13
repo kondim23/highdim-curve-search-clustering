@@ -14,6 +14,8 @@
 #include "../include/curve.h"
 #include "../include/utils.h"
 
+#define DELTA_RATE 10000.0
+
 using namespace std;
 using namespace chrono;
 
@@ -28,7 +30,7 @@ int main(int argc, char* argv[]){
 
     // Default values in case of no input
     unsigned int k_lsh=4, L=1, N=5, M=10, probes=2, k_hcube=14;
-    double R=10000.0, delta;
+    double R=10000.0, delta=0.0;
     
     string inputFileName, queryFileName, outputFileName;
     ifstream inputFileStream, queryFileStream;
@@ -133,6 +135,8 @@ int main(int argc, char* argv[]){
     }
 
     //TODO #2 calculate delta
+
+    if (algorithm==S_FRECHET and !delta) delta = 4.0*2.0*(double)inputPointDimensions/DELTA_RATE;
     
     pointStream.clear();
     inputFileStream.clear();

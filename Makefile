@@ -3,13 +3,11 @@ HDIR	:= include/
 SDIR	:= src/
 BDIR	:= bin/
 
-OBJS_LSH	= lsh_main.o lsh_vector.o myHashTable.o sequence.o utils.o core_utils.o knn.o point.o fred.o
-OBJS_CL		= point.o lsh_vector.o hcube.o myHashTable.o sequence.o utils.o cluster_main.o fred.o cluster.o confs.o core_utils.o knn.o clusterLloyd.o clusterReverse.o lsh_discrete.o lsh_curve.o curve.o
-OBJS_CUBE 	= point.o hcube.o hcube_main.o myHashTable.o sequence.o utils.o core_utils.o knn.o fred.o
+OBJS_CL		= point.o lsh_vector.o hcube.o myHashTable.o sequence.o utils.o cluster_main.o fred.o cluster.o confs.o knn.o clusterLloyd.o clusterReverse.o lsh_discrete.o lsh_curve.o curve.o
 OBJS_SEARCH	= point.o hcube.o search.o myHashTable.o sequence.o utils.o knn.o lsh_vector.o fred.o lsh_continuous.o lsh_curve.o lsh_discrete.o curve.o
 SOURCE		= lsh_main.cpp lsh_vector.cpp myHashTable.cpp sequence.cpp utils.cpp
 HEADER		= lsh_vector.h myHashTable.h sequence.h utils.h
-OUT			= lsh cluster cube search
+OUT			= cluster search
 CC			= g++
 FLAGS		= -g -c
 
@@ -20,9 +18,6 @@ _OBJS_CL = $(patsubst %,$(ODIR)%,$(OBJS_CL))
 _OUT = $(patsubst %,$(BDIR)%,$(OUT))
 
 all: $(OUT)
-
-lsh_main.o: $(SDIR)lsh_main.cpp $(patsubst %,$(HDIR)%,lsh_vector.h sequence.h PQUnique.h PQUnique.t.hpp core_utils.h)
-	$(CC) $(FLAGS) $(SDIR)lsh_main.cpp -o $(ODIR)$@
 
 lsh_vector.o: $(SDIR)lsh_vector.cpp $(patsubst %,$(HDIR)%,lsh_vector.h myHashTable.h utils.h PQUnique.h PQUnique.t.hpp)
 	$(CC) $(FLAGS) $(SDIR)lsh_vector.cpp -o $(ODIR)$@
@@ -60,14 +55,8 @@ lsh_discrete.o: $(SDIR)lsh_discrete.cpp $(HDIR)lsh_discrete.h
 point.o: $(SDIR)point.cpp $(patsubst %,$(HDIR)%,point.h utils.h)
 	$(CC) $(FLAGS) $(SDIR)point.cpp -o $(ODIR)$@
 
-hcube_main.o: $(SDIR)hcube_main.cpp $(patsubst %,$(HDIR)%,hcube.h sequence.h core_utils.h)
-	$(CC) $(FLAGS) $(SDIR)hcube_main.cpp -o $(ODIR)$@
-
 hcube.o: $(SDIR)hcube.cpp $(patsubst %,$(HDIR)%,hcube.h myHashTable.h utils.h)
 	$(CC) $(FLAGS) $(SDIR)hcube.cpp -o $(ODIR)$@
-
-core_utils.o: $(SDIR)core_utils.cpp $(patsubst %,$(HDIR)%,core_utils.h sequence.h PQUnique.h PQUnique.t.hpp)
-	$(CC) $(FLAGS) $(SDIR)core_utils.cpp -o $(ODIR)$@
 
 knn.o: $(SDIR)knn.cpp $(HDIR)knn.h
 	$(CC) $(FLAGS) $(SDIR)knn.cpp -o $(ODIR)$@
@@ -84,14 +73,8 @@ search.o: $(SDIR)search.cpp $(patsubst %,$(HDIR)%,lsh_vector.h hcube.h lsh_conti
 fred.o: $(SDIR)/fred/frechet.cpp $(HDIR)/fred/frechet.hpp
 	$(CC) $(FLAGS) $(SDIR)/fred/frechet.cpp -o $(ODIR)$@
 
-lsh: $(OBJS_LSH)
-	$(CC) -g $(_OBJS_LSH) -o $(BDIR)$@
-
 cluster: $(OBJS_CL)
 	$(CC) -g $(_OBJS_CL) -o $(BDIR)$@
-
-cube: $(OBJS_CUBE)
-	$(CC) -g $(_OBJS_CUBE) -o $(BDIR)$@
 
 search: $(OBJS_SEARCH)
 	$(CC) -g $(_OBJS_SEARCH) -o $(BDIR)$@
