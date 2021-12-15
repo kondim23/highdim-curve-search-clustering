@@ -13,7 +13,7 @@ DiscreteLSHcurve::DiscreteLSHcurve(unsigned int N, unsigned int dimensions, doub
         this->tParameters.push_back(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/delta)));
 
     frechet_distance_type=M_DISCRETE;
-    this->dimensions = point_dimensions;
+    this->method = "LSH_Frechet_Discrete";
 }
 
 vector<float> DiscreteLSHcurve::hashFunction(unsigned int hashID, Sequence* sequence){

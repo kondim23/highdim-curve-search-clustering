@@ -17,7 +17,7 @@
 using namespace std;
 
 
-Curve* mean_recursive(set<pair<Sequence*,int>*>,double);
+Curve* mean_recursive(set<pair<Sequence*,int>*>&,double);
 
 Cluster::Cluster(Confs &confs){
 
@@ -174,16 +174,18 @@ void Cluster::updateCentroidsCurve(){
     double b_tree_height;
     Curve* mean_returned;
     vector<vector<float > > new_centroid;
-    unsigned int proper_curve_size = ((Curve*)this->allPoints.at(0)->first)->get_curve_size();
+    unsigned int proper_curve_size = ((Curve*)this->allCentroids.at(0))->get_curve_size();
 
     //calls a recursive function for every cluster - computes mean curve
     for (int i=0 ; i<this->allClusters.size() ; i++){
         
         delete (this->allCentroids.at(i));
-        b_tree_height = ceil(log(this->allClusters.at(i).size()));
+        b_tree_height = ceil(log2(this->allClusters.at(i).size()));
         // this->allCentroids.at(i) = mean_recursive(this->allClusters.at(i),b_tree_height);
 
-        mean_returned = mean_recursive(this->allClusters.at(i),b_tree_height);
+        set<pair<Sequence*,int>*> cluster(this->allClusters.at(i));
+
+        mean_returned = mean_recursive(cluster,b_tree_height);
         mean_returned->filter_until_max_size(proper_curve_size);
 
         this->allCentroids.at(i) = mean_returned;
@@ -192,7 +194,7 @@ void Cluster::updateCentroidsCurve(){
     return;
 }
 
-Curve* mean_recursive(set<pair<Sequence*,int>*> cluster, double height){
+Curve* mean_recursive(set<pair<Sequence*,int>*>& cluster, double height){
 
     Curve *left, *right;
     set<pair<Sequence*,int>*>::iterator itr;
@@ -253,8 +255,7 @@ void Cluster::printCentroids(ofstream& out){
     for (int i=0 ; i<this->allClusters.size() ; i++){
 
         out << "CLUSTER-" << i+1 << " {size: " << this->allClusters.at(i).size() << ", " << "centroid:";
-        for (int j=0 ; j<this->allCentroids.at(i)->getvector().size() ; j++)
-            out << " " << this->allCentroids.at(i)->getvector().at(j);
+        this->allCentroids.at(i)->printSequence(out);
         out << "}" << endl;
     }
 
@@ -270,8 +271,7 @@ void Cluster::printClusters(ofstream& out){
     for (int i=0 ; i<this->allClusters.size() ; i++){
 
         out << "CLUSTER-" << i+1 << " {";
-        for (int j=0 ; j<this->allCentroids.at(i)->getvector().size() ; j++)
-            out << " " << this->allCentroids.at(i)->getvector().at(j);
+        this->allCentroids.at(i)->printSequence(out);
 
         for (itr=this->allClusters.at(i).begin() ; itr!=this->allClusters.at(i).end() ; itr++)
             out << ", " << (*itr)->first->getID();

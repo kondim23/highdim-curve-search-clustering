@@ -5,13 +5,13 @@
 #include "../include/fred/point.hpp"
 #include "../include/fred/frechet.hpp"
 
-#define ERROR_TOLERANCE 10.0
+#define ERROR_TOLERANCE 0.5
 
 extern frechet_type frechet_distance_type;
 
 double discrete_frechet(Curve*,Curve*);
 double continuous_frechet(Curve*,Curve*);
-void fill_dynamic_array(double **,unsigned int,unsigned int,vector<vector<float> >&,vector<vector<float> >&);
+void fill_dynamic_array(vector<vector<double> >& dynamic,unsigned int,unsigned int,vector<vector<float> >&,vector<vector<float> >&);
 
 Curve::Curve(string id, vector<vector<float> > pointVector) : Sequence(id,vector<float>()){
 
@@ -30,9 +30,10 @@ Sequence* Curve::get_copy(){
     return new Curve(*this);
 }
 
-double Curve::get_distance(Curve* point){
+double Curve::get_distance(Sequence* point){
 
-    return  frechet_distance_type==M_CONTINUOUS ? continuous_frechet(this,point) : discrete_frechet(this,point);
+    return  frechet_distance_type==M_CONTINUOUS ? continuous_frechet(this,(Curve*)point) 
+                                                : discrete_frechet(this,(Curve*)point);
 }
 
 unsigned int Curve::get_curve_size(){
@@ -40,12 +41,23 @@ unsigned int Curve::get_curve_size(){
     return this->curveVector.size();
 }
 
+void Curve::printSequence(ofstream& out){
+
+    for (vector<float> point : this->getCurve()){
+
+        out << "(";
+        for (float num : point)
+            out << " " << num;
+        out << " ) ";
+    }
+}
+
 void Curve::filter_until_max_size(unsigned int max_size){
 
     unsigned int rate=1;
 
     while (this->curveVector.size() > max_size)
-        this->curveVector = filter(this->curveVector,++rate);
+        this->curveVector = filter(this->curveVector,rate++);
 
     return;
 }
@@ -83,12 +95,12 @@ Curve Curve::mean_curve(Curve* c2){
     double minPrev;
     int i,j,min_i,min_j;
 
-    double dynamic[m1][m2];
+    vector<vector<double> > dynamic(m1,vector<double>(m2,0));
 
 
     //fill dynamic programming array
 
-    fill_dynamic_array((double **) dynamic,m1,m2,curve1,curve2);
+    fill_dynamic_array(dynamic,m1,m2,curve1,curve2);
 
 
     //find optimal traversal
@@ -166,18 +178,19 @@ double discrete_frechet(Curve* c1,Curve* c2){
     vector<vector<float> > curve2 = c2->getCurve();
     unsigned int m1 = curve1.size(), m2 = curve2.size();
 
-    double dynamic[m1][m2];
+    vector<vector<double> > dynamic(m1,vector<double>(m2,0));
 
+    // for (int i=0 ; i<m1 ; i++)
+    //     dynamic[i]=(vector<double>(m2,0));
 
     //fill dynamic programming array
-
-    fill_dynamic_array((double **) dynamic,m1,m2,curve1,curve2);
+    fill_dynamic_array(dynamic,m1,m2,curve1,curve2);
 
     //return discrete frechet distance to (m1,m2)
     return dynamic[m1-1][m2-1];
 }
 
-void fill_dynamic_array(double **dynamic, unsigned int m1, unsigned int m2, vector<vector<float> >& c1, vector<vector<float> >& c2){
+void fill_dynamic_array(vector<vector<double> >& dynamic, unsigned int m1, unsigned int m2, vector<vector<float> >& c1, vector<vector<float> >& c2){
 
     double minPrev;
 

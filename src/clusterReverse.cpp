@@ -3,7 +3,7 @@
 #include "../include/lsh_discrete.h"
 #include "../include/hcube.h"
 
-#define DELTA_RATE 100000
+#define DELTA_RATE 10000.0
 
 
 clusterReverse::clusterReverse(Confs& confs, MethodType mType, pair<unsigned int, int> pointStats) 

@@ -14,3 +14,9 @@ double Point::get_distance(Sequence* point){
 
     return calculate_distance(EUCLIDEAN,this->getvector(),point->getvector());
 }
+
+void Point::printSequence(ofstream& out){
+
+    for (int j=0 ; j<this->getvector().size() ; j++)
+        out << " " << this->getvector().at(j);
+}

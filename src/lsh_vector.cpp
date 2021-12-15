@@ -28,7 +28,7 @@ LSHvector::LSHvector (unsigned int k, unsigned int L, unsigned int N, unsigned i
     for (int i=0 ; i<k ; i++)
         this->rParameters.push_back((abs(rand()))%10);
 
-    this->method = "LSH";
+    this->method = "LSH_Vector";
 }
 
 LSHvector::~LSHvector(){this->myHashes.at(0).deleteAllAllocatedPoints();}

@@ -21,6 +21,7 @@ using namespace chrono;
 
 
 ofstream outputFileStream;
+double maf=0.0;
 
 
 unsigned int knnRecursivePrint(KNN *,PQUnique<pair<double,Sequence*> > &,
@@ -29,7 +30,7 @@ unsigned int knnRecursivePrint(KNN *,PQUnique<pair<double,Sequence*> > &,
 int main(int argc, char* argv[]){
 
     // Default values in case of no input
-    unsigned int k_lsh=4, L=1, N=5, M=10, probes=2, k_hcube=14;
+    unsigned int k_lsh=4, L=5, N=5, M=10, probes=2, k_hcube=14;
     double R=10000.0, delta=0.0;
     
     string inputFileName, queryFileName, outputFileName;
@@ -41,10 +42,11 @@ int main(int argc, char* argv[]){
     int inputPointDimensions=-1;
     stringstream pointStream;
     string point, token;
+    double sum_time_exact=0.0, sum_time_approximate=0.0, searchCount=0.0; 
 
 
     //check and get arguments
-    if (argc%2==0 or argc>15){
+    if (argc%2==0 or argc>21){
 
         cout << "Error in command line arguments" << endl;
         return 1;
@@ -134,7 +136,7 @@ int main(int argc, char* argv[]){
         inputPointCount++;
     }
 
-    //TODO #2 calculate delta
+    //calculate delta
 
     if (algorithm==S_FRECHET and !delta) delta = 4.0*2.0*(double)inputPointDimensions/DELTA_RATE;
     
@@ -150,13 +152,6 @@ int main(int argc, char* argv[]){
         method = new ContinuousLSHcurve(inputPointCount,inputPointDimensions,delta,L);
     else if (metric==M_DISCRETE)
         method = new DiscreteLSHcurve(inputPointCount,inputPointDimensions,delta,L);
-
-    //lsh system initialization
-    // LSHvector lsh(k_lsh,L,inputPointStats.first,inputPointStats.second);
-
-    //execute knn and range search
-    // knn_core(&lsh,inputFileStream,queryFileStream,N,R);
-    // knn_core(method,inputFileStream,queryFileStream,N,R);
 
     {
 
@@ -175,7 +170,6 @@ int main(int argc, char* argv[]){
             getline(pointStream,pointID,'\t');
 
             //insert vector to knn system
-            // method->insert(new Point(pointID,pointVector));
 
             if (algorithm==S_FRECHET) sequence = new Curve(pointID,read_curve(pointStream));
             else sequence = new Point(pointID, read_point(pointStream));
@@ -195,6 +189,7 @@ int main(int argc, char* argv[]){
                 getline(pointStream,pointID,'\t');
 
                 outputFileStream << "Query: " << pointID << endl;
+                outputFileStream << "Algorithm: " << method->getMethod() << endl;
 
                 // sequence = new Point(pointID,pointVector);
 
@@ -223,21 +218,16 @@ int main(int argc, char* argv[]){
                 //print knn results
                 knnRecursivePrint(method,resultPQueueApproximateKNN,resultPQueueExactKNN);
 
-                //print execution times
-                outputFileStream << "t" << method->getMethod() << ": " << approximateTime.count() << " microseconds" << endl;
-                outputFileStream << "tTrue: " << exactTime.count() << " microseconds" << endl;
-
-                //perform range search and print results
-                resultInRange = method->rangeSearch(R,sequence);
-
-                outputFileStream << "R-near neighbours:" << endl;
-
-                for (Sequence* pointPtr : resultInRange)
-                    outputFileStream << pointPtr->getID() << endl;
+                sum_time_approximate += approximateTime.count();
+                sum_time_exact += exactTime.count();
+                searchCount++;
 
                 pointStream.clear();
             }
 
+            cout << "tApproximateAverage: " << sum_time_approximate/searchCount << endl;
+            cout << "tTrueAverage: " << sum_time_exact/searchCount << endl;
+            cout << "MAF: " << maf << endl;
             cout << "Enter a new query-file filename or type \"exit\" to exit." << endl;
             getline(cin,queryFileName);
 
@@ -273,9 +263,14 @@ unsigned int knnRecursivePrint(KNN *method,PQUnique<pair<double,Sequence*> > &ap
 
     unsigned int index = knnRecursivePrint(method,approximateQueue,exactQueue);
 
-    outputFileStream << "Nearest neighbour-" << index << ": " << approximateNeighbour.second->getID() << endl;
-    outputFileStream << "distance" << method->getMethod() << ": " << approximateNeighbour.first << endl;
-    outputFileStream << "distanceTrue: " << exactNeighbour.first << endl;
+    if (index==1){
+        outputFileStream << "Approximate Nearest neighbor: " << approximateNeighbour.second->getID() << endl;
+        outputFileStream << "True Nearest neighbor: " << exactNeighbour.second->getID() << endl;
+        outputFileStream << "distanceApproximate: " << approximateNeighbour.first << endl;
+        outputFileStream << "distanceTrue: " << exactNeighbour.first << endl;
+    }
+
+    maf = max(maf,approximateNeighbour.first/exactNeighbour.first);
 
     return index+1;
 }

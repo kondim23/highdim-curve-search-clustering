@@ -27,7 +27,7 @@ int main(int argc, char* argv[]){
     Sequence* sequence;
 
     //check-get arguments
-    if (argc>12){
+    if (argc>13){
 
         cout << "Error in command line arguments" << endl;
         return 1;

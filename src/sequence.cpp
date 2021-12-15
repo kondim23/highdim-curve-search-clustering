@@ -21,3 +21,4 @@ void Sequence::setVector(vector<float> key){
 
 double Sequence::get_distance(Sequence*){}
 Sequence* Sequence::get_copy(){}
+void Sequence::printSequence(ofstream&){}

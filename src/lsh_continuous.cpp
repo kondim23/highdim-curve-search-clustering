@@ -8,12 +8,12 @@ ContinuousLSHcurve::ContinuousLSHcurve(unsigned int N, unsigned int dimensions, 
     : LSHcurve(N,dimensions,delta,1){
 
     frechet_distance_type=M_CONTINUOUS;
+    this->method = "LSH_Frechet_Continuous";
 }
 
 //implement filtering, snapping, keep minima maxima
 vector<float> ContinuousLSHcurve::hashFunction(unsigned int hashID, Sequence* sequence){
 
-    // Curve* curve = (Curve*) sequence;
     vector<vector<float> > curve = ((Curve*) sequence)->getCurve();
     vector<float> pointA ,pointB ,pointC, key;
     double distanceAB,distanceBC,term;
@@ -31,8 +31,16 @@ vector<float> ContinuousLSHcurve::hashFunction(unsigned int hashID, Sequence* se
 
     for (float& item : key){
 
-        term = item > 0 ? this->delta/2.0 : 0.0-this->delta/2.0;
-        item = floor((item+term)/this->delta)*this->delta;
+        if (item>0){
+
+            term = this->delta/2.0;
+            item = floor((item+term)/this->delta)*this->delta;
+        }
+        else{
+
+            term = 0.0-this->delta/2.0;
+            item = ceil((item+term)/this->delta)*this->delta;
+        }
     }
 
 
@@ -41,7 +49,7 @@ vector<float> ContinuousLSHcurve::hashFunction(unsigned int hashID, Sequence* se
     for (int i=0 ; i<key.size()-2 ; i++){
 
         if (key.at(i) <= key.at(i+1) and key.at(i+1) <= key.at(i+2))
-            key.erase(key.begin()+i+1);
+            key.erase(key.begin()+(i--)+1);
     }
 
 

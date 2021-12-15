@@ -17,13 +17,14 @@ public:
 
     Curve(string id, vector<vector<float> > pointVector);
     ~Curve();
-    double get_distance(Curve*);
+    double get_distance(Sequence*);
     vector<vector<float> > getCurve();
     void setVector(vector<float>);
     Sequence* get_copy();
     Curve mean_curve(Curve*);
     unsigned int get_curve_size();
     void filter_until_max_size(unsigned int max_size);
+    void printSequence(ofstream&);
 };
 
 vector<vector<float> > filter(vector<vector<float> >, float rate=0.1);

@@ -25,6 +25,7 @@ public:
     virtual double get_distance(Sequence*);
     void setVector(vector<float> key);
     virtual Sequence* get_copy();
+    virtual void printSequence(ofstream&);
 };
 
 #endif
