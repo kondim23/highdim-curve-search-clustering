@@ -7,7 +7,7 @@
 #include "../include/PQUnique.t.hpp"
 
 #define BUCKET_MEAN_CAPACITY 8
-#define WINDOW_SIZE 4.0
+#define WINDOW_SIZE 200.0
 
 using namespace std;
 

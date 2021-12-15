@@ -126,7 +126,7 @@ int main(int argc, char* argv[]){
         if (inputPointCount==0){
 
             pointStream.str(point);
-            while (getline(pointStream,token,' ')) 
+            while (getline(pointStream,token,'\t')) 
                 if (token!="\r")
                     inputPointDimensions++;
             pointStream.clear();
@@ -172,7 +172,7 @@ int main(int argc, char* argv[]){
             pointStream.str(point);
 
             //pointID holds the id of point
-            getline(pointStream,pointID,' ');
+            getline(pointStream,pointID,'\t');
 
             //insert vector to knn system
             // method->insert(new Point(pointID,pointVector));
@@ -192,7 +192,7 @@ int main(int argc, char* argv[]){
                 pointStream.str(point);
 
                 //get Query ID
-                getline(pointStream,pointID,' ');
+                getline(pointStream,pointID,'\t');
 
                 outputFileStream << "Query: " << pointID << endl;
 

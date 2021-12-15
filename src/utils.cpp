@@ -60,9 +60,9 @@ vector<vector<float> > read_curve(stringstream& curveStream){
     vector<vector<float> > curve;
     float counter=1.0;
 
-    while (getline(curveStream,token,' ')) 
+    while (getline(curveStream,token,'\t')) 
             if (token!="\r")
-                curve.push_back(vector<float>(counter++,stof(token)));
+                curve.push_back(vector<float>{counter++,stof(token)});
 
     return curve;
 }
@@ -73,7 +73,7 @@ vector<float> read_point(stringstream& pointStream){
     string token;
     vector<float> pointVector;
 
-    while (getline(pointStream,token,' ')) 
+    while (getline(pointStream,token,'\t')) 
             if (token!="\r")
                 pointVector.push_back(stof(token));
 
@@ -94,7 +94,7 @@ pair<unsigned int,int> getPointCountAndDimensions(ifstream &inputFileStream){
         if (inputPointCount==0){
 
             pointStream.str(point);
-            while (getline(pointStream,token,' ')) 
+            while (getline(pointStream,token,'\t')) 
                 if (token!="\r")
                     inputPointDimensions++;
             pointStream.clear();

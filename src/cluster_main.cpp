@@ -157,7 +157,7 @@ int main(int argc, char* argv[]){
         pointStream.str(point);
 
         //pointID holds the id of point
-        getline(pointStream,pointID,' ');
+        getline(pointStream,pointID,'\t');
 
         //insert sequence to cluster system
         if (meanMethod==U_FRECHET) sequence = new Curve(pointID,read_curve(pointStream));
