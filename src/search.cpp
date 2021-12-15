@@ -42,7 +42,7 @@ int main(int argc, char* argv[]){
     int inputPointDimensions=-1;
     stringstream pointStream;
     string point, token;
-    double sum_time_exact=0.0, sum_time_approximate=0.0, searchCount=0.0; 
+    unsigned int sum_time_exact=0.0, sum_time_approximate=0.0, searchCount=0.0; 
 
 
     //check and get arguments
@@ -225,9 +225,9 @@ int main(int argc, char* argv[]){
                 pointStream.clear();
             }
 
-            cout << "tApproximateAverage: " << sum_time_approximate/searchCount << endl;
-            cout << "tTrueAverage: " << sum_time_exact/searchCount << endl;
-            cout << "MAF: " << maf << endl;
+            outputFileStream << "tApproximateAverage: " << sum_time_approximate/searchCount << " microseconds" << endl;
+            outputFileStream << "tTrueAverage: " << sum_time_exact/searchCount << " microseconds" << endl;
+            outputFileStream << "MAF: " << maf << endl;
             cout << "Enter a new query-file filename or type \"exit\" to exit." << endl;
             getline(cin,queryFileName);
 
@@ -268,9 +268,8 @@ unsigned int knnRecursivePrint(KNN *method,PQUnique<pair<double,Sequence*> > &ap
         outputFileStream << "True Nearest neighbor: " << exactNeighbour.second->getID() << endl;
         outputFileStream << "distanceApproximate: " << approximateNeighbour.first << endl;
         outputFileStream << "distanceTrue: " << exactNeighbour.first << endl;
+        maf = max(maf,approximateNeighbour.first/exactNeighbour.first);
     }
-
-    maf = max(maf,approximateNeighbour.first/exactNeighbour.first);
 
     return index+1;
 }
