@@ -30,7 +30,7 @@ class LSHcurve : public KNN{
         LSHcurve (unsigned int N, unsigned int dimensions, double delta, unsigned int L=5);
         ~LSHcurve ();
 
-        void insert(Sequence* curve);
+        Sequence* insert(Sequence* curve);
 
         void approximateKNN(PQUnique<pair<double, Sequence*> > &neighboursQueue, Sequence* curve);
 

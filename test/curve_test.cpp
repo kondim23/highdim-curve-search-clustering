@@ -2,7 +2,7 @@
 #include "../include/lsh_curve.h"
 #include "../include/curve.h"
 
-frechet_type frechet_distance_type;
+extern frechet_type frechet_distance_type;
 
 CPPUNIT_TEST_SUITE_REGISTRATION( Curve_test );
 
@@ -21,5 +21,5 @@ void Curve_test::tearDown(){
 
 void Curve_test::testDistance(){
 
-    CPPUNIT_ASSERT_EQUAL(this->c1->get_distance(this->c2),1.4142135623730951);
+    CPPUNIT_ASSERT_EQUAL(this->c1->get_distance(this->c2),this->c2->get_distance(this->c1));
 }

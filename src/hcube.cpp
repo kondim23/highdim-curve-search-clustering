@@ -41,12 +41,12 @@ HCUBE::~HCUBE() {
 }
 
 
-void HCUBE::insert(Sequence* sequence) {
+Sequence* HCUBE::insert(Sequence* sequence) {
     
     //insert sequence in hash
     this->myHash->storeInHash(this->hashFunction(sequence),sequence,0);
 
-    return ;
+    return sequence;
 }
 
 

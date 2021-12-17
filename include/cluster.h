@@ -61,7 +61,7 @@ public:
 
     Cluster(Confs&);
     ~Cluster();
-    void insertPoint(Sequence *point);
+    Sequence* insertPoint(Sequence *point);
     void startClustering();
     void printCentroids(ofstream&);
 

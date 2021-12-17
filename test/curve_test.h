@@ -1,3 +1,6 @@
+#ifndef CURVE_TEST
+#define CURVE_TEST
+
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 #include "../include/curve.h"
@@ -24,3 +27,5 @@ public:
     void tearDown();
     void testDistance();
 };
+
+#endif

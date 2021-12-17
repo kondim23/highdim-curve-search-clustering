@@ -28,7 +28,7 @@ class LSHvector : public KNN{
         LSHvector (unsigned int k, unsigned int L, unsigned int N, unsigned int dimensions);
         ~LSHvector ();
 
-        void insert(Sequence* point);
+        Sequence* insert(Sequence* point);
 
         void approximateKNN(PQUnique<pair<double, Sequence*> > &neighboursQueue, Sequence* point);
 

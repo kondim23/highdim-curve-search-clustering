@@ -39,11 +39,11 @@ Cluster::Cluster(Confs &confs){
 Cluster::~Cluster() {this->FreePoints();}
 
 
-void Cluster::insertPoint(Sequence *sequence){
+Sequence* Cluster::insertPoint(Sequence *sequence){
 
     //insert a pair(Point,clusterID) to system -- initial clusterID==-1
     this->allPoints.insert(make_pair(sequence->getID(),new pair<Sequence*,int>(sequence,-1)));
-    return;
+    return sequence;
 }
 
 

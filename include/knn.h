@@ -31,7 +31,7 @@ class KNN {
 
         //Every member below will be overloaded based on method (LSH - Hypercube)
         
-        virtual void insert(Sequence* point);
+        virtual Sequence* insert(Sequence* point);
 
         virtual void approximateKNN(PQUnique <pair<double, Sequence*> > &neighborsQueue,Sequence* point);
 

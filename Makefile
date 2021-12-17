@@ -6,7 +6,7 @@ TDIR	:= test/
 
 OBJS_CL		= point.o lsh_vector.o hcube.o myHashTable.o sequence.o utils.o cluster_main.o fred.o cluster.o confs.o knn.o clusterLloyd.o clusterReverse.o lsh_discrete.o lsh_curve.o curve.o
 OBJS_SEARCH	= point.o hcube.o search.o myHashTable.o sequence.o utils.o knn.o lsh_vector.o fred.o lsh_continuous.o lsh_curve.o lsh_discrete.o curve.o
-OBJS_TEST	= curve_test.o main_test.o curve.o sequence.o fred.o utils.o
+OBJS_TEST	= curve_test.o main_test.o curve.o sequence.o fred.o utils.o lsh_discrete_test.o lsh_discrete.o knn.o lsh_vector.o lsh_curve.o myHashTable.o cluster_test.o confs.o cluster.o clusterLloyd.o point.o
 SOURCE		= lsh_main.cpp lsh_vector.cpp myHashTable.cpp sequence.cpp utils.cpp
 HEADER		= lsh_vector.h myHashTable.h sequence.h utils.h
 OUT			= cluster search test
@@ -75,11 +75,17 @@ clusterReverse.o: $(SDIR)clusterReverse.cpp $(patsubst %,$(HDIR)%,clusterReverse
 search.o: $(SDIR)search.cpp $(patsubst %,$(HDIR)%,lsh_vector.h hcube.h lsh_continuous.h lsh_discrete.h knn.h PQUnique.h PQUnique.t.hpp point.h curve.h)
 	$(CC) $(FLAGS) $(SDIR)search.cpp -o $(ODIR)$@
 
-fred.o: $(SDIR)/fred/frechet.cpp $(HDIR)/fred/frechet.hpp
-	$(CC) $(FLAGS) $(SDIR)/fred/frechet.cpp -o $(ODIR)$@
+fred.o: $(SDIR)fred/frechet.cpp $(HDIR)/fred/frechet.hpp
+	$(CC) $(FLAGS) $(SDIR)fred/frechet.cpp -o $(ODIR)$@
 
 curve_test.o:	$(TDIR)curve_test.cpp $(TDIR)curve_test.h $(patsubst %,$(HDIR)%,lsh_curve.h curve.h)
 	$(CC) $(FLAGS) $(TDIR)curve_test.cpp -o $(ODIR)$@
+
+lsh_discrete_test.o:	$(TDIR)lsh_discrete_test.cpp $(TDIR)lsh_discrete_test.h $(patsubst %,$(HDIR)%,lsh_discrete.h curve.h)
+	$(CC) $(FLAGS) $(TDIR)lsh_discrete_test.cpp -o $(ODIR)$@
+
+cluster_test.o:	$(TDIR)cluster_test.cpp $(TDIR)cluster_test.h $(patsubst %,$(HDIR)%,cluster.h curve.h clusterLloyd.h)
+	$(CC) $(FLAGS) $(TDIR)cluster_test.cpp -o $(ODIR)$@
 
 main_test.o:	$(TDIR)main_test.cpp
 	$(CC) $(FLAGS) $(TDIR)main_test.cpp -o $(ODIR)$@
@@ -94,4 +100,4 @@ test:	$(OBJS_TEST)
 	$(CC) -g $(_OBJS_TEST) -o $(BDIR)$@ -lcppunit
 
 clean:
-	rm -rf $(_OBJS_CL) $(_OBJS_LSH) $(_OBJS_CUBE) $(_OBJS_SEARCH) $(_OUT)
+	rm -rf $(_OBJS_CL) $(_OBJS_LSH) $(_OBJS_CUBE) $(_OBJS_SEARCH) $(_OBJS_TEST) $(_OUT)

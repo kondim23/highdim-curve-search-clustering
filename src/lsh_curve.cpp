@@ -19,7 +19,7 @@ LSHcurve::~LSHcurve(){}
 
 vector<float> LSHcurve::hashFunction(unsigned int hashID, Sequence* curve){}
 
-void LSHcurve::insert(Sequence* curve){
+Sequence* LSHcurve::insert(Sequence* curve){
 
     for (int i=0 ; i<this->myHashes.size() ; i++){
 
@@ -28,7 +28,7 @@ void LSHcurve::insert(Sequence* curve){
         this->myHashes.at(i).insert(curve);
     }
 
-    return;
+    return curve;
 }
 
 

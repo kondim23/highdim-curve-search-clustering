@@ -64,7 +64,7 @@ pair<unsigned int, int> LSHvector::hashFunction(unsigned int hashID, Sequence* s
 }
 
 
-void LSHvector::insert(Sequence* sequence){
+Sequence* LSHvector::insert(Sequence* sequence){
 
     pair<unsigned int, int> hashFunctionResults;
 
@@ -75,7 +75,7 @@ void LSHvector::insert(Sequence* sequence){
         this->myHashes.at(i).storeInHash(hashFunctionResults.first,sequence,hashFunctionResults.second);
     }
 
-    return;
+    return sequence;
 }
 
 

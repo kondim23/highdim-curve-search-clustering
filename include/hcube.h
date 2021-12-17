@@ -41,7 +41,7 @@ class HCUBE : public KNN{
         HCUBE(unsigned int k,unsigned int dimensions,int probes,int M);
         ~HCUBE();
 
-        void insert(Sequence* point);
+        Sequence* insert(Sequence* point);
 
         void approximateKNN(PQUnique <pair<double, Sequence*> > &neighborsQueue,Sequence* point);
 
