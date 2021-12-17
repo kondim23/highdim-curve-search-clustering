@@ -51,7 +51,7 @@ protected:
     pair<double,unsigned int> find_closest_centroid(unsigned int);
 
     //delete all allocated Sequences
-    void FreePoints();
+    void FreeSequences();
 
     //initialize radius based on smallest distance of two centroids divided by 2 
     double initializeRadius();
@@ -64,7 +64,7 @@ public:
     Cluster(Confs&);
     ~Cluster();
 
-    Sequence* insertPoint(Sequence *point);
+    Sequence* insertSequence(Sequence *point);
 
     void startClustering();
 
@@ -76,7 +76,7 @@ public:
     
     //print the centroid and SequenceId's of all sequences in cluster
     void printClusters(ofstream&);
-    
+
     string getMethod();
 };
 

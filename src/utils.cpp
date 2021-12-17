@@ -83,30 +83,30 @@ vector<float> read_point(stringstream& pointStream){
 }
 
 //get count of sequences and dimensions of sequences from input
-pair<unsigned int,int> getPointCountAndDimensions(ifstream &inputFileStream){
+pair<unsigned int,int> getSequenceCountAndDimensions(ifstream &inputFileStream){
 
-    string point, token;
-    unsigned int inputPointCount=0;
-    int inputPointDimensions=-1;
-    stringstream pointStream;
+    string sequence, token;
+    unsigned int inputSequenceCount=0;
+    int inputSequenceLength=-1;
+    stringstream sequenceStream;
 
-    while (inputFileStream and getline(inputFileStream,point)){
+    while (inputFileStream and getline(inputFileStream,sequence)){
 
         //calculating count of sequence dimensions
-        if (inputPointCount==0){
+        if (inputSequenceCount==0){
 
-            pointStream.str(point);
-            while (getline(pointStream,token,'\t')) 
+            sequenceStream.str(sequence);
+            while (getline(sequenceStream,token,'\t')) 
                 if (token!="\r")
-                    inputPointDimensions++;
-            pointStream.clear();
+                    inputSequenceLength++;
+            sequenceStream.clear();
         }
-        inputPointCount++;
+        inputSequenceCount++;
     }
     
-    pointStream.clear();
+    sequenceStream.clear();
     inputFileStream.clear();
     inputFileStream.seekg(SEEK_SET);
 
-    return make_pair(inputPointCount,inputPointDimensions);
+    return make_pair(inputSequenceCount,inputSequenceLength);
 }

@@ -17,9 +17,9 @@ ofstream outputFileStream;
 
 int main(int argc, char* argv[]){
 
-    string inputFileName, configurationsFileName, outputFileName, point, token, pointID, conf;
+    string inputFileName, configurationsFileName, outputFileName, input_sequence, token, sequenceID, conf;
     ifstream inputFileStream, configurationsFileStream;
-    stringstream pointStream;
+    stringstream sequenceStream;
     bool complete=false,silhouette=false;
     MethodType method=CL_NONE;
     MeanType meanMethod=U_NONE;
@@ -107,42 +107,42 @@ int main(int argc, char* argv[]){
     //set confs
     while (configurationsFileStream and getline(configurationsFileStream,conf)){
 
-        pointStream.str(conf);
-        while (getline(pointStream,token,' ')) {
+        sequenceStream.str(conf);
+        while (getline(sequenceStream,token,' ')) {
 
             if (token=="\r") continue;
             else if(token=="number_of_clusters:") {
                 
-                getline(pointStream,token,' ');
+                getline(sequenceStream,token,' ');
                 confs.set_number_of_clusters(stoi(token));
             }
             else if(token=="number_of_vector_hash_tables:") {
                 
-                getline(pointStream,token,' ');
+                getline(sequenceStream,token,' ');
                 confs.set_number_of_vector_hash_tables(stoi(token));
             }
             else if(token=="number_of_vector_hash_functions:") {
                 
-                getline(pointStream,token,' ');
+                getline(sequenceStream,token,' ');
                 confs.set_number_of_vector_hash_functions(stoi(token));
             }
             else if(token=="max_number_M_hypercube:") {
                 
-                getline(pointStream,token,' ');
+                getline(sequenceStream,token,' ');
                 confs.set_max_number_M_hypercube(stoi(token));
             }
             else if(token=="number_of_hypercube_dimensions:") {
                 
-                getline(pointStream,token,' ');
+                getline(sequenceStream,token,' ');
                 confs.set_number_of_hypercube_dimensions(stoi(token));
             }
             else if(token=="number_of_probes:") {
                 
-                getline(pointStream,token,' ');
+                getline(sequenceStream,token,' ');
                 confs.set_number_of_probes(stoi(token));
             }
         }
-        pointStream.clear();
+        sequenceStream.clear();
     }
 
     configurationsFileStream.close();
@@ -153,24 +153,24 @@ int main(int argc, char* argv[]){
     if (method==CL_LLOYD) 
         clusterMethod = new clusterLloyd(confs,meanMethod==U_FRECHET);
     else 
-        clusterMethod = new clusterReverse(confs,method,getPointCountAndDimensions(inputFileStream));
+        clusterMethod = new clusterReverse(confs,method,getSequenceCountAndDimensions(inputFileStream));
 
 
     //get all Sequences from input
-    while (inputFileStream and getline(inputFileStream,point)){
+    while (inputFileStream and getline(inputFileStream,input_sequence)){
 
-        pointStream.str(point);
+        sequenceStream.str(input_sequence);
 
         //sequenceID holds the id of sequence
-        getline(pointStream,pointID,'\t');
+        getline(sequenceStream,sequenceID,'\t');
 
         //insert sequence to cluster system
-        if (meanMethod==U_FRECHET) sequence = new Curve(pointID,read_curve(pointStream));
-        else sequence = new Point(pointID, read_point(pointStream));
+        if (meanMethod==U_FRECHET) sequence = new Curve(sequenceID,read_curve(sequenceStream));
+        else sequence = new Point(sequenceID, read_point(sequenceStream));
 
-        clusterMethod->insertPoint(sequence);
+        clusterMethod->insertSequence(sequence);
 
-        pointStream.clear();
+        sequenceStream.clear();
     }
 
     inputFileStream.close();

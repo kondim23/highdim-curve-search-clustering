@@ -21,6 +21,8 @@ using namespace chrono;
 
 
 ofstream outputFileStream;
+
+//maximum approximation factor
 double maf=0.0;
 
 
@@ -38,10 +40,10 @@ int main(int argc, char* argv[]){
     searchMethodType algorithm=S_NONE;
     frechet_type metric=M_NONE;
     KNN *method;
-    unsigned int inputPointCount=0;
-    int inputPointDimensions=-1;
-    stringstream pointStream;
-    string point, token;
+    unsigned int inputSequenceCount=0;
+    int inputSequenceLength=-1;
+    stringstream sequenceStream;
+    string input_sequence, token;
     unsigned int sum_time_exact=0.0, sum_time_approximate=0.0, searchCount=0.0; 
 
 
@@ -122,25 +124,25 @@ int main(int argc, char* argv[]){
 
     //calculating count and dimensions of input points
 
-    while (inputFileStream and getline(inputFileStream,point)){
+    while (inputFileStream and getline(inputFileStream,input_sequence)){
 
-        //calculating count of point dimensions
-        if (inputPointCount==0){
+        //calculating count of input_sequence dimensions
+        if (inputSequenceCount==0){
 
-            pointStream.str(point);
-            while (getline(pointStream,token,'\t')) 
+            sequenceStream.str(input_sequence);
+            while (getline(sequenceStream,token,'\t')) 
                 if (token!="\r")
-                    inputPointDimensions++;
-            pointStream.clear();
+                    inputSequenceLength++;
+            sequenceStream.clear();
         }
-        inputPointCount++;
+        inputSequenceCount++;
     }
 
     //calculate delta
 
-    if (algorithm==S_FRECHET and !delta) delta = 4.0*2.0*(double)inputPointDimensions/DELTA_RATE;
+    if (algorithm==S_FRECHET and !delta) delta = 4.0*2.0*(double)inputSequenceLength/DELTA_RATE;
     
-    pointStream.clear();
+    sequenceStream.clear();
     inputFileStream.clear();
     inputFileStream.seekg(SEEK_SET);
 
@@ -148,55 +150,55 @@ int main(int argc, char* argv[]){
     //set proper method
 
     if (algorithm==S_LSH)
-        method = new LSHvector(k_lsh,L,inputPointCount,inputPointDimensions);
+        method = new LSHvector(k_lsh,L,inputSequenceCount,inputSequenceLength);
     else if (algorithm==S_HCUBE)
-        method = new HCUBE(k_hcube,inputPointDimensions,probes,M);
+        method = new HCUBE(k_hcube,inputSequenceLength,probes,M);
     else if (metric==M_CONTINUOUS)
-        method = new ContinuousLSHcurve(inputPointCount,inputPointDimensions,delta,L);
+        method = new ContinuousLSHcurve(inputSequenceCount,inputSequenceLength,delta,L);
     else if (metric==M_DISCRETE)
-        method = new DiscreteLSHcurve(inputPointCount,inputPointDimensions,delta,L);
+        method = new DiscreteLSHcurve(inputSequenceCount,inputSequenceLength,delta,L);
 
     {
 
-        string pointID;
+        string sequenceID;
         priority_queue<pair<double,Sequence*> > resultPQueueExactKNN;
         set<Sequence*> resultInRange;
         Sequence *sequence;
 
         PQUnique<pair<double,Sequence*> >resultPQueueApproximateKNN(N);
 
-        while (inputFileStream and getline(inputFileStream,point)){
+        while (inputFileStream and getline(inputFileStream,input_sequence)){
 
-            pointStream.str(point);
+            sequenceStream.str(input_sequence);
 
             //sequenceID holds the id of sequence
-            getline(pointStream,pointID,'\t');
+            getline(sequenceStream,sequenceID,'\t');
 
             //insert vector to knn system
 
-            if (algorithm==S_FRECHET) sequence = new Curve(pointID,read_curve(pointStream));
-            else sequence = new Point(pointID, read_point(pointStream));
+            if (algorithm==S_FRECHET) sequence = new Curve(sequenceID,read_curve(sequenceStream));
+            else sequence = new Point(sequenceID, read_point(sequenceStream));
 
             method->insert(sequence);
 
-            pointStream.clear();
+            sequenceStream.clear();
         }
 
         do{
 
-            while (queryFileStream and getline(queryFileStream,point)){
+            while (queryFileStream and getline(queryFileStream,input_sequence)){
 
-                pointStream.str(point);
+                sequenceStream.str(input_sequence);
 
                 //get Query ID
-                getline(pointStream,pointID,'\t');
+                getline(sequenceStream,sequenceID,'\t');
 
-                outputFileStream << "Query: " << pointID << endl;
+                outputFileStream << "Query: " << sequenceID << endl;
                 outputFileStream << "Algorithm: " << method->getMethod() << endl;
 
                 //define sequence
-                if (algorithm==S_FRECHET) sequence = new Curve(pointID,read_curve(pointStream));
-                else sequence = new Point(pointID, read_point(pointStream));
+                if (algorithm==S_FRECHET) sequence = new Curve(sequenceID,read_curve(sequenceStream));
+                else sequence = new Point(sequenceID, read_point(sequenceStream));
 
                 //call approximate knn and count execution time
                 //resultPQueueApproximateKNN has max length N
@@ -225,7 +227,7 @@ int main(int argc, char* argv[]){
                 sum_time_exact += exactTime.count();
                 searchCount++;
 
-                pointStream.clear();
+                sequenceStream.clear();
             }
 
             outputFileStream << "tApproximateAverage: " << sum_time_approximate/searchCount << " microseconds" << endl;

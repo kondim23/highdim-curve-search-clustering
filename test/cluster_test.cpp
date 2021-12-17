@@ -22,5 +22,5 @@ void Cluster_test::tearDown(){
 
 void Cluster_test::test_clustering(){
 
-    CPPUNIT_ASSERT(this->method->insertPoint(this->curve) == this->curve);
+    CPPUNIT_ASSERT(this->method->insertSequence(this->curve) == this->curve);
 }

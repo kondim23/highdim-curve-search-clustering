@@ -36,10 +36,10 @@ Cluster::Cluster(Confs &confs){
 }
 
 
-Cluster::~Cluster() {this->FreePoints();}
+Cluster::~Cluster() {this->FreeSequences();}
 
 
-Sequence* Cluster::insertPoint(Sequence *sequence){
+Sequence* Cluster::insertSequence(Sequence *sequence){
 
     //insert a pair(Sequence*,clusterID) to system -- initial clusterID==-1
     this->allPoints.insert(make_pair(sequence->getID(),new pair<Sequence*,int>(sequence,-1)));
@@ -376,7 +376,7 @@ pair<double,unsigned int> Cluster::find_closest_centroid(unsigned int centroid){
 
 
 //free all allocated sequences
-void Cluster::FreePoints(){
+void Cluster::FreeSequences(){
 
     map<string,pair<Sequence*,int>*>::iterator itrAll;
     vector<Sequence*>::iterator itrCentroids;

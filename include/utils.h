@@ -29,6 +29,6 @@ vector<vector<float> > read_curve(stringstream&);
 vector<float> read_point(stringstream&);
 
 //returns the count of sequence and count of dimensions of each sequence in input
-pair<unsigned int, int> getPointCountAndDimensions(ifstream &);
+pair<unsigned int, int> getSequenceCountAndDimensions(ifstream &);
 
 #endif
