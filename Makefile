@@ -11,7 +11,7 @@ SOURCE		= lsh_main.cpp lsh_vector.cpp myHashTable.cpp sequence.cpp utils.cpp
 HEADER		= lsh_vector.h myHashTable.h sequence.h utils.h
 OUT			= cluster search test
 CC			= g++
-FLAGS		= -g -c
+FLAGS		= -g -c -O2
 
 _OBJS_LSH = $(patsubst %,$(ODIR)%,$(OBJS_LSH))
 _OBJS_SEARCH = $(patsubst %,$(ODIR)%,$(OBJS_SEARCH))
@@ -91,13 +91,13 @@ main_test.o:	$(TDIR)main_test.cpp
 	$(CC) $(FLAGS) $(TDIR)main_test.cpp -o $(ODIR)$@
 
 cluster: $(OBJS_CL)
-	$(CC) -g $(_OBJS_CL) -o $(BDIR)$@
+	$(CC) -g -O2 $(_OBJS_CL) -o $(BDIR)$@
 
 search: $(OBJS_SEARCH)
-	$(CC) -g $(_OBJS_SEARCH) -o $(BDIR)$@
+	$(CC) -g -O2 $(_OBJS_SEARCH) -o $(BDIR)$@
 
 test:	$(OBJS_TEST)
-	$(CC) -g $(_OBJS_TEST) -o $(BDIR)$@ -lcppunit
+	$(CC) -g -O2 $(_OBJS_TEST) -o $(BDIR)$@ -lcppunit
 
 clean:
 	rm -rf $(_OBJS_CL) $(_OBJS_LSH) $(_OBJS_CUBE) $(_OBJS_SEARCH) $(_OBJS_TEST) $(_OUT)
