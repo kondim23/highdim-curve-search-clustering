@@ -8,6 +8,7 @@ class ContinuousLSHcurve : public LSHcurve
 {
 private:
 
+    //continuous lsh hashing
     vector<float> hashFunction(unsigned int hashID, Sequence* curve);
 
 public:

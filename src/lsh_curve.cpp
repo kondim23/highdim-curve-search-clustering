@@ -4,7 +4,9 @@
 #define LSH_VECTOR_L 1
 #define LSH_VECTOR_K 5
 
+//continuous or discrete
 frechet_type frechet_distance_type;
+
 
 LSHcurve::LSHcurve (unsigned int N, unsigned int dimensions, double delta, unsigned int L){
 
@@ -15,15 +17,19 @@ LSHcurve::LSHcurve (unsigned int N, unsigned int dimensions, double delta, unsig
     this->delta = delta;
 }
 
+
 LSHcurve::~LSHcurve(){}
 
+
+//will be overloaded to coninuous or discrete lsh hashing
 vector<float> LSHcurve::hashFunction(unsigned int hashID, Sequence* curve){}
+
 
 Sequence* LSHcurve::insert(Sequence* curve){
 
     for (int i=0 ; i<this->myHashes.size() ; i++){
 
-        //get index(curve), ID(curve) and store curve.
+        //get key and store curve.
         curve->setVector(this->hashFunction(i,curve));
         this->myHashes.at(i).insert(curve);
     }
@@ -52,7 +58,7 @@ set<Sequence*> LSHcurve::rangeSearch(double radius, Sequence* curve){
 
     for (int i=0 ; i<this->myHashes.size() ; i++){
 
-        //get index(curve) and ID(curve)
+        //get key
         curve->setVector(this->hashFunction(i,curve));
 
         //get set of points in range for hash with hashID==i

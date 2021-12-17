@@ -61,6 +61,9 @@ int main(int argc, char* argv[]){
         return 1;
     }
 
+
+    //get filenames if not provided
+
     if(inputFileName.empty()){
 
         cout << "Enter input file:" << endl;
@@ -79,6 +82,8 @@ int main(int argc, char* argv[]){
         getline(cin,configurationsFileName);
     }
 
+
+    //check method and meanMethod combination
     if (method!=CL_LLOYD and ((method==CL_LSH_CURVE) != (meanMethod==U_FRECHET))){
 
         cout << "Error: Bad match of assignment and update functions." << endl;
@@ -151,12 +156,12 @@ int main(int argc, char* argv[]){
         clusterMethod = new clusterReverse(confs,method,getPointCountAndDimensions(inputFileStream));
 
 
-    //get all Points from input
+    //get all Sequences from input
     while (inputFileStream and getline(inputFileStream,point)){
 
         pointStream.str(point);
 
-        //pointID holds the id of point
+        //sequenceID holds the id of sequence
         getline(pointStream,pointID,'\t');
 
         //insert sequence to cluster system

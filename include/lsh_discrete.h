@@ -8,7 +8,10 @@ class DiscreteLSHcurve : public LSHcurve
 {
 private:
 
+    //all t parameters that shift the grids of discrete lsh algorithm 
     vector<float> tParameters;
+
+    //discrete lsh hashing
     vector<float> hashFunction(unsigned int hashID, Sequence* curve);
 
 public:

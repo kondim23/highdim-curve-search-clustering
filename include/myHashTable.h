@@ -23,7 +23,7 @@ class myHashTable {
         //t parameters for computing h function
         vector<float> tParameters;
 
-        //a hash table of sets of points
+        //a hash table of sets of sequences
         vector<set< pair< Sequence*,int > > > myHash;
 
         //count of buckets
@@ -34,7 +34,7 @@ class myHashTable {
         myHashTable(unsigned int k, unsigned int N, unsigned int w, unsigned int dimensions);
         ~myHashTable();
 
-        //store a point with id pointID in bucket index
+        //store a sequence with id sequenceID in bucket index
         void storeInHash(unsigned int index, Sequence* point, int pointID);
 
         //get v and t for computing h
@@ -49,7 +49,7 @@ class myHashTable {
 
         void deleteAllAllocatedPoints();
 
-        //returns the count of points in given bucket 
+        //returns the count of sequences in given bucket 
         unsigned int getBucketPointCount(unsigned int);
 };
 

@@ -54,6 +54,7 @@ vector<float> divide_vector(vector<float>& vec,int mul){
 }
 
 
+//read input curve and add time dimension
 vector<vector<float> > read_curve(stringstream& curveStream){
 
     string token;
@@ -68,6 +69,7 @@ vector<vector<float> > read_curve(stringstream& curveStream){
 }
 
 
+//read input point 
 vector<float> read_point(stringstream& pointStream){
 
     string token;
@@ -80,7 +82,7 @@ vector<float> read_point(stringstream& pointStream){
     return pointVector;
 }
 
-//get count of points and dimensions of points from input
+//get count of sequences and dimensions of sequences from input
 pair<unsigned int,int> getPointCountAndDimensions(ifstream &inputFileStream){
 
     string point, token;
@@ -90,7 +92,7 @@ pair<unsigned int,int> getPointCountAndDimensions(ifstream &inputFileStream){
 
     while (inputFileStream and getline(inputFileStream,point)){
 
-        //calculating count of point dimensions
+        //calculating count of sequence dimensions
         if (inputPointCount==0){
 
             pointStream.str(point);

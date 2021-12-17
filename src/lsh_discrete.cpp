@@ -1,14 +1,16 @@
 #include <cmath>
 #include "../include/lsh_discrete.h"
 
+//continuous or discrete
 extern frechet_type frechet_distance_type;
+
 
 DiscreteLSHcurve::DiscreteLSHcurve(unsigned int N, unsigned int dimensions, double delta, unsigned int L, unsigned int point_dimensions)
     : LSHcurve(N,dimensions,delta,L){
 
     srand(time(NULL));
     
-    //initialize random float t-parameters
+    //initialize random float t-parameters for grid shifting
     for (int i=0 ; i<point_dimensions*L ; i++)
         this->tParameters.push_back(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/delta)));
 
@@ -16,12 +18,14 @@ DiscreteLSHcurve::DiscreteLSHcurve(unsigned int N, unsigned int dimensions, doub
     this->method = "LSH_Frechet_Discrete";
 }
 
+
+//implements lsh discrete hashing
 vector<float> DiscreteLSHcurve::hashFunction(unsigned int hashID, Sequence* sequence){
 
     //implement 2d snapping padding
 
     vector<vector<float> > curve = ((Curve*)sequence)->getCurve();
-    vector<float> key/*, curve = ((Curve*)sequence)->getCurve()*/;
+    vector<float> key;
     float t, snapped_p, term, counter=1.0, delta_division_result;
     bool duplicate=true;
     int count=0;
@@ -34,6 +38,7 @@ vector<float> DiscreteLSHcurve::hashFunction(unsigned int hashID, Sequence* sequ
         for (int i=0 ; i<point.size() ; i++){
             count++;
 
+            //compute snapped element
             t = this->tParameters.at(hashID*point.size()+i);
             snapped_p = point.at(i)-t;
             if (snapped_p>0){
@@ -46,16 +51,21 @@ vector<float> DiscreteLSHcurve::hashFunction(unsigned int hashID, Sequence* sequ
                 term = 0.0-this->delta/2.0;
                 delta_division_result = ceil((snapped_p+term)/this->delta);
             }
+
+            //push snapped element
             key.push_back(delta_division_result*this->delta+t);
         }
 
+        //check for past identical consecutive point and remove it
         if(key.size()>point.size()){
 
             duplicate=true;
 
+            //check if identical in all dimensions
             for (int j=0 ; j<point.size() ; j++)
                 duplicate = duplicate and key.at(key.size()-j-1)==key.at(key.size()-1-j-point.size());
 
+            //if identical remove item
             if (duplicate)
                 for (int j=0 ; j<point.size() ; j++)
                     key.pop_back();

@@ -83,6 +83,8 @@ int main(int argc, char* argv[]){
         return 1;
     }
 
+    //get filenames in not provided
+
     if(inputFileName.empty()){
 
         cout << "Enter input file:" << endl;
@@ -104,8 +106,8 @@ int main(int argc, char* argv[]){
     if ((algorithm==S_FRECHET) != (metric!=M_NONE))
         cout << "Metric is only declared on Frechet algorithm - will be ignored." << endl;
 
+
     //opening files
-    // openCheckFiles(inputFileStream,queryFileStream,inputFileName,outputFileName,queryFileName);
 
     outputFileStream.open(outputFileName,ofstream::trunc);
     inputFileStream.open(inputFileName);
@@ -119,8 +121,6 @@ int main(int argc, char* argv[]){
 
 
     //calculating count and dimensions of input points
-    // inputPointStats = getPointCountAndDimensions(inputFileStream);
-
 
     while (inputFileStream and getline(inputFileStream,point)){
 
@@ -144,6 +144,9 @@ int main(int argc, char* argv[]){
     inputFileStream.clear();
     inputFileStream.seekg(SEEK_SET);
 
+
+    //set proper method
+
     if (algorithm==S_LSH)
         method = new LSHvector(k_lsh,L,inputPointCount,inputPointDimensions);
     else if (algorithm==S_HCUBE)
@@ -166,7 +169,7 @@ int main(int argc, char* argv[]){
 
             pointStream.str(point);
 
-            //pointID holds the id of point
+            //sequenceID holds the id of sequence
             getline(pointStream,pointID,'\t');
 
             //insert vector to knn system
@@ -191,8 +194,7 @@ int main(int argc, char* argv[]){
                 outputFileStream << "Query: " << pointID << endl;
                 outputFileStream << "Algorithm: " << method->getMethod() << endl;
 
-                // sequence = new Point(pointID,pointVector);
-
+                //define sequence
                 if (algorithm==S_FRECHET) sequence = new Curve(pointID,read_curve(pointStream));
                 else sequence = new Point(pointID, read_point(pointStream));
 
@@ -218,6 +220,7 @@ int main(int argc, char* argv[]){
                 //print knn results
                 knnRecursivePrint(method,resultPQueueApproximateKNN,resultPQueueExactKNN);
 
+                //update statistics
                 sum_time_approximate += approximateTime.count();
                 sum_time_exact += exactTime.count();
                 searchCount++;
@@ -263,6 +266,7 @@ unsigned int knnRecursivePrint(KNN *method,PQUnique<pair<double,Sequence*> > &ap
 
     unsigned int index = knnRecursivePrint(method,approximateQueue,exactQueue);
 
+    //only print the min-distance element 
     if (index==1){
         outputFileStream << "Approximate Nearest neighbor: " << approximateNeighbour.second->getID() << endl;
         outputFileStream << "True Nearest neighbor: " << exactNeighbour.second->getID() << endl;

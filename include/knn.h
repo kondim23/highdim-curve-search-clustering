@@ -16,12 +16,12 @@ class KNN {
 
     private:
 
-        //the g hash function - will be overloaded based on method (LSH - Hypercube)
+        //the g hash function - will be overloaded based on method (LSHvector - Hypercube - LSHcurve)
         virtual unsigned int hashFunction(Sequence* point);
 
     protected:
 
-        //the method used (LSH - Hypercube)
+        //the method used (LSHvector - Hypercube - LSHdiscrete - LSHcontinuous)
         string method;
 
     public:

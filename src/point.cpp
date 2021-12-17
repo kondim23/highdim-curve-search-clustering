@@ -10,6 +10,7 @@ Sequence* Point::get_copy(){
     return new Point(*this);
 }
 
+//get vector - euclidean distance
 double Point::get_distance(Sequence* point){
 
     return calculate_distance(EUCLIDEAN,this->getvector(),point->getvector());

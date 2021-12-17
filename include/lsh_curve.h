@@ -18,11 +18,13 @@ class LSHcurve : public KNN{
 
     protected:
 
+        //will be overloaded on continuous or discrete lsh
         virtual vector<float> hashFunction(unsigned int hashID, Sequence* curve);
 
         //lsh method hash tables of count L
         vector<LSHvector> myHashes;
 
+        //the delta hyperparameter
         double delta;
 
     public:

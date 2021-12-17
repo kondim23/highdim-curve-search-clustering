@@ -37,7 +37,7 @@ myHashTable::~myHashTable() {}
 
 void myHashTable::storeInHash(unsigned int index, Sequence* sequence, int sequenceID){
 
-    //store a pair <pointPtr,ID(sequence)> in Hash[index]
+    //store a pair <sequencePtr,ID(sequence)> in Hash[index]
     this->myHash[index].insert(make_pair(sequence,sequenceID));
     return;
 }
@@ -76,7 +76,6 @@ void myHashTable::approximateKNN(PQUnique<pair<double, Sequence*> > &pqUnique,
 
         if (itr->second==sequenceID){
 
-            // currentDistance = calculate_distance(EUCLIDEAN,itr->first->getvector(),sequence->getvector());
             currentDistance = sequence->get_distance(itr->first);
 
             //insert in size-limited PQUnique list
@@ -97,8 +96,6 @@ set<Sequence*> myHashTable::rangeSearch(double radius, unsigned int index, Seque
     for(itr = this->myHash[index].begin(); itr != this->myHash[index].end(); itr++) {
 
             //insert in set if sequence in radius
-        // if (itr->second==sequenceID and 
-            // calculate_distance(EUCLIDEAN,itr->first->getvector(),sequence->getvector())<=radius) 
         if (itr->second==sequenceID and sequence->get_distance(itr->first)<=radius) 
             setToReturn.insert(itr->first);
     }
@@ -118,7 +115,6 @@ priority_queue<pair<double, Sequence*> > myHashTable::exactKNN(unsigned int neig
         //for every sequence in bucket myHash[index]
         for (itr = this->myHash[i].begin(); itr != this->myHash[i].end(); itr++){
 
-            // currentDistance = calculate_distance(EUCLIDEAN,itr->first->getvector(),sequence->getvector());
             currentDistance = sequence->get_distance(itr->first);
 
             //queue not full

@@ -46,7 +46,6 @@ pair<unsigned int, int> LSHvector::hashFunction(unsigned int hashID, Sequence* s
         currentVTParameters = this->myHashes.at(hashID).getVTParameters(i);
 
         //calculating sum of r_i*h_i ;  That is  r_i*((v*p)+t)/w 
-        // result+= static_cast<int>(this->rParameters.at(i)) * static_cast<int>((vector_multiply(sequence.getvector(),currentVTParameters.first)+currentVTParameters.second)/WINDOW_SIZE);
         double vm = vector_multiply(sequence->getvector(),currentVTParameters.first);
         vm+=currentVTParameters.second;
         vm/=WINDOW_SIZE;
@@ -106,7 +105,7 @@ set<Sequence*> LSHvector::rangeSearch(double radius, Sequence* sequence){
         //get index(sequence) and ID(sequence)
         hashFunctionResults = this->hashFunction(i,sequence);
 
-        //get set of points in range for hash with hashID==i
+        //get set of sequences in range for hash with hashID==i
         tempSet = this->myHashes.at(i).rangeSearch(radius,hashFunctionResults.first,sequence,hashFunctionResults.second);
 
         //insert elements in result set excluding duplicates

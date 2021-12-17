@@ -9,7 +9,7 @@
 clusterReverse::clusterReverse(Confs& confs, MethodType mType, pair<unsigned int, int> pointStats) 
                 : Cluster(confs){
 
-    //set method to LSH or HCUBE
+    //set method to LSH or HCUBE or DiscreteLSHCurve
     switch (mType)
     {
     case CL_LSH:
@@ -52,11 +52,10 @@ bool clusterReverse::assignCentroids(){
 
     static bool initialization=true;
 
-    //initialize knn system with all Points
+    //initialize knn system with all Sequences
     if (initialization){
 
         for (itrCentroidSet=this->allPoints.begin() ; itrCentroidSet!=this->allPoints.end(); itrCentroidSet++){
-            // Sequence* p(itrCentroidSet->second->first);
             this->method->insert(itrCentroidSet->second->first);
         }
 
@@ -74,19 +73,19 @@ bool clusterReverse::assignCentroids(){
             //perform RS for every centroid as query
             rangeSet = this->method->rangeSearch(radius,this->allCentroids.at(i));
 
-            //for every point returned
+            //for every sequence returned
             for (itrRangeSet=rangeSet.begin() ; itrRangeSet!=rangeSet.end() ; itrRangeSet++){
 
                 pointFromRS = allPoints.at((*itrRangeSet)->getID());
 
-                //if point in set of already clustered points continue
+                //if sequence in set of already clustered sequences continue
                 if (clusteredPoints.find(pointFromRS)!=clusteredPoints.end()) continue;
                 clusteredPoints.insert(pointFromRS);
 
                 //if cluster_to_move_ == previous_cluster continue
                 if (i==pointFromRS->second) continue;
 
-                //if point is clustered in the past remove from previous_cluster
+                //if sequence is clustered in the past remove from previous_cluster
                 else if (pointFromRS->second!=-1) 
                     this->allClusters.at(pointFromRS->second).erase(pointFromRS);
 
@@ -102,7 +101,7 @@ bool clusterReverse::assignCentroids(){
         radius*=2.0;
     }
 
-    //perform brute force for the rest of the points
+    //perform brute force for the rest of the sequences
     for (itrCentroidSet=this->allPoints.begin() ; itrCentroidSet!=this->allPoints.end(); itrCentroidSet++){
 
         if (clusteredPoints.find(itrCentroidSet->second)!=clusteredPoints.end()) 
@@ -114,7 +113,7 @@ bool clusterReverse::assignCentroids(){
         //if cluster_to_move_ == previous_cluster continue
         if (index==itrCentroidSet->second->second) continue;
 
-        //if point is clustered in the past remove from previous_cluster
+        //if sequence is clustered in the past remove from previous_cluster
         else if (itrCentroidSet->second->second!=-1) 
             this->allClusters.at(itrCentroidSet->second->second).erase(itrCentroidSet->second);
 

@@ -41,7 +41,7 @@ Cluster::~Cluster() {this->FreePoints();}
 
 Sequence* Cluster::insertPoint(Sequence *sequence){
 
-    //insert a pair(Point,clusterID) to system -- initial clusterID==-1
+    //insert a pair(Sequence*,clusterID) to system -- initial clusterID==-1
     this->allPoints.insert(make_pair(sequence->getID(),new pair<Sequence*,int>(sequence,-1)));
     return sequence;
 }
@@ -52,7 +52,7 @@ void Cluster::startClustering(){
     //initialize centroids with k-means++
     this->initializeCentroids();
 
-    //execute centroids-points assignment while clusters change states
+    //execute centroids-sequence assignment while clusters change states
     while(this->assignCentroids())
 
         //and update centroids
@@ -74,11 +74,11 @@ void Cluster::initializeCentroids(){
 
     srand(time(NULL));
 
-    //initialize a map of pair(distance,Point*) -- all Points mapped by sequence i=(i-1)+1, i in [0,N]
+    //initialize a map of pair(distance,Sequence*) -- all Points mapped by sequence i=(i-1)+1, i in [0,N]
     for (itr=this->allPoints.begin() ; itr!=this->allPoints.end(); itr++)
         nonCentroids.insert(make_pair(static_cast<double>(nonCentroids.size()),itr->second->first));
 
-    //choose a random initial point, erase it from nonCentroids n and insert it in allCentroids t
+    //choose a random initial Sequence, erase it from nonCentroids n and insert it in allCentroids t
     itemToRemove = static_cast<double>(abs(rand())%nonCentroids.size());
     this->allCentroids.push_back(nonCentroids.find(itemToRemove)->second->get_copy());
     nonCentroids.erase(itemToRemove);
@@ -96,14 +96,14 @@ void Cluster::initializeCentroids(){
             distance = calculateMinCentroidDistance(itrMap->second).first;
             distanceSum += pow(distance,2);
 
-            //insert pair(sum of D(i)^2,Point*) to nonCentroid
+            //insert pair(sum of D(i)^2,Sequence*) to nonCentroid
             nonCentroids.insert(make_pair(distanceSum,itrMap->second));
         }
 
         prevNonCentroids.clear();
 
         //pairs.first in nonCentroid  are increasing in [0,distanceSum]
-        //indicate a new Point for centroid, based on the closest upper_bound in probabilities of a random float
+        //indicate a new Sequence for centroid, based on the closest upper_bound in probabilities of a random float
         pairItrMap = nonCentroids.equal_range(static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/distanceSum)));
 
         //remove from nonCentroids - add to allCentroids
@@ -126,8 +126,7 @@ pair<double,unsigned int> Cluster::calculateMinCentroidDistance(Sequence *sequen
     //for every centroid
     for(int i=0 ; i<this->allCentroids.size() ; i++){
 
-        //get the minimum distance to Point 
-        // distance = calculate_distance(EUCLIDEAN,sequence->getvector(),this->allCentroids.at(i)->getvector());
+        //get the minimum distance to Sequence 
         distance = sequence->get_distance(this->allCentroids.at(i));
         if (distance<minDistance){
             minDistance=distance;
@@ -139,7 +138,7 @@ pair<double,unsigned int> Cluster::calculateMinCentroidDistance(Sequence *sequen
     return make_pair(minDistance,index);
 }
 
-
+//update centroids for vectors
 void Cluster::updateCentroidsPoint(){
 
     set<pair<Sequence*,int>*>::iterator itr;
@@ -169,6 +168,7 @@ void Cluster::updateCentroidsPoint(){
 }
 
 
+//update centroids for curves
 void Cluster::updateCentroidsCurve(){
 
     double b_tree_height;
@@ -180,12 +180,17 @@ void Cluster::updateCentroidsCurve(){
     for (int i=0 ; i<this->allClusters.size() ; i++){
         
         delete (this->allCentroids.at(i));
-        b_tree_height = ceil(log2(this->allClusters.at(i).size()));
-        // this->allCentroids.at(i) = mean_recursive(this->allClusters.at(i),b_tree_height);
 
+        //maximum height of binary tree
+        b_tree_height = ceil(log2(this->allClusters.at(i).size()));
+
+        //temp copy of cluster for use in mean_recursive
         set<pair<Sequence*,int>*> cluster(this->allClusters.at(i));
 
+        //get mean curve
         mean_returned = mean_recursive(cluster,b_tree_height);
+
+        //filter the mean curve until desired complexity
         mean_returned->filter_until_max_size(proper_curve_size);
 
         this->allCentroids.at(i) = mean_returned;
@@ -194,14 +199,20 @@ void Cluster::updateCentroidsCurve(){
     return;
 }
 
+
+//recursively iterate over the 'binary tree' and compute mean curve
 Curve* mean_recursive(set<pair<Sequence*,int>*>& cluster, double height){
 
     Curve *left, *right;
     set<pair<Sequence*,int>*>::iterator itr;
 
+    // height==0 -> bottom of tree
     if (!height){
 
+        //no more curves in cluster
         if (cluster.empty()) return NULL;
+
+        //remove one
         else {
 
             itr = cluster.begin();
@@ -210,7 +221,10 @@ Curve* mean_recursive(set<pair<Sequence*,int>*>& cluster, double height){
             cluster.erase(itr);
         }
 
+        //no more curves in cluster
         if (cluster.empty()) return new Curve(*(Curve*)left);
+
+        //remove one
         else {
 
             itr = cluster.begin();
@@ -219,15 +233,19 @@ Curve* mean_recursive(set<pair<Sequence*,int>*>& cluster, double height){
             cluster.erase(itr);
         }
 
+        //compute the mean
         return new Curve(left->mean_curve(right));
     }
 
+    //get left from lower level
     left = mean_recursive(cluster,height-1);
     if (left==NULL) return NULL;
 
+    //get right from lower level
     right = mean_recursive(cluster,height-1);
     if (right==NULL) return left;
 
+    //return mean
     Curve* mean_c = new Curve(left->mean_curve(right));
 
     delete (left);
@@ -263,7 +281,7 @@ void Cluster::printCentroids(ofstream& out){
 }
 
 
-//print centroid and pointIDs of every cluster
+//print centroid and sequenceIDs of every cluster
 void Cluster::printClusters(ofstream& out){
 
     set<pair<Sequence*,int>*>::iterator itr;
@@ -294,7 +312,7 @@ void Cluster::silhouette(ofstream& out){
 
         clusterD=0;
 
-        //for every point in cluster compute S(i)  
+        //for every sequence in cluster compute S(i)  
         for (itr=this->allClusters.at(i).begin() ; itr!=this->allClusters.at(i).end() ; itr++){
 
             A = this->mean_cluster_distance((*itr)->first,i);
@@ -313,18 +331,17 @@ void Cluster::silhouette(ofstream& out){
 }
 
 
-//compute mean distance of point point from points in cluster[index]
+//compute mean distance of sequence point from sequences in cluster[index]
 double Cluster::mean_cluster_distance(Sequence *sequence, unsigned int index){
 
     set<pair<Sequence*,int>*>::iterator itr;
     double mean_distance=0;
 
-    //iterate between all points in cluster[index]
+    //iterate between all sequences in cluster[index]
     for (itr=this->allClusters.at(index).begin() ; itr!=this->allClusters.at(index).end() ; itr++){
 
         if ((*itr)->first->getID()==sequence->getID()) continue;
 
-        // mean_distance += calculate_distance(EUCLIDEAN,(*itr)->first->getvector(),sequence->getvector());
         mean_distance += sequence->get_distance((*itr)->first);
     }
 
@@ -346,7 +363,6 @@ pair<double,unsigned int> Cluster::find_closest_centroid(unsigned int centroid){
         if (i==centroid) continue;
 
         //get the minimum distance to given centroid 
-        // distance = calculate_distance(EUCLIDEAN,sequence->getvector(),this->allCentroids.at(i)->getvector());
         distance = sequence->get_distance(this->allCentroids.at(i));
         if (distance<minDistance) {
             minDistance = distance;
@@ -359,7 +375,7 @@ pair<double,unsigned int> Cluster::find_closest_centroid(unsigned int centroid){
 }
 
 
-//free all allocated points
+//free all allocated sequences
 void Cluster::FreePoints(){
 
     map<string,pair<Sequence*,int>*>::iterator itrAll;

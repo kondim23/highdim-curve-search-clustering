@@ -21,7 +21,7 @@ bool clusterLloyd::assignCentroids(){
     map<string,pair<Sequence*,int>*>::iterator itr;
     unsigned int index;
 
-    //for every point
+    //for every sequence
     for (itr=this->allPoints.begin() ; itr!=this->allPoints.end(); itr++){
 
         //get index of centroid with minimum distance
@@ -30,7 +30,7 @@ bool clusterLloyd::assignCentroids(){
         //if cluster_to_move_ == previous_cluster continue
         if (index==itr->second->second) continue;
 
-        //if point is clustered in the past remove from previous_cluster
+        //if sequence is clustered in the past remove from previous_cluster
         else if (itr->second->second!=-1) this->allClusters.at(itr->second->second).erase(itr->second);
 
         //add in propriate cluster

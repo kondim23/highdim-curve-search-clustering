@@ -7,40 +7,48 @@
 
 #define ERROR_TOLERANCE 0.5
 
+//continuous or discrete
 extern frechet_type frechet_distance_type;
 
 double discrete_frechet(Curve*,Curve*);
 double continuous_frechet(Curve*,Curve*);
 void fill_dynamic_array(vector<vector<double> >& dynamic,unsigned int,unsigned int,vector<vector<float> >&,vector<vector<float> >&);
 
+
 Curve::Curve(string id, vector<vector<float> > pointVector) : Sequence(id,vector<float>()){
 
     this->curveVector = pointVector;
 }
 
+
 Curve::~Curve(){}
+
 
 vector<vector<float> > Curve::getCurve(){
 
     return this->curveVector;
 }
 
+
 Sequence* Curve::get_copy(){
 
     return new Curve(*this);
 }
 
+//return continuous or discrete distance
 double Curve::get_distance(Sequence* point){
 
     return  frechet_distance_type==M_CONTINUOUS ? continuous_frechet(this,(Curve*)point) 
                                                 : discrete_frechet(this,(Curve*)point);
 }
 
+//return curve complexity
 unsigned int Curve::get_curve_size(){
 
     return this->curveVector.size();
 }
 
+//print curve
 void Curve::printSequence(ofstream& out){
 
     for (vector<float> point : this->getCurve()){
@@ -52,6 +60,7 @@ void Curve::printSequence(ofstream& out){
     }
 }
 
+//filter the curve until desired complexity
 void Curve::filter_until_max_size(unsigned int max_size){
 
     unsigned int rate=1;
@@ -62,6 +71,7 @@ void Curve::filter_until_max_size(unsigned int max_size){
     return;
 }
 
+//curve filtering
 vector<vector<float> > filter(vector<vector<float> > curve, float rate){
 
     vector<float> pointA ,pointB ,pointC;
@@ -83,6 +93,7 @@ vector<vector<float> > filter(vector<vector<float> > curve, float rate){
     return curve;
 }
 
+//get mean curve(this,c2)
 Curve Curve::mean_curve(Curve* c2){
 
     vector<vector<float> > curve1 = this->getCurve();
@@ -95,11 +106,10 @@ Curve Curve::mean_curve(Curve* c2){
     double minPrev;
     int i,j,min_i,min_j;
 
+    //initialize dynamic programming array
     vector<vector<double> > dynamic(m1,vector<double>(m2,0));
 
-
     //fill dynamic programming array
-
     fill_dynamic_array(dynamic,m1,m2,curve1,curve2);
 
 
@@ -109,7 +119,10 @@ Curve Curve::mean_curve(Curve* c2){
     j = m2-1;
     while(i!=0 and j!=0){
 
+        //push current element to optimal traversal
         optimal_traversal.push_back(make_pair(curve1.at(i),curve2.at(j)));
+        
+        //find next min
         minPrev = min(dynamic[i-1][j],min(dynamic[i-1][j-1],dynamic[i][j-1]));
 
         if (dynamic[i-1][j-1] == minPrev){
@@ -123,23 +136,30 @@ Curve Curve::mean_curve(Curve* c2){
 
     while(i!=0) optimal_traversal.push_back(make_pair(curve1.at(i--),curve2.at(j)));
     while(j!=0) optimal_traversal.push_back(make_pair(curve1.at(i),curve2.at(j--)));
+
+    //push dynamic[0][0]
     optimal_traversal.push_back(make_pair(curve1.at(0),curve2.at(0)));
 
 
-    //mean curve
+    //finally get mean curve
 
     while (!optimal_traversal.empty()) {
 
+        //pop element of optimal traversal
         traversal_element = optimal_traversal.at(optimal_traversal.size()-1);
         optimal_traversal.pop_back();
 
+        //compute mean of vectors
         tempVec = add_vectors(traversal_element.first,traversal_element.second);
         tempVec = divide_vector(tempVec,2);
+
+        //push to mean vector
         mean_c.push_back(tempVec);
     }
 
     return Curve("mean",mean_c);
 }
+
 
 double continuous_frechet(Curve* c1,Curve* c2){
 
@@ -171,6 +191,7 @@ double continuous_frechet(Curve* c1,Curve* c2){
     return Frechet::Continuous::distance(fc1,fc2).value;
 }
 
+
 double discrete_frechet(Curve* c1,Curve* c2){
 
 
@@ -178,10 +199,8 @@ double discrete_frechet(Curve* c1,Curve* c2){
     vector<vector<float> > curve2 = c2->getCurve();
     unsigned int m1 = curve1.size(), m2 = curve2.size();
 
+    //initialize dynamic programming array
     vector<vector<double> > dynamic(m1,vector<double>(m2,0));
-
-    // for (int i=0 ; i<m1 ; i++)
-    //     dynamic[i]=(vector<double>(m2,0));
 
     //fill dynamic programming array
     fill_dynamic_array(dynamic,m1,m2,curve1,curve2);
@@ -190,16 +209,20 @@ double discrete_frechet(Curve* c1,Curve* c2){
     return dynamic[m1-1][m2-1];
 }
 
+
 void fill_dynamic_array(vector<vector<double> >& dynamic, unsigned int m1, unsigned int m2, vector<vector<float> >& c1, vector<vector<float> >& c2){
 
     double minPrev;
 
+    //fill the first line
     for (int i=0 ; i<m1 ; i++)
         dynamic[i][0] = calculate_distance(EUCLIDEAN,c1.at(i),c2.at(0));
 
+    //fill the first column
     for (int i=1 ; i<m2 ; i++)
         dynamic[0][i] = calculate_distance(EUCLIDEAN,c1.at(0),c2.at(i));
 
+    //fill the rest of the elements
     for (int i=1 ; i<m1 ; i++)
         for (int j=1 ; j<m2 ; j++){
 
