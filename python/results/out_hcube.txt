@@ -1,0 +1,33 @@
+Query: xel
+Algorithm: Hypercube
+Approximate Nearest neighbor: jbl
+True Nearest neighbor: t
+distanceApproximate: 628.484
+distanceTrue: 211.418
+Query: xl
+Algorithm: Hypercube
+Query: xlnx
+Algorithm: Hypercube
+Query: xom
+Algorithm: Hypercube
+Approximate Nearest neighbor: mdp
+True Nearest neighbor: slb
+distanceApproximate: 1943.74
+distanceTrue: 586.457
+Query: xray
+Algorithm: Hypercube
+Query: xrx
+Algorithm: Hypercube
+Query: yum
+Algorithm: Hypercube
+Approximate Nearest neighbor: thc
+True Nearest neighbor: gis
+distanceApproximate: 1458.19
+distanceTrue: 403.546
+Query: zbh
+Algorithm: Hypercube
+Query: zion
+Algorithm: Hypercube
+tApproximateAverage: 181 microseconds
+tTrueAverage: 39598 microseconds
+MAF: 3.61343

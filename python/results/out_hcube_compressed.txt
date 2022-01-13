@@ -1,0 +1,49 @@
+Query: xel
+Algorithm: Hypercube
+Approximate Nearest neighbor: adp
+True Nearest neighbor: ed
+distanceApproximate: 1.9617
+distanceTrue: 1.62213
+Query: xl
+Algorithm: Hypercube
+Approximate Nearest neighbor: lpx
+True Nearest neighbor: fitb
+distanceApproximate: 7.08272
+distanceTrue: 3.9533
+Query: xlnx
+Algorithm: Hypercube
+Approximate Nearest neighbor: sanm
+True Nearest neighbor: adi
+distanceApproximate: 3.36498
+distanceTrue: 1.84224
+Query: xom
+Algorithm: Hypercube
+Query: xray
+Algorithm: Hypercube
+Approximate Nearest neighbor: t
+True Nearest neighbor: t
+distanceApproximate: 3.38407
+distanceTrue: 3.38407
+Query: xrx
+Algorithm: Hypercube
+Query: yum
+Algorithm: Hypercube
+Approximate Nearest neighbor: de
+True Nearest neighbor: orcl
+distanceApproximate: 3.41807
+distanceTrue: 2.48487
+Query: zbh
+Algorithm: Hypercube
+Approximate Nearest neighbor: all
+True Nearest neighbor: mdt
+distanceApproximate: 4.4224
+distanceTrue: 3.0961
+Query: zion
+Algorithm: Hypercube
+Approximate Nearest neighbor: flex
+True Nearest neighbor: key
+distanceApproximate: 8.92702
+distanceTrue: 2.30908
+tApproximateAverage: 106 microseconds
+tTrueAverage: 5376 microseconds
+MAF: 3.86606

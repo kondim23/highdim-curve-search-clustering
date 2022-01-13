@@ -8,7 +8,7 @@ from sklearn.preprocessing import MinMaxScaler
 import sys
 from common_utils import *
 
-models_path = "models/"
+models_path = "./python/models/"
 
 def windowing(serie, window_size):
     X=[]

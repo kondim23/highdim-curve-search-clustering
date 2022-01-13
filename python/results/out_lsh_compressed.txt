@@ -1,0 +1,57 @@
+Query: xel
+Algorithm: LSH_Vector
+Approximate Nearest neighbor: ed
+True Nearest neighbor: ed
+distanceApproximate: 1.62213
+distanceTrue: 1.62213
+Query: xl
+Algorithm: LSH_Vector
+Approximate Nearest neighbor: fitb
+True Nearest neighbor: fitb
+distanceApproximate: 3.9533
+distanceTrue: 3.9533
+Query: xlnx
+Algorithm: LSH_Vector
+Approximate Nearest neighbor: adi
+True Nearest neighbor: adi
+distanceApproximate: 1.84224
+distanceTrue: 1.84224
+Query: xom
+Algorithm: LSH_Vector
+Approximate Nearest neighbor: cvx
+True Nearest neighbor: cvx
+distanceApproximate: 4.04647
+distanceTrue: 4.04647
+Query: xray
+Algorithm: LSH_Vector
+Approximate Nearest neighbor: t
+True Nearest neighbor: t
+distanceApproximate: 3.38407
+distanceTrue: 3.38407
+Query: xrx
+Algorithm: LSH_Vector
+Approximate Nearest neighbor: rrd
+True Nearest neighbor: rrd
+distanceApproximate: 3.44404
+distanceTrue: 3.44404
+Query: yum
+Algorithm: LSH_Vector
+Approximate Nearest neighbor: orcl
+True Nearest neighbor: orcl
+distanceApproximate: 2.48487
+distanceTrue: 2.48487
+Query: zbh
+Algorithm: LSH_Vector
+Approximate Nearest neighbor: mdt
+True Nearest neighbor: mdt
+distanceApproximate: 3.0961
+distanceTrue: 3.0961
+Query: zion
+Algorithm: LSH_Vector
+Approximate Nearest neighbor: key
+True Nearest neighbor: key
+distanceApproximate: 2.30908
+distanceTrue: 2.30908
+tApproximateAverage: 23338 microseconds
+tTrueAverage: 5313 microseconds
+MAF: 1
