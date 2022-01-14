@@ -27,13 +27,13 @@ def split_serie(time_serie, scaler, train_serie_len, time_steps):
 
     return (X_train, Y_train, X_test, Y_test)
 
-def plot_training_loss(history):
-    plt.plot(history.history['loss'])
-    plt.plot(history.history['val_loss'])
-    plt.title('model loss')
-    plt.ylabel('loss')
-    plt.xlabel('epoch')
-    plt.legend(['train', 'test'], loc='upper left')
+def plot_training_loss(stats):
+    plt.plot(stats.stats['loss'])
+    plt.plot(stats.stats['val_loss'])
+    plt.title('Model Total Loss')
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.legend(['Train', 'Test'], loc='upper left')
     plt.show()
 
 def group_sets(all_sets):

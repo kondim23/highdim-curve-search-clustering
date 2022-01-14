@@ -17,7 +17,7 @@ from sklearn.metrics import mean_squared_error
 import sys
 import os
 
-model_path="./python/models/"
+model_path=os.getcwd()+"/"+os.path.dirname(__file__)+"/models/"
 
 
 def detect_anomalies(model, X_test, Y_test, train_serie_len, time_serie_len, mae):

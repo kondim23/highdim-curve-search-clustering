@@ -1,8 +1,8 @@
 Query: xel
 Algorithm: LSH_Vector
-Approximate Nearest neighbor: ed
+Approximate Nearest neighbor: mo
 True Nearest neighbor: ed
-distanceApproximate: 1.62213
+distanceApproximate: 1.82525
 distanceTrue: 1.62213
 Query: xl
 Algorithm: LSH_Vector
@@ -12,15 +12,15 @@ distanceApproximate: 3.9533
 distanceTrue: 3.9533
 Query: xlnx
 Algorithm: LSH_Vector
-Approximate Nearest neighbor: adi
+Approximate Nearest neighbor: mmm
 True Nearest neighbor: adi
-distanceApproximate: 1.84224
+distanceApproximate: 2.40091
 distanceTrue: 1.84224
 Query: xom
 Algorithm: LSH_Vector
-Approximate Nearest neighbor: cvx
+Approximate Nearest neighbor: mon
 True Nearest neighbor: cvx
-distanceApproximate: 4.04647
+distanceApproximate: 4.3812
 distanceTrue: 4.04647
 Query: xray
 Algorithm: LSH_Vector
@@ -30,9 +30,9 @@ distanceApproximate: 3.38407
 distanceTrue: 3.38407
 Query: xrx
 Algorithm: LSH_Vector
-Approximate Nearest neighbor: rrd
+Approximate Nearest neighbor: hig
 True Nearest neighbor: rrd
-distanceApproximate: 3.44404
+distanceApproximate: 4.86928
 distanceTrue: 3.44404
 Query: yum
 Algorithm: LSH_Vector
@@ -48,10 +48,10 @@ distanceApproximate: 3.0961
 distanceTrue: 3.0961
 Query: zion
 Algorithm: LSH_Vector
-Approximate Nearest neighbor: key
+Approximate Nearest neighbor: rf
 True Nearest neighbor: key
-distanceApproximate: 2.30908
+distanceApproximate: 2.96483
 distanceTrue: 2.30908
-tApproximateAverage: 23338 microseconds
-tTrueAverage: 5313 microseconds
-MAF: 1
+tApproximateAverage: 13272 microseconds
+tTrueAverage: 4715 microseconds
+MAF: 1.41383

@@ -14,7 +14,7 @@ from sklearn.preprocessing import MinMaxScaler
 import sys
 import os
 
-model_path="./python/models/"
+model_path=os.getcwd()+"/"+os.path.dirname(__file__)+"/models/"
 
 
 def forecast(model, scaler, X_test, Y_test, train_serie_len, time_serie_len):

@@ -6,9 +6,11 @@ import numpy as np
 from keras.layers import *
 from sklearn.preprocessing import MinMaxScaler
 import sys
+import os
 from common_utils import *
 
-models_path = "./python/models/"
+
+model_path=os.getcwd()+"/"+os.path.dirname(__file__)+"/models/"
 
 def windowing(serie, window_size):
     X=[]
@@ -65,7 +67,7 @@ for i in range(1,len(sys.argv),2):
     elif sys.argv[i]=="-oq":
         output_queryset_filename = str(sys.argv[i+1])
     elif sys.argv[i]=="-t":
-        online_training = True if str(sys.argv[i+1])=="True" else False
+        online_training = True if str(sys.argv[i+1])=="online_all" else False
 
 
 
@@ -122,11 +124,11 @@ if online_training:
     for (_, X_test) in all_sets[:10]:
         compare_training_results(encoder, autoencoder, X_test)
 
-    encoder.save(models_path+"encoder")
-    autoencoder.save(models_path+"autoencoder")
+    encoder.save(model_path+"encoder")
+    autoencoder.save(model_path+"autoencoder")
 else:
-    encoder = keras.models.load_model(models_path+"encoder")
-    autoencoder = keras.models.load_model(models_path+"autoencoder")
+    encoder = keras.models.load_model(model_path+"encoder")
+    autoencoder = keras.models.load_model(model_path+"autoencoder")
 
 
 for cur_df in [(dataset, output_dataset_filename), (queryset, output_queryset_filename)]:
