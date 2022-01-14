@@ -17,9 +17,12 @@ from sklearn.metrics import mean_squared_error
 import sys
 import os
 
+
+#current file path + /models/
 model_path=os.getcwd()+"/"+os.path.dirname(__file__)+"/models/"
 
 
+#predict and plot anomalies
 def detect_anomalies(model, X_test, Y_test, train_serie_len, time_serie_len, mae):
     Pred_test = model.predict(X_test)
     Loss_test = np.mean(np.abs(Pred_test - X_test), axis=1)
@@ -37,6 +40,8 @@ def detect_anomalies(model, X_test, Y_test, train_serie_len, time_serie_len, mae
     plt.legend()
     plt.show()
 
+
+#chech arguments
 
 if len(sys.argv)!=9:
     print("Error: Wrong arguments")
@@ -58,13 +63,18 @@ if not os.path.isfile(dataset_filename):
     print("Error: File "+dataset_filename+" does not exist")
     exit()
 
+
+#load input dataframe
 df = pd.read_csv(dataset_filename, '\t', header=None, index_col=0)
 
+
+#model hyperparameters
 time_steps = 60
 epochs = 20
 batch_size = 128
 split_percentage = 0.8
 
+#model layers
 model = keras.Sequential()
 model.add(keras.layers.LSTM(
     units=32,
@@ -90,31 +100,44 @@ model.add(
 )
 model.compile(loss='mae', optimizer='adam')
 
+
 time_serie_len  = df.shape[1]
 train_serie_len = int(time_serie_len * split_percentage)
 scaler          = MinMaxScaler(feature_range=(0,1))
 
 
+#all_sets contains objs of type (X_train, Y_train, X_test, Y_test) of time series
 all_sets = []
+
+#fill all_sets
 for serie_index in range(df.shape[0]):
     time_serie = pd.DataFrame(np.array(df.iloc[serie_index]),columns=[df.index[serie_index]])
     all_sets.append(split_serie(time_serie, scaler, train_serie_len, time_steps))
 
 
+#train the model on current execution
 if online_training:
+
+    #concatenate all sets
     (X_train, Y_train, X_test, Y_test) = group_sets(all_sets)
+
     history = model.fit(
         X_train, Y_train, 
         epochs = epochs, 
         batch_size = batch_size, 
         validation_data=(X_test,Y_test)
         )
+
+    #plot train and validation losses from previous fit
     plot_training_loss(history)
     model.save(model_path+"anomaly_detection")
+
+#load an offline model
 else:
     model = keras.models.load_model(model_path+"anomaly_detection")
 
 
+#predict and plot anomaly detection results for test sets
 for (_, _, X_test, Y_test) in all_sets[:n]:
     detect_anomalies(model, X_test, Y_test, train_serie_len, time_serie_len, mae)
 

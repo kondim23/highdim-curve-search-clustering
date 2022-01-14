@@ -14,9 +14,11 @@ from sklearn.preprocessing import MinMaxScaler
 import sys
 import os
 
+#current file path + /models/
 model_path=os.getcwd()+"/"+os.path.dirname(__file__)+"/models/"
 
 
+#predict and plot forecast results
 def forecast(model, scaler, X_test, Y_test, train_serie_len, time_serie_len):
     Pred_test = model.predict(X_test)
     Pred_test = scaler.inverse_transform(Pred_test)
@@ -31,6 +33,8 @@ def forecast(model, scaler, X_test, Y_test, train_serie_len, time_serie_len):
     plt.legend()
     plt.show()
 
+
+#chech arguments
 
 if len(sys.argv)!=7:
     print("Error: Wrong arguments")
@@ -55,13 +59,18 @@ if not os.path.isfile(dataset_filename):
     exit()
 
 
+#get input data
 df = pd.read_csv(dataset_filename, '\t', header=None, index_col=0)
 
+
+#model hyperparameters
 time_steps = 60
 epochs = 20
 batch_size = 128
 split_percentage = 0.8
 
+
+#model layers
 model = Sequential()
 model.add(LSTM(units = 128, return_sequences = True, input_shape = (time_steps, 1)))
 model.add(Dropout(0.2))
@@ -84,42 +93,70 @@ model.add(Dropout(0.2))
 model.add(Dense(units = 1))
 model.compile(optimizer = 'adam', loss = 'mean_squared_error')
 
+
 time_serie_len  = df.shape[1]
 train_serie_len = int(time_serie_len * split_percentage)
 scaler          = MinMaxScaler(feature_range=(0,1))
 
 
+#train model based on self time serie
 if self_time_serie_training:
+
+    #can only be online
     for serie_index in range(n):
+        
+        #get time serie
         time_serie = pd.DataFrame(np.array(df.iloc[serie_index]),columns=[df.index[serie_index]])
+        
+        #split time serie to sets
         X_train, Y_train, X_test, Y_test = split_serie(time_serie, scaler, train_serie_len, time_steps)
+        
+        #train the model
         history = model.fit(X_train, Y_train, epochs = epochs, batch_size = batch_size, validation_data=(X_test,Y_test))
+        
+        #plot train and validation losses from previous fit
         plot_training_loss(history)
+
+        #predict and plot forecast results
         forecast(model, scaler, X_test, Y_test, train_serie_len, time_serie_len)
+
         keras.backend.clear_session()
+
     exit()
 
 
+#all_sets contains objs of type (X_train, Y_train, X_test, Y_test) of time series
 all_sets = []
+
+#fill all_sets
 for serie_index in range(df.shape[0]):
     time_serie = pd.DataFrame(np.array(df.iloc[serie_index]),columns=[df.index[serie_index]])
     all_sets.append(split_serie(time_serie, scaler, train_serie_len, time_steps))
 
 
+#train the model on current execution
 if online_training:
+
+    #concatenate all sets
     (X_train,Y_train,X_test,Y_test) = group_sets(all_sets)
+    
     history = model.fit(
         X_train, Y_train,
         epochs = epochs, 
         batch_size = batch_size, 
         validation_data=(X_test,Y_test)
         )
+    
+    #plot train and validation losses from previous fit
     plot_training_loss(history)
     model.save(model_path+"forecasting")
+
+#load an offline model
 else:
     model = keras.models.load_model(model_path+"forecasting")
 
 
+#predict and plot forecast results for test sets
 for (_, _, X_test, Y_test) in all_sets[:n]:
     forecast(model, scaler, X_test, Y_test, train_serie_len, time_serie_len)
 
