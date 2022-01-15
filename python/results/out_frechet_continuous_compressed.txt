@@ -1,0 +1,41 @@
+Query: xel
+Algorithm: LSH_Frechet_Continuous
+Query: xl
+Algorithm: LSH_Frechet_Continuous
+Approximate Nearest neighbor: afl
+True Nearest neighbor: aee
+distanceApproximate: 1.00081
+distanceTrue: 0.765189
+Query: xlnx
+Algorithm: LSH_Frechet_Continuous
+Query: xom
+Algorithm: LSH_Frechet_Continuous
+Approximate Nearest neighbor: aes
+True Nearest neighbor: adm
+distanceApproximate: 0.915197
+distanceTrue: 0.675205
+Query: xray
+Algorithm: LSH_Frechet_Continuous
+Approximate Nearest neighbor: aes
+True Nearest neighbor: a
+distanceApproximate: 0.913134
+distanceTrue: 0.593819
+Query: xrx
+Algorithm: LSH_Frechet_Continuous
+Query: yum
+Algorithm: LSH_Frechet_Continuous
+Approximate Nearest neighbor: adsk
+True Nearest neighbor: aapl
+distanceApproximate: 0.498318
+distanceTrue: 0.426215
+Query: zbh
+Algorithm: LSH_Frechet_Continuous
+Query: zion
+Algorithm: LSH_Frechet_Continuous
+Approximate Nearest neighbor: abc
+True Nearest neighbor: aa
+distanceApproximate: 1.40266
+distanceTrue: 0.651523
+tApproximateAverage: 7989246 microseconds
+tTrueAverage: 204221841 microseconds
+MAF: 2.1529

@@ -16,5 +16,5 @@ if not os.path.isfile(sys.argv[1]):
 df = pd.read_csv(sys.argv[1], '\t', header=None, index_col=0)
 
 #export csv dataset and queryset
-df[:350].to_csv("./data/time-series/dataset.csv", sep='\t', header=False)
-df[350:].to_csv("./data/time-series/queryset.csv", sep='\t', header=False)
+df[:350].to_csv(os.path.dirname(sys.argv[1])+"/dataset.csv", sep='\t', header=False)
+df[350:].to_csv(os.path.dirname(sys.argv[1])+"/queryset.csv", sep='\t', header=False)
