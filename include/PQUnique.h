@@ -3,6 +3,7 @@
 
 #include <queue>
 #include <set>
+#include <cstdint>
 
 using namespace std;
 
