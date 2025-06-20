@@ -41,6 +41,12 @@ By enabling efficient and accurate analysis of vectors and curves, this suite em
 
 ---
 
+## Applications & Validation
+
+The algorithms and tools implemented here were used in conjunction with the project [kondim23/time-series-dl-analysis](https://github.com/kondim23/time-series-deep-learning-analysis) to validate the effectiveness of time series compression techniques. By applying nearest neighbor search and clustering to both original and compressed representations, experiments demonstrated that the compressed time series preserved the essential structure of the data, yielding matching results in search and clustering tasks. This confirms the practical utility of these algorithms for evaluating and benchmarking time series compression methods.
+
+---
+
 ## Theoretical Background
 ### Locality Sensitive Hashing (LSH)
 Locality Sensitive Hashing is a technique for efficient approximate nearest neighbor search in high-dimensional spaces. It uses hash functions designed so that similar items are more likely to be mapped to the same hash bucket. This enables sublinear query times for similarity search, especially with metrics like L2 (Euclidean) and Fréchet distance for curves.
@@ -161,9 +167,7 @@ project_1_NN_Clustering/
 ├── include/    # Header files
 ├── src/        # Source code
 ├── test/       # Unit test source and headers
-├── data/       # Example datasets
-├── configs/    # Configuration files
-├── results/    # Output/result files
+├── data/       # Datasets
 ├── README.md   # Project documentation
 └── ...
 ```

@@ -9,7 +9,7 @@ OBJS_SEARCH	= point.o hcube.o search.o myHashTable.o sequence.o utils.o knn.o ls
 OBJS_TEST	= curve_test.o main_test.o curve.o sequence.o fred.o utils.o lsh_discrete_test.o lsh_discrete.o knn.o lsh_vector.o lsh_curve.o myHashTable.o cluster_test.o confs.o cluster.o clusterLloyd.o point.o
 SOURCE		= lsh_main.cpp lsh_vector.cpp myHashTable.cpp sequence.cpp utils.cpp
 HEADER		= lsh_vector.h myHashTable.h sequence.h utils.h
-OUT			= cluster search test
+OUT			= cluster search
 CC			= g++
 FLAGS		= -g -c -O2
 
